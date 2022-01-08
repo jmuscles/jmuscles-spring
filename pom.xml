@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.jmuscles</groupId>
+	<artifactId>jmuscles-spring</artifactId>
+	<version>1.0</version>
+
+	<packaging>pom</packaging>
+
+	<name>jmuscles-spring</name>
+	<url>http://maven.apache.org</url>
+
+	<description>Jmuscle spring libraries</description>
+
+
+	<properties>
+		<java.version>1.8</java.version>
+		<jasypt.version>1.9.3</jasypt.version>
+		<spring-cloud.version>Hoxton.SR4</spring-cloud.version>
+		<spring-boot.version>2.2.5.RELEASE</spring-boot.version>
+		<jackson.version>2.10.2</jackson.version>
+
+		<jmuscles-datasource.version>1.1</jmuscles-datasource.version>
+		<jmuscles-processing.version>1.0</jmuscles-processing.version>
+		<jmuscles-processing-schema.version>1.0</jmuscles-processing-schema.version>
+
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<nexus.url>https://s01.oss.sonatype.org</nexus.url>
+		<project.repository>jmuscles/jmuscles-spring</project.repository>
+		<repository.url>git@github.com:${project.repository}.git</repository.url>
+
+	</properties>
+
+	<modules>
+		<module>jmuscles-datasource</module>
+		<module>jmuscles-processing</module>
+		<module>jmuscles-rabbitmq</module>
+	</modules>
+
+	<licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>scm:git:${repository.url}</connection>
+		<developerConnection>scm:git:${repository.url}</developerConnection>
+		<url>${repository.url}</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<developers>
+		<developer>
+			<id>jmuscles</id>
+			<name>Manish Goel</name>
+			<email>javamuscles@gmail.com</email>
+			<organization>jmuscles.com</organization>
+		</developer>
+	</developers>
+
+	<issueManagement>
+		<system>github.com</system>
+		<url>https://github.com/${project.repository}/issues</url>
+	</issueManagement>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>${nexus.url}/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>${nexus.url}/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
+
+	<build>
+		<plugins>
+			<!-- <plugin> <artifactId>maven-deploy-plugin</artifactId> <executions> 
+				<execution> <id>default-deploy</id> <phase>deploy</phase> <goals> <goal>deploy</goal> 
+				</goals> </execution> </executions> </plugin> -->
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-release-plugin</artifactId> 
+				<version>2.5.3</version> <configuration> <localCheckout>true</localCheckout> 
+				<pushChanges>false</pushChanges> <mavenExecutorId>forked-path</mavenExecutorId> 
+				<arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments> </configuration> 
+				<dependencies> <dependency> <groupId>org.apache.maven.scm</groupId> <artifactId>maven-scm-provider-gitexe</artifactId> 
+				<version>1.9.5</version> </dependency> </dependencies> </plugin> -->
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.7</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>true</addMavenDescriptor>
+						<manifest>
+							<addDefaultImplementationEntries>false</addDefaultImplementationEntries>
+							<addDefaultSpecificationEntries>false</addDefaultSpecificationEntries>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>ci-cd</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.5</version>
+
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<configuration>
+									<!-- Prevent gpg from using pinentry programs. Fixes: gpg: signing 
+										failed: Inappropriate ioctl for device -->
+									<gpgArguments>
+										<arg>--pinentry-mode</arg>
+										<arg>loopback</arg>
+									</gpgArguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>

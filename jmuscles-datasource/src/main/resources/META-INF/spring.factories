@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.jmuscles.datasource.DataSourceEssentialBeans
+
+org.springframework.boot.autoconfigure.AutoConfigurationImportFilter=\
+com.jmuscles.datasource.ExclusionFilter
