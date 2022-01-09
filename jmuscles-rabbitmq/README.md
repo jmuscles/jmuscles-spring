@@ -11,16 +11,16 @@
 
 ## Framework architecture
 
-Framework has 2 main components:
-1. Producer spring boot starter- at producer end
-2. Consumer spring boot starter- at consumer end
+Framework has 2 main components: 
+1. Rabbitmq producer library
+2. Rabbitmq consumer library
 
 #### End-to-end flow
 
 ![image2](https://user-images.githubusercontent.com/91483360/147899328-33136644-ad1a-4ff2-85eb-a981932bbae2.jpg)
 
 
-Ideal implementation using the jmuscle-rabbitmq should have the below components:
+Ideal implementation of the framework should have the below components:
 
 
 
