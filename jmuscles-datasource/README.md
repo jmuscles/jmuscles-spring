@@ -1,7 +1,7 @@
-# jmuscles-spring-datasource-starter
+# jmuscles-datasource
 Spring boot - Multiple Data Sources based on configurations
 
-jmuscles-spring-datasource helps to create multiple data sources by property/yml file configurations.
+jmuscles-datasource helps to create multiple data sources by property/yml file configurations.
 
 * Segration of Database connections vs connection-pool properties
 * Integration with Jasypt helps the credential encryption
@@ -12,21 +12,44 @@ jmuscles-spring-datasource helps to create multiple data sources by property/yml
 Installation and Getting Started
 ===
 
-**Version Compatibility:**
-| name | latest | JDK | Spring boot|
-| --- | --- | --- | --- |
-| jmuscles-datasource-j8-sb225 | 1.0 | 8 |2.2.5|
+**Version Compatibility:**<br />
+* Spring boot 2.x
+* Java 8 or above
 
 **Pom.xml changes:** <br />
-Add below in your pom to get dependency
 
 ```
 		<dependency>
   			<groupId>com.jmuscles</groupId>
-  			<artifactId>jmuscles-datasource-j8-sb225</artifactId>
-  			<version>1.0</version>
+  			<artifactId>jmuscles-datasource</artifactId>
+  			<version>1.1</version>
 		</dependency>
 ```
+
+**Other dependency:** <br />
+```
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+	
+```
+Please checkout the demo implementation of this library : [jmuscles-datasource-demo](https://github.com/jmuscles/jmuscles-datasource-demo)
 
 
 **Property file configurations:**
@@ -47,7 +70,7 @@ jmuscles:
          jasypt-algorithm: PBEWithMD5AndDES    
       
 ```
-Example:  https://github.com/jmuscles/jmuscles-spring-datasource-demo/tree/main/src/main/resources/application-dbconnections.yml
+Example:  [application-dbconnections.yml](https://github.com/jmuscles/jmuscles-datasource-demo/blob/main/src/main/resources/application-dbconnections.yml)
 
 Connection pool and datasource configurations : 
 
@@ -66,7 +89,7 @@ jmuscles:
            connectionTimeout: 180000     
 ```
 
-Example : https://github.com/jmuscles/jmuscles-spring-datasource-demo/tree/main/src/main/resources/application-datasources.yml
+Example : [application-datasources.yml](https://github.com/jmuscles/jmuscles-datasource-demo/blob/main/src/main/resources/application-datasources.yml)
 
 Note: `connectionPropsKey` is the connection key in data source configuration. it's the link to connect connection and pool properties. `type` value can be either tomcat or hikari. if not defined then hikaricp will be used to create the datasource. 
 
@@ -94,11 +117,4 @@ Autowire `DataSourceGenerator` in bean class and get the data source as :
 dataSourceGenerator.get("ds1")
 ```
 ds1 is the datasource-key from property/yml file. 
-Example: https://github.com/jmuscles/jmuscles-spring-datasource-demo/tree/main/src/main/java/com/jmuscles/datasource/demo/SQLQueryExecutor.java
-
-**What If, desired version is not available**
-please follow below steps to build it: 
-
-* checkout jmuscles-spring-datasource-starter code
-* change the version in pom.xml files to match with your jdk/spring boot version.
-* maven build should spit out the desired jmuscles-spring-datasource-starter jar file 
+Example: https://github.com/jmuscles/jmuscles-datasource-demo/blob/main/src/main/java/com/jmuscles/datasource/demo/SQLQueryExecutor.java
