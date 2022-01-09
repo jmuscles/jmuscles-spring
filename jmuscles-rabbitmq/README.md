@@ -35,16 +35,13 @@ Ideal implementation of the framework should have the below components:
 
 
 #### Understanding the Consumer
-
-![image6](https://user-images.githubusercontent.com/91483360/147899336-2164fe9d-72af-4f75-ad3e-d1b483a22c02.jpg)
-
+![consumer-queue-processing-Page-1](https://user-images.githubusercontent.com/91483360/148671694-e15826ed-0497-41e7-9fdd-64038660be6d.png)
 
 ## Quick start guide 
 Refer to [jmuscles-rabbitmq-consumer-demo](https://github.com/jmuscles/jmuscles-rabbitmq-consumer-demo/blob/main/README.md) project
 
 ## Understanding message structure
-
-![image5](https://user-images.githubusercontent.com/91483360/147899062-720ecf91-a2dc-46ce-8a0a-ba7f2ee62dc3.jpg)
+![data-structure](https://user-images.githubusercontent.com/91483360/148671225-86281375-f3d8-473d-a28b-bcff2d6dfe6f.jpg)
 
 Below is the sample json of message body:
 
