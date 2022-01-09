@@ -41,7 +41,7 @@ Ideal implementation of the framework should have the below components:
 Refer to [jmuscles-rabbitmq-consumer-demo](https://github.com/jmuscles/jmuscles-rabbitmq-consumer-demo/blob/main/README.md) project
 
 ## Understanding message structure
-![data-structure](https://user-images.githubusercontent.com/91483360/148671225-86281375-f3d8-473d-a28b-bcff2d6dfe6f.jpg)
+![data-structure-1](https://user-images.githubusercontent.com/91483360/148671908-3d7edc65-e72b-4e2d-a061-e40e86037331.jpg)
 
 Below is the sample json of message body:
 
