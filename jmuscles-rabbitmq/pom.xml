@@ -24,11 +24,6 @@
 		</license>
 	</licenses>
 
-	<properties>
-		<jmuscles-rabbitmq-producer.version>1.0</jmuscles-rabbitmq-producer.version>
-		<jmuscles-rabbitmq-consumer.version>1.0</jmuscles-rabbitmq-consumer.version>
-	</properties>
-
 	<modules>
 		<module>jmuscles-rabbitmq-producer</module>
 		<module>jmuscles-rabbitmq-consumer</module>		

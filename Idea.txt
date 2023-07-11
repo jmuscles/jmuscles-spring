@@ -1,0 +1,9 @@
+1. Move to the AWS with AWS config and elastic bean and have the cloud formation ready
+2. Move to the AWS with EKS and have the cloud formation ready
+3. Work on Rest so that client can quickly turn their infrastructure in to event based architecture 
+	a. Expose rest which takes their rest request and turn in to Jmuscle framework
+	b. Return response 200 ok
+	c. Return configurable response
+		i. from rest read the header key and get config
+		j. from rest read the source and get config
+4. 

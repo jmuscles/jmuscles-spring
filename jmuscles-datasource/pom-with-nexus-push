@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.jmuscles</groupId>
+		<artifactId>jmuscles-spring</artifactId>
+		<version>1.0</version>
+	</parent>
+	<artifactId>jmuscles-datasource</artifactId>
+	<packaging>jar</packaging>
+	<name>jmuscles-datasource</name>
+	<version>${jmuscles-datasource.version}</version>
+	<description>Spring boot Multiple Data Sources based on configurations</description>
+
+	<url>http://maven.apache.org</url>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring-boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.jasypt</groupId>
+			<artifactId>jasypt</artifactId>
+			<version>${jasypt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-jdbc</artifactId>
+			<!-- -->
+			<optional>true</optional>
+		</dependency>
+
+		<!-- <dependency> <groupId>org.apache.tomcat</groupId> <artifactId>tomcat-jdbc</artifactId> 
+			</dependency> -->
+	</dependencies>
+
+	<licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<id>jmuscles</id>
+			<name>Manish Goel</name>
+			<email>javamuscles@gmail.com</email>
+			<organization>jmuscles.com</organization>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git@github.com:jmuscles/jmuscles-spring-datasource-starter.git</connection>
+		<developerConnection>scm:git:ssh://github.com:jmuscles/jmuscles-spring-datasource-starter.git</developerConnection>
+		<url>https://github.com/jmuscles/jmuscles-spring-datasource-starter</url>
+	</scm>
+
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
+	<build>
+		<plugins>
+			<!-- <plugin> <artifactId>maven-deploy-plugin</artifactId> <executions> 
+				<execution> <id>default-deploy</id> <phase>deploy</phase> <goals> <goal>deploy</goal> 
+				</goals> </execution> </executions> </plugin> -->
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-release-plugin</artifactId> 
+				<version>2.5.3</version> <configuration> <localCheckout>true</localCheckout> 
+				<pushChanges>false</pushChanges> <mavenExecutorId>forked-path</mavenExecutorId> 
+				<arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments> </configuration> 
+				<dependencies> <dependency> <groupId>org.apache.maven.scm</groupId> <artifactId>maven-scm-provider-gitexe</artifactId> 
+				<version>1.9.5</version> </dependency> </dependencies> </plugin> -->
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.7</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>true</addMavenDescriptor>
+						<manifest>
+							<addDefaultImplementationEntries>false</addDefaultImplementationEntries>
+							<addDefaultSpecificationEntries>false</addDefaultSpecificationEntries>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>ci-cd</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.5</version>
+
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<configuration>
+									<!-- Prevent gpg from using pinentry programs. Fixes: gpg: signing 
+										failed: Inappropriate ioctl for device -->
+									<gpgArguments>
+										<arg>--pinentry-mode</arg>
+										<arg>loopback</arg>
+									</gpgArguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>
