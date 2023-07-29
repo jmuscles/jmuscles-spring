@@ -37,7 +37,6 @@
 	</dependencyManagement>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-config</artifactId>
@@ -74,7 +73,7 @@
 			<artifactId>jmuscles-processing</artifactId>
 			<version>${jmuscles-processing.version}</version>
 		</dependency>
-		
+
 	</dependencies>
 
 	<build>
