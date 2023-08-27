@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.jmuscles</groupId>
@@ -13,23 +15,26 @@
 
 	<description>Jmuscle spring libraries</description>
 
-
 	<properties>
 		<java.version>1.8</java.version>
 		<spring-boot.version>2.7.13</spring-boot.version>
 		<spring-cloud.version>2021.0.3</spring-cloud.version>
 		<jasypt.version>1.9.3</jasypt.version>
 		<jackson.version>2.10.2</jackson.version>
-		
 		<jmuscles-processing-schema.version>1.0</jmuscles-processing-schema.version>
+		<jmuscles-major.version>0</jmuscles-major.version>
+		<jmuscles-minor.version>1</jmuscles-minor.version>
+		<jmuscles-post-fix>j8sb2713</jmuscles-post-fix>
+		<jmuscles-datasource.version>${jmuscles-post-fix}-0.1</jmuscles-datasource.version>
+		<jmuscles-processing.version>${jmuscles-post-fix}-0.1</jmuscles-processing.version>
+		<jmuscles-rabbitmq-producer.version>${jmuscles-post-fix}-0.1</jmuscles-rabbitmq-producer.version>
+		<jmuscles-rabbitmq-consumer.version>${jmuscles-post-fix}-0.1</jmuscles-rabbitmq-consumer.version>
 
-		<jmuscles-major.version>j8sb2713</jmuscles-major.version>
-		<jmuscles-minor.version></jmuscles-minor.version>
-
-		<jmuscles-datasource.version>${jmuscles-major.version}${jmuscles-minor.version}</jmuscles-datasource.version>
-		<jmuscles-processing.version>${jmuscles-major.version}${jmuscles-minor.version}</jmuscles-processing.version>
-		<jmuscles-rabbitmq-producer.version>${jmuscles-major.version}${jmuscles-minor.version}</jmuscles-rabbitmq-producer.version>
-		<jmuscles-rabbitmq-consumer.version>${jmuscles-major.version}${jmuscles-minor.version}</jmuscles-rabbitmq-consumer.version>
+		<javax.annotation-api.version>1.3.2</javax.annotation-api.version>
+		<otel-api.version>1.28.0</otel-api.version>
+		<otel-instrumentation-annotations.version>1.28.0</otel-instrumentation-annotations.version>
+		<otel-api-trace.version>0.13.1</otel-api-trace.version>
+		<otel-api-metrics.version>1.10.0-alpha-rc.1</otel-api-metrics.version>
 
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -45,6 +50,7 @@
 		<module>jmuscles-datasource</module>
 		<module>jmuscles-processing</module>
 		<module>jmuscles-rabbitmq</module>
+		
 	</modules>
 
 	<developers>

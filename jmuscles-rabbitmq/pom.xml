@@ -24,9 +24,9 @@
 		</license>
 	</licenses>
 
-	<modules>
+<!--	<modules>
 		<module>jmuscles-rabbitmq-producer</module>
 		<module>jmuscles-rabbitmq-consumer</module>		
 	</modules>
-
+-->
 </project>
