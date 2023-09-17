@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 import com.jmuscles.processing.execvalidator.implementation.SimpleRestValidator;
 import com.jmuscles.processing.execvalidator.implementation.SimpleSQLProcedureValidator;
 import com.jmuscles.processing.execvalidator.implementation.SimpleSQLQueryValidator;
+import com.jmuscles.processing.execvalidator.implementation.SimpleSoapCallValidator;
 
 /**
  * @author manish goel
@@ -22,6 +23,7 @@ public class ValidatorRegistry {
 
 	static {
 		new SimpleRestValidator();
+		new SimpleSoapCallValidator();
 		new SimpleSQLProcedureValidator();
 		new SimpleSQLQueryValidator();
 	}

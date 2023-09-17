@@ -3,12 +3,15 @@
  */
 package com.jmuscles.processing.executor.implementation;
 
+import java.io.Serializable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import com.jmuscles.processing.RestTemplateProvider;
 import com.jmuscles.processing.config.ExecutorConfigProperties;
@@ -64,16 +67,23 @@ public class RestExecutor extends SelfRegisteredExecutor {
 			restRequestData.getHttpHeader().entrySet().stream()
 					.forEach(entry -> headers.add(entry.getKey(), entry.getValue()));
 		}
-		HttpEntity<?> entity = new HttpEntity<>(restRequestData.getBody(), headers);
 		Object response = null;
 
 		try {
-			response = restTemplateProvider.get().exchange(generateUrl(url, restRequestData.getUrlSuffix()),
-					HttpMethod.valueOf(restRequestData.getMethod()), entity, responseEntityClass);
+			String finalUrl = generateUrl(url, restRequestData.getUrlSuffix());
+			HttpMethod httpMethod = HttpMethod.valueOf(restRequestData.getMethod());
+			RestTemplate restTemplate = restTemplateProvider.get();
+			if (logger.isDebugEnabled()) {
+				printRequestDataForDebugLogs(finalUrl, httpMethod, headers, restRequestData.getBody(),
+						responseEntityClass);
+			}
+			HttpEntity<?> entity = new HttpEntity<>(restRequestData.getBody(), headers);
+			response = restTemplate.exchange(finalUrl, httpMethod, entity, responseEntityClass);
 		} catch (Exception e) {
+			logger.error("Error while processing the rest", e);
 			response = e;
 		}
-
+		logger.info("rest call done for url: " + url);
 		return response;
 	}
 
@@ -93,6 +103,25 @@ public class RestExecutor extends SelfRegisteredExecutor {
 	@Override
 	public Class<?> getExecutorRequestDataClass() {
 		return RestRequestData.class;
+	}
+
+	private void printRequestDataForDebugLogs(String finalUrl, HttpMethod httpMethod, HttpHeaders headers,
+			Serializable body, Class<?> responseEntityClass) {
+		try {
+			String bodyAsString = "";
+			logger.debug("url : " + finalUrl);
+			logger.debug("httpMethod : " + httpMethod);
+			logger.debug("headers : " + headers.toString());
+			try {
+				bodyAsString = body.toString();
+			} catch (Exception e) {
+				logger.debug("Request body can't be printed ..body.toString() returns error");
+			}
+			logger.debug("body : " + bodyAsString);
+
+		} catch (Exception e) {
+			logger.debug("Error while printing the rest request data", e);
+		}
 	}
 
 }
