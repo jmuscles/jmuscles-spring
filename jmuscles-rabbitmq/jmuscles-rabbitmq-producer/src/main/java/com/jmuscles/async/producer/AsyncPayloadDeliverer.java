@@ -5,6 +5,7 @@ package com.jmuscles.async.producer;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jmuscles.async.producer.constant.ProducerDataMapKeys;
 import com.jmuscles.async.producer.producing.Producer;
 import com.jmuscles.async.producer.properties.ProducerConfigProperties;
+import com.jmuscles.async.producer.properties.ProducerRabbitmqConfig;
 import com.jmuscles.processing.schema.Payload;
 import com.jmuscles.processing.schema.TrackingDetail;
 
@@ -32,12 +34,29 @@ public class AsyncPayloadDeliverer {
 	}
 
 	public Payload send(Payload asyncPayload, TrackingDetail trackingDetail) throws JsonProcessingException {
-		return send(asyncPayload, trackingDetail, null, null, producerConfigProperties, false);
+		return send(asyncPayload, trackingDetail, null, null);
+	}
+
+	public Payload send(Payload asyncPayload, TrackingDetail trackingDetail, List<String> activeProducersInOrder,
+			ProducerRabbitmqConfig rabbitmqConfig) throws JsonProcessingException {
+
+		String routingKey = null;
+		String exchange = null;
+		boolean isNonPersistentDeliveryMode = false;
+		if (rabbitmqConfig != null) {
+			routingKey = rabbitmqConfig.getDefaultRoutingKey();
+			exchange = rabbitmqConfig.getDefaultExchange();
+			isNonPersistentDeliveryMode = rabbitmqConfig.isNonPersistentDeliveryMode();
+		}
+		if (activeProducersInOrder == null) {
+			activeProducersInOrder = this.producerConfigProperties.getActiveProducersInOrder();
+		}
+		return send(asyncPayload, trackingDetail, routingKey, exchange,
+				producerConfigProperties.getActiveProducersInOrder(), isNonPersistentDeliveryMode);
 	}
 
 	public Payload send(Payload asyncPayload, TrackingDetail trackingDetail, String routingKey, String exchange,
-			ProducerConfigProperties asyncProducerConfig, boolean isNonPersistentDeliveryMode)
-			throws JsonProcessingException {
+			List<String> activeProducersInOrder, boolean isNonPersistentDeliveryMode) throws JsonProcessingException {
 
 		Payload unprocessedData = null;
 
@@ -48,7 +67,7 @@ public class AsyncPayloadDeliverer {
 		map.put(ProducerDataMapKeys.EXCHANGE, exchange);
 		map.put(ProducerDataMapKeys.NON_PERSISTENT_DELIVERY_MODE, isNonPersistentDeliveryMode);
 
-		Iterator<String> iterator = asyncProducerConfig.getActiveProducersInOrder().iterator();
+		Iterator<String> iterator = activeProducersInOrder.iterator();
 		while (true) {
 			if (iterator.hasNext()) {
 				String key = iterator.next();
