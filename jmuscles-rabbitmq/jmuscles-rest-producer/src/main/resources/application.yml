@@ -1,0 +1,12 @@
+spring:
+   application:
+      name: JmusclesEventProducer
+server:
+   port: 8081      
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - MDC: %mdc %msg%n"
+  level:
+     org.springframework.web.client.RestTemplate: DEBUG
+     com.jmuscles.rest.producer.*: DEBUG
+    

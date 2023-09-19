@@ -82,6 +82,8 @@ public class RequeueModifiedMessageHelper {
 							messageProperties);
 		}
 		messageProperties.setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+		logger.info("Requeing message to - " + destinationExhangeAndRoutingKey.getKey() + ", "
+				+ destinationExhangeAndRoutingKey.getValue());
 		rabbitmqConfigurator.getRabbitTemplateProvider().getRabbitTemplate()
 				.send(destinationExhangeAndRoutingKey.getKey(), destinationExhangeAndRoutingKey.getValue(), message);
 	}
