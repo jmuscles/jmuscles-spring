@@ -50,11 +50,10 @@ public class SimpleResponseBuilder extends BaseResponseBuilder {
 			logger.error("There is no configuartion to build reponse for configKey:{}, method:{} and {} scenario",
 					configKey, method, (queued ? "success" : "failure"));
 			if (queued) {
-				responseEntity = new ResponseEntity<>("Request is queued to be processed", HttpStatus.OK);
+				responseEntity = ResponseEntity.ok("Request is queued to be processed");
 			} else {
 				responseEntity = new ResponseEntity<>("Request could not be queued", HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-
 		}
 		logger.debug("... reponse built successfully");
 		return responseEntity;

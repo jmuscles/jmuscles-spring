@@ -46,14 +46,14 @@ public class JmusclesRestController {
 
 	@RequestMapping("/rest/{configKey}/**")
 	public ResponseEntity<?> processRestStringPayload(@RequestHeader Map<String, String> headers,
-			@RequestBody String requestBody, HttpServletRequest request,
+			@RequestBody(required = false) String requestBody, HttpServletRequest request,
 			@PathVariable(required = true) String configKey) {
 		return jmusclesRestControllerBean.processRestStringPayload(headers, requestBody, request, configKey);
 	}
 
 	@RequestMapping("/restByteArrayPayload/{configKey}/**")
 	public ResponseEntity<?> processRestByteArrayPayload(@RequestHeader Map<String, String> headers,
-			@RequestBody Serializable requestBody, HttpServletRequest request,
+			@RequestBody(required = false) Serializable requestBody, HttpServletRequest request,
 			@PathVariable(required = true) String configKey) {
 		return jmusclesRestControllerBean.processRestByteArrayPayload(headers, requestBody, request, configKey);
 	}
