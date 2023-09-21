@@ -1,2 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.jmuscles.rest.producer.RestProducerBeans
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.jmuscles.rest.producer.RestProducerBeans

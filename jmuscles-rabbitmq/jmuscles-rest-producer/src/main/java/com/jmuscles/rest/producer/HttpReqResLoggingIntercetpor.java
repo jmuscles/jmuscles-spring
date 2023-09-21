@@ -23,10 +23,11 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.util.StringUtils;
 
+import com.jmuscles.async.producer.util.JmusclesProducerConstants;
+
 public class HttpReqResLoggingIntercetpor implements Filter {
 
 	private static final Logger logger = LoggerFactory.getLogger(HttpReqResLoggingIntercetpor.class);
-	private static final String JMUSCLE_TRACE_ID = "jmuscles-trace-id";
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -41,17 +42,17 @@ public class HttpReqResLoggingIntercetpor implements Filter {
 		try {
 			// Generate a unique request ID and add it to the MDC
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
-			String jmuscleTraceId = httpRequest.getHeader(JMUSCLE_TRACE_ID);
+			String jmuscleTraceId = httpRequest.getHeader(JmusclesProducerConstants.JMUSCLE_TRACE_ID);
 			if (!StringUtils.hasText(jmuscleTraceId)) {
 				jmuscleTraceId = UUID.randomUUID().toString();
 			}
-			MDC.put(JMUSCLE_TRACE_ID, jmuscleTraceId);
+			MDC.put(JmusclesProducerConstants.JMUSCLE_TRACE_ID, jmuscleTraceId);
 			// Log incoming request details here
 			logger.info("Incoming Request: " + httpRequest.getMethod() + " " + httpRequest.getRemoteAddr() + " "
 					+ httpRequest.getServletContext().getContextPath() + httpRequest.getRequestURI());
 
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
-			httpResponse.addHeader(JMUSCLE_TRACE_ID, jmuscleTraceId);
+			httpResponse.addHeader(JmusclesProducerConstants.JMUSCLE_TRACE_ID, jmuscleTraceId);
 
 			// Continue the filter chain
 			chain.doFilter(request, response);
@@ -61,7 +62,7 @@ public class HttpReqResLoggingIntercetpor implements Filter {
 
 		} finally {
 			// Clean up the MDC after the request is processed
-			MDC.remove(JMUSCLE_TRACE_ID);
+			MDC.remove(JmusclesProducerConstants.JMUSCLE_TRACE_ID);
 			logger.info("... Request ends");
 		}
 	}

@@ -11,11 +11,12 @@ import java.util.Map;
  * @author manish goel
  *
  */
-public class RestCallConfig{
+public class RestCallConfig {
 
 	private String url;
 	private String validator;
 	private Map<Integer, List<String>> successCodePatterns = new HashMap<>();
+	private Map<String, String> httpHeader;
 
 	public String getUrl() {
 		return url;
@@ -39,6 +40,14 @@ public class RestCallConfig{
 
 	public void setSuccessCodePatterns(Map<Integer, List<String>> successCodePatterns) {
 		this.successCodePatterns = successCodePatterns;
+	}
+
+	public Map<String, String> getHttpHeader() {
+		return httpHeader;
+	}
+
+	public void setHttpHeader(Map<String, String> httpHeader) {
+		this.httpHeader = httpHeader;
 	}
 
 }

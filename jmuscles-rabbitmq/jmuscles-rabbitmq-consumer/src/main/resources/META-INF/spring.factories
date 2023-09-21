@@ -1,2 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.jmuscles.async.consumer.ConsumerConfigProperties
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.jmuscles.async.consumer.ConsumerConfigProperties

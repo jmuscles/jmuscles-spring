@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.jmuscles.processing.schema.requestdata.RestRequestData;
 import com.jmuscles.rest.producer.config.RestConfPropsForConfigKey;
 import com.jmuscles.rest.producer.config.RestConfPropsForMethod;
 import com.jmuscles.rest.producer.config.RestResponseConfig;
@@ -28,18 +29,18 @@ public class SimpleResponseBuilder extends BaseResponseBuilder {
 	@Override
 	public ResponseEntity<?> buildResponse(Map<String, Object> map) {
 		logger.debug("Start building reponse...");
-		String configKey = (String) map.get(ResponseBuilderMapKeys.CONFIG_KEY);
-		boolean queued = (boolean) map.get(ResponseBuilderMapKeys.IS_MESSAGE_QUEUED);
-		String method = (String) map.get(ResponseBuilderMapKeys.HTTP_METHOD);
 
-		Map<String, RestConfPropsForMethod> restConfPropsForMethodmap = restProducerConfigPropertiesMap.get(configKey)
-				.getConfigByHttpMethods();
+		RestRequestData restRequestData = (RestRequestData) map.get(ResponseBuilderMapKeys.REST_REQUEST_DATA);
+		boolean queued = (boolean) map.get(ResponseBuilderMapKeys.IS_MESSAGE_QUEUED);
+
+		Map<String, RestConfPropsForMethod> restConfPropsForMethodmap = restProducerConfigPropertiesMap
+				.get(restRequestData.getConfigKey()).getConfigByHttpMethods();
 
 		ResponseEntity<?> responseEntity = null;
 
-		if (restConfPropsForMethodmap != null && restConfPropsForMethodmap.get(method) != null
-				&& restConfPropsForMethodmap.get(method).getResponseConfig() != null) {
-			RestResponseConfig response = restConfPropsForMethodmap.get(method).getResponseConfig()
+		if (restConfPropsForMethodmap != null && restConfPropsForMethodmap.get(restRequestData.getMethod()) != null
+				&& restConfPropsForMethodmap.get(restRequestData.getMethod()).getResponseConfig() != null) {
+			RestResponseConfig response = restConfPropsForMethodmap.get(restRequestData.getMethod()).getResponseConfig()
 					.get(queued ? "success" : "failure");
 			if (response != null) {
 				responseEntity = new ResponseEntity<>(response.getBody(), response.getHeaders(), response.getStatus());
@@ -48,7 +49,7 @@ public class SimpleResponseBuilder extends BaseResponseBuilder {
 
 		if (responseEntity == null) {
 			logger.error("There is no configuartion to build reponse for configKey:{}, method:{} and {} scenario",
-					configKey, method, (queued ? "success" : "failure"));
+					restRequestData.getConfigKey(), restRequestData.getMethod(), (queued ? "success" : "failure"));
 			if (queued) {
 				responseEntity = ResponseEntity.ok("Request is queued to be processed");
 			} else {

@@ -1,18 +1,10 @@
-/**
- * 
- */
 package com.jmuscles.rest.producer.response;
 
-/**
- * 
- */
 public class ResponseBuilderMapKeys {
 
-	public static final String CONFIG_KEY = "configKey";
-	public static final String HTTP_METHOD = "method";
-	public static final String HTTP_REQUEST = "request";
-	public static final String HTTP_HEADERS = "httpHeader";
-	public static final String REQUEST_BODY = "requestBody";
-	public static final String IS_MESSAGE_QUEUED = "queued";
+	public static final String IS_MESSAGE_QUEUED = "IS_MESSAGE_QUEUED";
+	public static final String REST_REQUEST_DATA = "REST_REQUEST_DATA";
+	public static final String HTTP_REQUEST = "HTTP_REQUEST";
+	public static final String PAYLOAD = "PAYLOAD";
 
 }

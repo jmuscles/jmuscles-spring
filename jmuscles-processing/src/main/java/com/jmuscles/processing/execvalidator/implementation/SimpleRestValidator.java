@@ -22,7 +22,7 @@ public class SimpleRestValidator extends RestValidator {
 
 	@Override
 	public Class<?> responseEntityClass() {
-		return Object.class;
+		return String.class;
 	}
 
 	@Override

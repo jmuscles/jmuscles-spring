@@ -4,6 +4,9 @@
 package com.jmuscles.processing.executor.implementation;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +49,7 @@ public class RestExecutor extends SelfRegisteredExecutor {
 		RestRequestData restRequestData = (RestRequestData) requestData;
 		RestCallConfig restConfig = getExecutorRestConfig(restRequestData.getConfigKey());
 		RestValidator restValidator = RestValidator.get(restConfig.getValidator());
-		Object response = invoke(restRequestData, restConfig.getUrl(), restValidator.responseEntityClass());
+		Object response = invoke(restRequestData, restConfig, restValidator.responseEntityClass());
 		boolean validated = restValidator.validateResponse(restRequestData, response, restConfig);
 		logger.info("...... end");
 		return validated ? null : restRequestData;
@@ -61,16 +64,21 @@ public class RestExecutor extends SelfRegisteredExecutor {
 		return restCallConfig;
 	}
 
-	private Object invoke(RestRequestData restRequestData, String url, Class<?> responseEntityClass) {
+	private Object invoke(RestRequestData restRequestData, RestCallConfig restConfig, Class<?> responseEntityClass) {
 		HttpHeaders headers = new HttpHeaders();
 		if (restRequestData.getHttpHeader() != null) {
 			restRequestData.getHttpHeader().entrySet().stream()
 					.forEach(entry -> headers.add(entry.getKey(), entry.getValue()));
 		}
+		if (restConfig.getHttpHeader() != null) {
+			restConfig.getHttpHeader().entrySet().stream()
+					.forEach(entry -> headers.add(entry.getKey(), entry.getValue()));
+		}
+
 		Object response = null;
 
 		try {
-			String finalUrl = generateUrl(url, restRequestData.getUrlSuffix());
+			String finalUrl = generateUrl(restConfig.getUrl(), restRequestData.getUrlSuffix());
 			HttpMethod httpMethod = HttpMethod.valueOf(restRequestData.getMethod());
 			RestTemplate restTemplate = restTemplateProvider.get();
 			if (logger.isDebugEnabled()) {
@@ -83,11 +91,11 @@ public class RestExecutor extends SelfRegisteredExecutor {
 			logger.error("Error while processing the rest", e);
 			response = e;
 		}
-		logger.info("rest call done for url: " + url);
+		logger.info("rest call done for url: " + restConfig.getUrl());
 		return response;
 	}
 
-	private String generateUrl(String url, String urlSuffix) {
+	private String generateUrl(String url, String urlSuffix) throws UnsupportedEncodingException {
 		logger.debug("url: " + url + ", urlSuffix: " + urlSuffix);
 		if (StringUtils.hasText(urlSuffix)) {
 			url = url.trim();
@@ -95,7 +103,13 @@ public class RestExecutor extends SelfRegisteredExecutor {
 			url = url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
 			urlSuffix = urlSuffix.startsWith("/") ? urlSuffix.substring(1, urlSuffix.length()) : urlSuffix;
 		}
-		url = StringUtils.hasText(urlSuffix) ? url + "/" + urlSuffix : url;
+		if (StringUtils.hasText(urlSuffix)) {
+			// String encodedUrlSuffix = URLEncoder.encode(urlSuffix,
+			// StandardCharsets.UTF_8.toString());
+			String decodedUrlSuffix = URLDecoder.decode(urlSuffix, StandardCharsets.UTF_8.toString());
+			// url = url + "/" + encodedUrlSuffix;
+			url = url + "/" + decodedUrlSuffix;
+		}
 		logger.info("rest url: " + url);
 		return url;
 	}

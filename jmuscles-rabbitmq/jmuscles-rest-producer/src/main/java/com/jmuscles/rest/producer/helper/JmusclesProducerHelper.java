@@ -4,7 +4,7 @@
 package com.jmuscles.rest.producer.helper;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,15 +43,7 @@ public class JmusclesProducerHelper {
 	private Map<String, RestConfPropsForConfigKey> restProducerConfigPropertiesMap;
 
 	public ResponseEntity<?> queuePayload(Payload payload, TrackingDetail trackingDetail) {
-		boolean queued = false;
-		try {
-			if (asyncPayloadDeliverer.send(payload, trackingDetail) == null) {
-				queued = true;
-			}
-		} catch (Exception e) {
-			logger.error("issue in queuePayload: " + trackingDetail.toString(), e);
-		}
-		return queued ? ResponseEntity.ok("Success")
+		return queuePayload(payload, trackingDetail, null) ? ResponseEntity.ok("Success")
 				: new ResponseEntity<>(null, null, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
@@ -64,9 +56,9 @@ public class JmusclesProducerHelper {
 					"Invalid url, Please onboard the endpoint ending with : " + configKey,
 					org.springframework.http.HttpStatus.NOT_FOUND);
 		}
-		String method = request.getMethod();
 		ProducerConfigProperties producerConfigProperties = null;
 
+		String method = request.getMethod();
 		Map<String, RestConfPropsForMethod> configByHttpMethods = restConfPropsForConfigKey.getConfigByHttpMethods();
 		if (configByHttpMethods != null && configByHttpMethods.get(method) != null) {
 			producerConfigProperties = configByHttpMethods.get(method).getProcessingConfig();
@@ -75,44 +67,29 @@ public class JmusclesProducerHelper {
 		if (producerConfigProperties == null) {
 			producerConfigProperties = restConfPropsForConfigKey.getProcessingConfig();
 		}
+		RestRequestData restRequestData = new RestRequestData(method, configKey, urlSuffix, requestBody, httpHeader);
+		Payload payload = new Payload(Arrays.asList((RequestData) restRequestData));
 
-		boolean queued = queueRestRequest(requestBody, httpHeader, method, configKey, urlSuffix,
-				producerConfigProperties);
-		return responseBuilder
-				.buildResponse(responseBuilder.createMap(queued, requestBody, httpHeader, request, method, configKey));
+		boolean queued = queuePayload(payload, null, producerConfigProperties);
+		return responseBuilder.buildResponse(queued, restRequestData, request, payload);
 	}
 
-	public boolean queueRestRequest(Serializable requestBody, Map<String, String> httpHeader, String httpMethod,
-			String configKey, String urlSuffix, ProducerConfigProperties producerConfigProperties) {
+	public boolean queuePayload(Payload payload, TrackingDetail trackingDetail,
+			ProducerConfigProperties producerConfigProperties) {
 
-		Payload payload = buildPayload(httpMethod, configKey, urlSuffix, requestBody, httpHeader);
-
-		boolean queued = false;
+		Payload remainingPayload = null;
 		try {
-			Payload remainingPayload = null;
 			if (producerConfigProperties == null) {
-				remainingPayload = asyncPayloadDeliverer.send(payload, TrackingDetail.of());
+				remainingPayload = asyncPayloadDeliverer.send(payload, trackingDetail);
 			} else {
-				remainingPayload = asyncPayloadDeliverer.send(payload, TrackingDetail.of(),
+				remainingPayload = asyncPayloadDeliverer.send(payload, trackingDetail,
 						producerConfigProperties.getActiveProducersInOrder(), producerConfigProperties.getRabbitmq());
 			}
-			if (remainingPayload == null) {
-				queued = true;
-			}
 		} catch (Exception e) {
-			logger.error("issue in queueRestRequest: " + configKey, e);
+			logger.error("issue while queueing the payload", e);
 		}
 
-		return queued;
-	}
-
-	private Payload buildPayload(String method, String configKey, String urlSuffix, Serializable body,
-			Map<String, String> httpHeader) {
-		RestRequestData restRequestData = new RestRequestData(method, configKey, urlSuffix, body, httpHeader);
-
-		ArrayList<RequestData> list = new ArrayList<RequestData>();
-		list.add(restRequestData);
-		return new Payload(list);
+		return (remainingPayload == null);
 	}
 
 }
