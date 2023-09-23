@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,21 +68,23 @@ public class RestExecutor extends SelfRegisteredExecutor {
 
 	private Object invoke(RestRequestData restRequestData, RestCallConfig restConfig, Class<?> responseEntityClass) {
 		HttpHeaders headers = new HttpHeaders();
+		Map<String, String> httpHeaderMap = new HashMap<>();
 		if (restRequestData.getHttpHeader() != null) {
-			restRequestData.getHttpHeader().entrySet().stream()
-					.forEach(entry -> headers.add(entry.getKey(), entry.getValue()));
+			httpHeaderMap.putAll(restRequestData.getHttpHeader());
 		}
 		if (restConfig.getHttpHeader() != null) {
-			restConfig.getHttpHeader().entrySet().stream()
-					.forEach(entry -> headers.add(entry.getKey(), entry.getValue()));
+			httpHeaderMap.putAll(restConfig.getHttpHeader());
 		}
+		httpHeaderMap.entrySet().stream().forEach(entry -> headers.add(entry.getKey(), entry.getValue()));
 
 		Object response = null;
 
 		try {
 			String finalUrl = generateUrl(restConfig.getUrl(), restRequestData.getUrlSuffix());
 			HttpMethod httpMethod = HttpMethod.valueOf(restRequestData.getMethod());
-			RestTemplate restTemplate = restTemplateProvider.get();
+			RestTemplate restTemplate = httpMethod.equals(HttpMethod.PATCH)
+					? restTemplateProvider.getRestTemplateHttpComponentsClient()
+					: restTemplateProvider.getRestTemplateSimpleClient();
 			if (logger.isDebugEnabled()) {
 				printRequestDataForDebugLogs(finalUrl, httpMethod, headers, restRequestData.getBody(),
 						responseEntityClass);
