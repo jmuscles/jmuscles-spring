@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.jmuscles.processing.executor.Executor;
-import com.jmuscles.processing.executor.ExecutorRegistry;
+import com.jmuscles.processing.executor.StandardExecutorRegistry;
 import com.jmuscles.processing.schema.Payload;
 import com.jmuscles.processing.schema.requestdata.RequestData;
 
@@ -17,7 +17,7 @@ import com.jmuscles.processing.schema.requestdata.RequestData;
  */
 public class Processor {
 
-	public static Payload process(Payload payload, ExecutorRegistry executorRegistry) {
+	public static Payload process(Payload payload, StandardExecutorRegistry executorRegistry) {
 		List<RequestData> unProcessedDataList = payload.getRequestDataList().stream()
 				.map(requestData -> Executor.execute(requestData, executorRegistry))
 				.filter(requestData -> requestData != null).collect(Collectors.toList());

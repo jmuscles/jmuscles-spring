@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
@@ -43,7 +44,7 @@ public class ConsumerConfigProperties implements BeanFactoryAware {
 
 	@Bean(name = "rabbitmqSetupConfigurator")
 	public RabbitmqSetupConfigurator rabbitmqSetupConfigurator(
-			@Qualifier("rabbitmqConfig") RabbitmqConfig rabbitmqConfig, 
+			@Qualifier("rabbitmqConfig") RabbitmqConfig rabbitmqConfig,
 			@Qualifier("rabbitTemplateProvider") RabbitTemplateProvider rabbitTemplateProvider) {
 		return new RabbitmqSetupConfigurator(rabbitmqConfig, rabbitTemplateProvider, this.beanFactory);
 	}

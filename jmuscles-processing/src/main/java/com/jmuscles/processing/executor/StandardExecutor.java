@@ -7,9 +7,9 @@ package com.jmuscles.processing.executor;
  * @author manish goel
  *
  */
-public abstract class SelfRegisteredExecutor implements BaseExecutor {
+public abstract class StandardExecutor implements BaseExecutor {
 
-	public SelfRegisteredExecutor(ExecutorRegistry executorRegistry) {
+	public StandardExecutor(StandardExecutorRegistry executorRegistry) {
 		executorRegistry.register(getExecutorRequestDataClass(), this);
 	}
 

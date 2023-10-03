@@ -3,6 +3,7 @@
  */
 package com.jmuscles.async.producer.jpa.asyncpayload;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -50,8 +51,9 @@ public class AsyncPayloadPersister {
 					+ "Please try setting up the async database and entities.");
 			throw new RuntimeException("Async DB is not setup/ Entity Manager factory is null.");
 		}
-		AsyncPayloadEntity asyncPayloadEntity = buildAsyncPayloadEntity(payload, payloadProps);
-		asyncPayloadEntity.setProps(buildAsyncPayloadProps(asyncPayloadEntity, payloadProps));
+		LocalDateTime currentTS = LocalDateTime.now();
+		AsyncPayloadEntity asyncPayloadEntity = buildAsyncPayloadEntity(payload, payloadProps, currentTS);
+		asyncPayloadEntity.setProps(buildAsyncPayloadProps(asyncPayloadEntity, payloadProps, currentTS));
 		return persist(asyncPayloadEntity);
 	}
 
@@ -113,15 +115,22 @@ public class AsyncPayloadPersister {
 	}
 
 	private AsyncPayloadEntity persist(AsyncPayloadEntity asyncPayloadEntity) {
-		EntityManager em = this.emf.createEntityManager();
-		em.getTransaction().begin();
-		em.persist(asyncPayloadEntity);
-		em.getTransaction().commit();
-
+		EntityManager em = null;
+		try {
+			em = this.emf.createEntityManager();
+			em.getTransaction().begin();
+			em.persist(asyncPayloadEntity);
+			em.getTransaction().commit();
+		} finally {
+			if (em != null) {
+				em.close();
+			}
+		}
 		return asyncPayloadEntity;
 	}
 
-	private AsyncPayloadEntity buildAsyncPayloadEntity(byte[] payload, Map<String, String> payloadProps) {
+	private AsyncPayloadEntity buildAsyncPayloadEntity(byte[] payload, Map<String, String> payloadProps,
+			LocalDateTime currentTS) {
 		AsyncPayloadEntity asyncPayloadEntity = new AsyncPayloadEntity();
 		asyncPayloadEntity.setPayload(payload);
 		String payLoadType = payloadProps.remove(AsyncMessageConstants.PAYLOAD_TYPE);
@@ -139,6 +148,7 @@ public class AsyncPayloadPersister {
 					createdBy.length() > CREATED_BY_MAX_LENGTH ? createdBy.substring(0, CREATED_BY_MAX_LENGTH)
 							: createdBy);
 		}
+		asyncPayloadEntity.setCreatedTS(currentTS);
 
 		String status = payloadProps.remove(AsyncMessageConstants.MESSAGE_STATUS);
 		asyncPayloadEntity.setStatus(StringUtils.hasText(status) ? status : String.valueOf(MessageStatus.READY));
@@ -148,7 +158,7 @@ public class AsyncPayloadPersister {
 	}
 
 	private List<AsyncPayloadPropEntity> buildAsyncPayloadProps(AsyncPayloadEntity asyncPayloadEntity,
-			Map<String, String> payloadProps) {
+			Map<String, String> payloadProps, LocalDateTime currentTS) {
 		List<AsyncPayloadPropEntity> asyncPayloadPropsEntityList = null;
 		if (payloadProps != null) {
 			asyncPayloadPropsEntityList = payloadProps.entrySet().stream().map(prop -> {
@@ -163,6 +173,7 @@ public class AsyncPayloadPersister {
 							? key.substring(0, PAYLOAD_PROPS_VALUE_MAX_LENGTH)
 							: value);
 					asyncPayloadPropEntity.setCreatedBy(asyncPayloadEntity.getCreatedBy());
+					asyncPayloadPropEntity.setCreatedTS(currentTS);
 				}
 				return asyncPayloadPropEntity;
 			}).collect(Collectors.toList());

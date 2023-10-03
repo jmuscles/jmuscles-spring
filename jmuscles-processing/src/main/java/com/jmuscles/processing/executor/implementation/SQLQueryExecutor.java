@@ -12,8 +12,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import com.jmuscles.datasource.DataSourceGenerator;
 import com.jmuscles.processing.config.ExecutorConfigProperties;
 import com.jmuscles.processing.config.SQLQueryCallConfig;
-import com.jmuscles.processing.executor.ExecutorRegistry;
-import com.jmuscles.processing.executor.SelfRegisteredExecutor;
+import com.jmuscles.processing.executor.StandardExecutor;
+import com.jmuscles.processing.executor.StandardExecutorRegistry;
 import com.jmuscles.processing.execvalidator.SQLQueryValidator;
 import com.jmuscles.processing.schema.requestdata.RequestData;
 import com.jmuscles.processing.schema.requestdata.SQLQueryRequestData;
@@ -22,14 +22,14 @@ import com.jmuscles.processing.schema.requestdata.SQLQueryRequestData;
  * @author manish goel
  *
  */
-public class SQLQueryExecutor extends SelfRegisteredExecutor {
+public class SQLQueryExecutor extends StandardExecutor {
 
 	private static final Logger logger = LoggerFactory.getLogger(SQLQueryExecutor.class);
 
 	private ExecutorConfigProperties executorConfigProperties;
 	private DataSourceGenerator dataSourceGenerator;
 
-	public SQLQueryExecutor(ExecutorRegistry executorRegistry, ExecutorConfigProperties executorConfigProperties,
+	public SQLQueryExecutor(StandardExecutorRegistry executorRegistry, ExecutorConfigProperties executorConfigProperties,
 			DataSourceGenerator dataSourceGenerator) {
 		super(executorRegistry);
 		this.executorConfigProperties = executorConfigProperties;

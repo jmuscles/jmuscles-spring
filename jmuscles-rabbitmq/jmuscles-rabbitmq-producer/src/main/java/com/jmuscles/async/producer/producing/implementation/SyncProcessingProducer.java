@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.jmuscles.async.producer.constant.ProducerDataMapKeys;
 import com.jmuscles.async.producer.producing.SelfRegisteredProducer;
-import com.jmuscles.processing.executor.ExecutorRegistry;
+import com.jmuscles.processing.executor.StandardExecutorRegistry;
 import com.jmuscles.processing.processor.Processor;
 import com.jmuscles.processing.schema.Payload;
 
@@ -17,9 +17,9 @@ import com.jmuscles.processing.schema.Payload;
  */
 public class SyncProcessingProducer extends SelfRegisteredProducer {
 
-	private ExecutorRegistry executorRegistry;
+	private StandardExecutorRegistry executorRegistry;
 
-	public SyncProcessingProducer(ExecutorRegistry executorRegistry) {
+	public SyncProcessingProducer(StandardExecutorRegistry executorRegistry) {
 		super();
 		this.executorRegistry = executorRegistry;
 	}

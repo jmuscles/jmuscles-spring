@@ -4,8 +4,8 @@
 package com.jmuscles.processing.executor.implementation;
 
 import com.jmuscles.processing.executor.Executor;
-import com.jmuscles.processing.executor.ExecutorRegistry;
-import com.jmuscles.processing.executor.SelfRegisteredExecutor;
+import com.jmuscles.processing.executor.StandardExecutor;
+import com.jmuscles.processing.executor.StandardExecutorRegistry;
 import com.jmuscles.processing.schema.requestdata.RequestData;
 import com.jmuscles.processing.schema.requestdata.SequentialRequestData;
 
@@ -13,11 +13,11 @@ import com.jmuscles.processing.schema.requestdata.SequentialRequestData;
  * @author manish goel
  *
  */
-public class SequentialRequestExecutor extends SelfRegisteredExecutor {
+public class SequentialRequestExecutor extends StandardExecutor {
 
-	private ExecutorRegistry executorRegistry;
+	private StandardExecutorRegistry executorRegistry;
 
-	public SequentialRequestExecutor(ExecutorRegistry executorRegistry) {
+	public SequentialRequestExecutor(StandardExecutorRegistry executorRegistry) {
 		super(executorRegistry);
 	}
 

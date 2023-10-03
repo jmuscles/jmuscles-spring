@@ -15,9 +15,9 @@ import com.jmuscles.processing.schema.requestdata.RequestData;
  * @author manish goel
  *
  */
-public class ExecutorRegistry {
+public class StandardExecutorRegistry {
 
-	private static final Logger logger = LoggerFactory.getLogger(ExecutorRegistry.class);
+	private static final Logger logger = LoggerFactory.getLogger(StandardExecutorRegistry.class);
 
 	private final Map<String, BaseExecutor> executorRegistryMap = new HashMap<>();
 

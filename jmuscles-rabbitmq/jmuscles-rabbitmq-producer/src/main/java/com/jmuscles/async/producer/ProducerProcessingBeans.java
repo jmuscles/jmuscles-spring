@@ -27,7 +27,7 @@ import com.jmuscles.async.producer.properties.ProducerConfigProperties;
 import com.jmuscles.datasource.DataSourceGenerator;
 import com.jmuscles.processing.JmuscleProcessingBeans;
 import com.jmuscles.processing.SpringBeanUtil;
-import com.jmuscles.processing.executor.ExecutorRegistry;
+import com.jmuscles.processing.executor.StandardExecutorRegistry;
 
 /**
  * @author manish goel
@@ -77,24 +77,24 @@ public class ProducerProcessingBeans implements BeanFactoryAware {
 		return new RabbitmqProducer(producerConfigProperties, rabbitTemplateProvider);
 	}
 
-	@ConditionalOnMissingBean(ExecutorRegistry.class)
-	@Bean("executorRegistry")
-	public ExecutorRegistry executorRegistry() {
-		return new ExecutorRegistry();
+	@ConditionalOnMissingBean(StandardExecutorRegistry.class)
+	@Bean("standardExecutorRegistry")
+	public StandardExecutorRegistry standardExecutorRegistry() {
+		return new StandardExecutorRegistry();
 	}
 
 	@Bean("syncProcessingProducer")
 	public SyncProcessingProducer syncProcessingProducer(
-			@Qualifier("executorRegistry") ExecutorRegistry executorRegistry) {
-		return new SyncProcessingProducer(executorRegistry);
+			@Qualifier("standardExecutorRegistry") StandardExecutorRegistry standardExecutorRegistry) {
+		return new SyncProcessingProducer(standardExecutorRegistry);
 	}
 	/* producer beans end here .... */
 
 	/* MessageProcessor */
 	@Bean
 	public AsyncPayloadMessageProcessor asyncPayloadMessageProcessor(
-			@Qualifier("executorRegistry") ExecutorRegistry executorRegistry) {
-		return new AsyncPayloadMessageProcessor(executorRegistry);
+			@Qualifier("standardExecutorRegistry") StandardExecutorRegistry standardExecutorRegistry) {
+		return new AsyncPayloadMessageProcessor(standardExecutorRegistry);
 	}
 
 	/* MessageProcessor */

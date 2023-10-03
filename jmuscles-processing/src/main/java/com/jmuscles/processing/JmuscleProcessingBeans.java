@@ -9,7 +9,9 @@ import org.springframework.context.annotation.Bean;
 
 import com.jmuscles.datasource.DataSourceGenerator;
 import com.jmuscles.processing.config.ExecutorConfigProperties;
-import com.jmuscles.processing.executor.ExecutorRegistry;
+import com.jmuscles.processing.executor.CustomExecutorRegistry;
+import com.jmuscles.processing.executor.StandardExecutorRegistry;
+import com.jmuscles.processing.executor.implementation.CustomRequestExecutor;
 import com.jmuscles.processing.executor.implementation.DemoRequestExecutor;
 import com.jmuscles.processing.executor.implementation.RestExecutor;
 import com.jmuscles.processing.executor.implementation.SQLProcedureExecutor;
@@ -32,42 +34,59 @@ public class JmuscleProcessingBeans {
 		return new RestTemplateProvider(executorConfigProperties);
 	}
 
-	@ConditionalOnMissingBean(ExecutorRegistry.class)
-	@Bean("executorRegistry")
-	public ExecutorRegistry executorRegistry() {
-		return new ExecutorRegistry();
+	@ConditionalOnMissingBean(StandardExecutorRegistry.class)
+	@Bean("standardExecutorRegistry")
+	public StandardExecutorRegistry standardExecutorRegistry() {
+		return new StandardExecutorRegistry();
+	}
+
+	@ConditionalOnMissingBean(CustomExecutorRegistry.class)
+	@Bean("customExecutorRegistry")
+	public CustomExecutorRegistry customExecutorRegistry() {
+		return new CustomExecutorRegistry();
 	}
 
 	@Bean("demoRequestExecutor")
-	public DemoRequestExecutor demoRequestExecutor(@Qualifier("executorRegistry") ExecutorRegistry executorRegistry) {
-		return new DemoRequestExecutor(executorRegistry);
+	public DemoRequestExecutor demoRequestExecutor(
+			@Qualifier("standardExecutorRegistry") StandardExecutorRegistry standardExecutorRegistry) {
+		return new DemoRequestExecutor(standardExecutorRegistry);
 	}
 
 	@Bean("sequentialRequestExecutor")
 	public SequentialRequestExecutor sequentialRequestExecutor(
-			@Qualifier("executorRegistry") ExecutorRegistry executorRegistry) {
-		return new SequentialRequestExecutor(executorRegistry);
+			@Qualifier("standardExecutorRegistry") StandardExecutorRegistry standardExecutorRegistry) {
+		return new SequentialRequestExecutor(standardExecutorRegistry);
+	}
+
+	@Bean("customRequestExecutor")
+	public CustomRequestExecutor customRequestExecutor(
+			@Qualifier("standardExecutorRegistry") StandardExecutorRegistry standardExecutorRegistry,
+			@Qualifier("customExecutorRegistry") CustomExecutorRegistry customExecutorRegistry) {
+		return new CustomRequestExecutor(standardExecutorRegistry, customExecutorRegistry);
 	}
 
 	@Bean("restExecutor")
-	public RestExecutor restExecutor(@Qualifier("executorRegistry") ExecutorRegistry executorRegistry,
+	public RestExecutor restExecutor(
+			@Qualifier("standardExecutorRegistry") StandardExecutorRegistry standardExecutorRegistry,
 			@Qualifier("executorConfigProperties") ExecutorConfigProperties executorConfigProperties,
 			@Qualifier("restTemplateProvider") RestTemplateProvider restTemplateProvider) {
-		return new RestExecutor(executorRegistry, executorConfigProperties, restTemplateProvider);
+		return new RestExecutor(standardExecutorRegistry, executorConfigProperties, restTemplateProvider);
 	}
 
 	@Bean("sQLQueryExecutor")
-	public SQLQueryExecutor sQLQueryExecutor(@Qualifier("executorRegistry") ExecutorRegistry executorRegistry,
+	public SQLQueryExecutor sQLQueryExecutor(
+			@Qualifier("standardExecutorRegistry") StandardExecutorRegistry standardExecutorRegistry,
 			@Qualifier("executorConfigProperties") ExecutorConfigProperties executorConfigProperties,
 			@Qualifier("dataSourceGenerator") DataSourceGenerator dataSourceGenerator) {
-		return new SQLQueryExecutor(executorRegistry, executorConfigProperties, dataSourceGenerator);
+		return new SQLQueryExecutor(standardExecutorRegistry, executorConfigProperties, dataSourceGenerator);
 	}
 
 	@Bean("sQLProcedureExecutor")
-	public SQLProcedureExecutor sQLProcedureExecutor(@Qualifier("executorRegistry") ExecutorRegistry executorRegistry,
+	public SQLProcedureExecutor sQLProcedureExecutor(
+			@Qualifier("standardExecutorRegistry") StandardExecutorRegistry standardExecutorRegistry,
 			@Qualifier("executorConfigProperties") ExecutorConfigProperties executorConfigProperties,
 			@Qualifier("dataSourceGenerator") DataSourceGenerator dataSourceGenerator) {
-		return new SQLProcedureExecutor(executorRegistry, executorConfigProperties, dataSourceGenerator);
+		return new SQLProcedureExecutor(standardExecutorRegistry, executorConfigProperties, dataSourceGenerator);
 	}
 
 }

@@ -21,8 +21,8 @@ import org.springframework.web.client.RestTemplate;
 import com.jmuscles.processing.RestTemplateProvider;
 import com.jmuscles.processing.config.ExecutorConfigProperties;
 import com.jmuscles.processing.config.RestCallConfig;
-import com.jmuscles.processing.executor.ExecutorRegistry;
-import com.jmuscles.processing.executor.SelfRegisteredExecutor;
+import com.jmuscles.processing.executor.StandardExecutor;
+import com.jmuscles.processing.executor.StandardExecutorRegistry;
 import com.jmuscles.processing.execvalidator.RestValidator;
 import com.jmuscles.processing.schema.requestdata.RequestData;
 import com.jmuscles.processing.schema.requestdata.RestRequestData;
@@ -31,14 +31,14 @@ import com.jmuscles.processing.schema.requestdata.RestRequestData;
  * @author manish goel
  *
  */
-public class RestExecutor extends SelfRegisteredExecutor {
+public class RestExecutor extends StandardExecutor {
 
 	private static final Logger logger = LoggerFactory.getLogger(RestExecutor.class);
 
 	private ExecutorConfigProperties executorConfigProperties;
 	private RestTemplateProvider restTemplateProvider;
 
-	public RestExecutor(ExecutorRegistry executorRegistry, ExecutorConfigProperties executorConfigProperties,
+	public RestExecutor(StandardExecutorRegistry executorRegistry, ExecutorConfigProperties executorConfigProperties,
 			RestTemplateProvider restTemplateProvider) {
 		super(executorRegistry);
 		this.executorConfigProperties = executorConfigProperties;
@@ -67,19 +67,10 @@ public class RestExecutor extends SelfRegisteredExecutor {
 	}
 
 	private Object invoke(RestRequestData restRequestData, RestCallConfig restConfig, Class<?> responseEntityClass) {
-		HttpHeaders headers = new HttpHeaders();
-		Map<String, String> httpHeaderMap = new HashMap<>();
-		if (restRequestData.getHttpHeader() != null) {
-			httpHeaderMap.putAll(restRequestData.getHttpHeader());
-		}
-		if (restConfig.getHttpHeader() != null) {
-			httpHeaderMap.putAll(restConfig.getHttpHeader());
-		}
-		httpHeaderMap.entrySet().stream().forEach(entry -> headers.add(entry.getKey(), entry.getValue()));
 
 		Object response = null;
-
 		try {
+			HttpHeaders headers = resolveHeaders(restRequestData, restConfig);
 			String finalUrl = generateUrl(restConfig.getUrl(), restRequestData.getUrlSuffix());
 			HttpMethod httpMethod = HttpMethod.valueOf(restRequestData.getMethod());
 			RestTemplate restTemplate = httpMethod.equals(HttpMethod.PATCH)
@@ -99,6 +90,33 @@ public class RestExecutor extends SelfRegisteredExecutor {
 		return response;
 	}
 
+	/**
+	 * Headers are set and over-ridden in following order:
+	 * 	1. Common Headers
+	 *  2. Coming from producer
+	 *  3. Rest Call configuration
+	 * @param restRequestData
+	 * @param restConfig
+	 * @return
+	 */
+	private HttpHeaders resolveHeaders(RestRequestData restRequestData, RestCallConfig restConfig) {
+		Map<String, String> httpHeaderMap = new HashMap<>();
+		if (executorConfigProperties.getRestConfig() != null
+				&& executorConfigProperties.getRestConfig().getCommonHeaders() != null) {
+			httpHeaderMap.putAll(executorConfigProperties.getRestConfig().getCommonHeaders());
+		}
+		if (restRequestData.getHttpHeader() != null) {
+			httpHeaderMap.putAll(restRequestData.getHttpHeader());
+		}
+		if (restConfig.getHttpHeader() != null) {
+			httpHeaderMap.putAll(restConfig.getHttpHeader());
+		}
+
+		HttpHeaders headers = new HttpHeaders();
+		httpHeaderMap.entrySet().stream().forEach(entry -> headers.add(entry.getKey(), entry.getValue()));
+		return headers;
+	}
+
 	private String generateUrl(String url, String urlSuffix) throws UnsupportedEncodingException {
 		logger.debug("url: " + url + ", urlSuffix: " + urlSuffix);
 		if (StringUtils.hasText(urlSuffix)) {
@@ -108,10 +126,7 @@ public class RestExecutor extends SelfRegisteredExecutor {
 			urlSuffix = urlSuffix.startsWith("/") ? urlSuffix.substring(1, urlSuffix.length()) : urlSuffix;
 		}
 		if (StringUtils.hasText(urlSuffix)) {
-			// String encodedUrlSuffix = URLEncoder.encode(urlSuffix,
-			// StandardCharsets.UTF_8.toString());
 			String decodedUrlSuffix = URLDecoder.decode(urlSuffix, StandardCharsets.UTF_8.toString());
-			// url = url + "/" + encodedUrlSuffix;
 			url = url + "/" + decodedUrlSuffix;
 		}
 		logger.info("rest url: " + url);
