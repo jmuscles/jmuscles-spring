@@ -21,9 +21,9 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.util.StringUtils;
 
+import com.jmuscles.async.producer.config.properties.ProducerConfigProperties;
 import com.jmuscles.async.producer.constant.AsyncMessageConstants;
 import com.jmuscles.async.producer.constant.MessageStatus;
-import com.jmuscles.async.producer.properties.ProducerConfigProperties;
 import com.jmuscles.datasource.DataSourceGenerator;
 
 /**

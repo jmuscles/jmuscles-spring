@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
 import com.jmuscles.datasource.DataSourceGenerator;
-import com.jmuscles.processing.config.ExecutorConfigProperties;
+import com.jmuscles.processing.config.properties.ExecutorConfigProperties;
 import com.jmuscles.processing.executor.CustomExecutorRegistry;
 import com.jmuscles.processing.executor.StandardExecutorRegistry;
 import com.jmuscles.processing.executor.implementation.CustomRequestExecutor;

@@ -17,13 +17,13 @@ import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEven
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
 
+import com.jmuscles.async.producer.config.properties.ProducerConfigProperties;
 import com.jmuscles.async.producer.jpa.asyncpayload.AsyncPayloadPersister;
 import com.jmuscles.async.producer.messageprocessor.AsyncPayloadMessageProcessor;
 import com.jmuscles.async.producer.messageprocessor.PersistMessageToDBProcessor;
 import com.jmuscles.async.producer.producing.implementation.DBProducer;
 import com.jmuscles.async.producer.producing.implementation.RabbitmqProducer;
 import com.jmuscles.async.producer.producing.implementation.SyncProcessingProducer;
-import com.jmuscles.async.producer.properties.ProducerConfigProperties;
 import com.jmuscles.datasource.DataSourceGenerator;
 import com.jmuscles.processing.JmuscleProcessingBeans;
 import com.jmuscles.processing.SpringBeanUtil;
@@ -40,7 +40,7 @@ public class ProducerProcessingBeans implements BeanFactoryAware {
 	private BeanFactory beanFactory;
 
 	@Bean("producerConfigProperties")
-	@ConfigurationProperties(value = "async-producer-config")
+	@ConfigurationProperties(value = "jmuscles.async-producer-config")
 	public ProducerConfigProperties producerConfigProperties() {
 		return new ProducerConfigProperties();
 	}

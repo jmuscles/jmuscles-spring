@@ -39,17 +39,22 @@
 	</dependencyManagement>
 
 	<dependencies>
-
-		<dependency>
-			<groupId>com.jmuscles</groupId>
-			<artifactId>jmuscles-datasource</artifactId>
-			<version>${jmuscles-datasource.version}</version>
-		</dependency>
-
 		<dependency>
 			<groupId>com.jmuscles</groupId>
 			<artifactId>jmuscles-processing-schema</artifactId>
 			<version>${jmuscles-processing-schema.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jmuscles</groupId>
+			<artifactId>jmuscles-config-schema</artifactId>
+			<version>${jmuscles-config-schema.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.jmuscles</groupId>
+			<artifactId>jmuscles-datasource</artifactId>
+			<version>${jmuscles-datasource.version}</version>
 		</dependency>
 
 		<dependency>

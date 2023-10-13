@@ -13,8 +13,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 
 import com.jmuscles.datasource.DataSourceGenerator;
-import com.jmuscles.processing.config.ExecutorConfigProperties;
-import com.jmuscles.processing.config.SQLProcedureCallConfig;
+import com.jmuscles.processing.config.properties.ExecutorConfigProperties;
+import com.jmuscles.processing.config.properties.SQLProcedureCallConfig;
 import com.jmuscles.processing.executor.StandardExecutor;
 import com.jmuscles.processing.executor.StandardExecutorRegistry;
 import com.jmuscles.processing.execvalidator.SQLProcedureValidator;

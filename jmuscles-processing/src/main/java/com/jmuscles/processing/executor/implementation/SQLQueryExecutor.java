@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.jmuscles.datasource.DataSourceGenerator;
-import com.jmuscles.processing.config.ExecutorConfigProperties;
-import com.jmuscles.processing.config.SQLQueryCallConfig;
+import com.jmuscles.processing.config.properties.ExecutorConfigProperties;
+import com.jmuscles.processing.config.properties.SQLQueryCallConfig;
 import com.jmuscles.processing.executor.StandardExecutor;
 import com.jmuscles.processing.executor.StandardExecutorRegistry;
 import com.jmuscles.processing.execvalidator.SQLQueryValidator;

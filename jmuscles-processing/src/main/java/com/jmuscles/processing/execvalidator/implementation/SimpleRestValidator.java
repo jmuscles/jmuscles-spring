@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientResponseException;
 
-import com.jmuscles.processing.config.RestCallConfig;
+import com.jmuscles.processing.config.properties.RestCallConfig;
 import com.jmuscles.processing.execvalidator.RestValidator;
 import com.jmuscles.processing.schema.requestdata.RequestData;
 

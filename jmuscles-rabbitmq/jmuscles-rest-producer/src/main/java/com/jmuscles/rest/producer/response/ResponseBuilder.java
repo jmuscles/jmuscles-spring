@@ -13,7 +13,7 @@ import org.springframework.util.StringUtils;
 
 import com.jmuscles.processing.schema.Payload;
 import com.jmuscles.processing.schema.requestdata.RestRequestData;
-import com.jmuscles.rest.producer.config.RestConfPropsForConfigKey;
+import com.jmuscles.rest.producer.config.properties.RestConfPropsForConfigKey;
 
 public class ResponseBuilder {
 

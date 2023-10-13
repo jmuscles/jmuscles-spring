@@ -11,8 +11,8 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import com.jmuscles.processing.config.ExecutorConfigProperties;
-import com.jmuscles.processing.config.RestConfig;
+import com.jmuscles.processing.config.properties.ExecutorConfigProperties;
+import com.jmuscles.processing.config.properties.RestConfig;
 
 /**
  * @author manish goel

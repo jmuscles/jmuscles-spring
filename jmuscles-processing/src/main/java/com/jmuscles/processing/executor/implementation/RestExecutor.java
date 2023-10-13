@@ -19,8 +19,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import com.jmuscles.processing.RestTemplateProvider;
-import com.jmuscles.processing.config.ExecutorConfigProperties;
-import com.jmuscles.processing.config.RestCallConfig;
+import com.jmuscles.processing.config.properties.ExecutorConfigProperties;
+import com.jmuscles.processing.config.properties.RestCallConfig;
 import com.jmuscles.processing.executor.StandardExecutor;
 import com.jmuscles.processing.executor.StandardExecutorRegistry;
 import com.jmuscles.processing.execvalidator.RestValidator;

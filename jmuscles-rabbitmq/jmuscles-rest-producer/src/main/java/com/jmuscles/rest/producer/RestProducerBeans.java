@@ -14,7 +14,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
-import com.jmuscles.rest.producer.config.RestConfPropsForConfigKey;
+import com.jmuscles.rest.producer.config.properties.RestConfPropsForConfigKey;
 import com.jmuscles.rest.producer.helper.JmusclesProducerHelper;
 import com.jmuscles.rest.producer.helper.JmusclesRestControllerBean;
 import com.jmuscles.rest.producer.response.ResponseBuilder;
@@ -32,7 +32,7 @@ public class RestProducerBeans implements BeanFactoryAware {
 	private BeanFactory beanFactory;
 
 	@Bean("restProducerConfigPropertiesMap")
-	@ConfigurationProperties(value = "rest-producer-config")
+	@ConfigurationProperties(value = "jmuscles.rest-producer-config")
 	public Map<String, RestConfPropsForConfigKey> restProducerConfigProperties() {
 		return new HashMap<>();
 	}

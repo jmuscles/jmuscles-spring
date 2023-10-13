@@ -12,10 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.jmuscles.async.producer.config.properties.ProducerConfigProperties;
+import com.jmuscles.async.producer.config.properties.ProducerRabbitmqConfig;
 import com.jmuscles.async.producer.constant.ProducerDataMapKeys;
 import com.jmuscles.async.producer.producing.Producer;
-import com.jmuscles.async.producer.properties.ProducerConfigProperties;
-import com.jmuscles.async.producer.properties.ProducerRabbitmqConfig;
 import com.jmuscles.async.producer.util.AmqpMessageBuilderUtil;
 import com.jmuscles.processing.schema.Payload;
 import com.jmuscles.processing.schema.TrackingDetail;

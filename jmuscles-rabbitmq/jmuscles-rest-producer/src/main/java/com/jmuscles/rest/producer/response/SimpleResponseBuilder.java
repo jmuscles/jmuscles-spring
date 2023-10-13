@@ -10,11 +10,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import com.jmuscles.processing.schema.requestdata.RestRequestData;
-import com.jmuscles.rest.producer.config.RestConfPropsForConfigKey;
-import com.jmuscles.rest.producer.config.RestConfPropsForMethod;
-import com.jmuscles.rest.producer.config.RestResponseConfig;
+import com.jmuscles.rest.producer.config.properties.RestConfPropsForConfigKey;
+import com.jmuscles.rest.producer.config.properties.RestConfPropsForMethod;
+import com.jmuscles.rest.producer.config.properties.RestResponseConfig;
 
 /**
  * 
@@ -43,7 +45,8 @@ public class SimpleResponseBuilder extends BaseResponseBuilder {
 			RestResponseConfig response = restConfPropsForMethodmap.get(restRequestData.getMethod()).getResponseConfig()
 					.get(queued ? "success" : "failure");
 			if (response != null) {
-				responseEntity = new ResponseEntity<>(response.getBody(), response.getHeaders(), response.getStatus());
+				responseEntity = new ResponseEntity<>(response.getBody(), convertToMultiValueMap(response.getHeaders()),
+						response.getStatus());
 			}
 		}
 
@@ -59,6 +62,14 @@ public class SimpleResponseBuilder extends BaseResponseBuilder {
 		logger.debug("... reponse built successfully");
 		return responseEntity;
 
+	}
+
+	public <K, V> MultiValueMap<K, V> convertToMultiValueMap(Map<K, V> map) {
+		MultiValueMap<K, V> multiValueMap = new LinkedMultiValueMap<>();
+		for (Map.Entry<K, V> entry : map.entrySet()) {
+			multiValueMap.add(entry.getKey(), entry.getValue());
+		}
+		return multiValueMap;
 	}
 
 }
