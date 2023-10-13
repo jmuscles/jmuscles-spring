@@ -6,6 +6,8 @@ package com.jmuscles.processing.config.properties;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.jmuscles.util.Util;
+
 /**
  * @author manish goel
  *
@@ -52,15 +54,24 @@ public class RestConfig {
 	}
 
 	public static RestConfig mapToObject(Map<String, Object> map) {
-		return new RestConfig((Integer) map.get("connectionTimeout"), (Integer) map.get("readTimeout"),
-				(Map) map.get("commonHeaders"));
+		return map != null
+				? new RestConfig(Util.getInt(map, "connectionTimeout"), Util.getInt(map, "readTimeout"),
+						(Map) map.get("commonHeaders"))
+				: null;
+
 	}
 
 	public Map<String, Object> objectToMap() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("connectionTimeout", this.getConnectionTimeout());
-		map.put("readTimeout", this.getReadTimeout());
-		map.put("commonHeaders", this.getCommonHeaders());
+		if (this.getConnectionTimeout() != null) {
+			map.put("connectionTimeout", this.getConnectionTimeout().toString());
+		}
+		if (this.getReadTimeout() != null) {
+			map.put("readTimeout", this.getReadTimeout().toString());
+		}
+		if (this.getCommonHeaders() != null) {
+			map.put("commonHeaders", this.getCommonHeaders());
+		}
 
 		return map;
 	}

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.jmuscles.async.producer.config.properties.ProducerConfigProperties;
+import com.jmuscles.util.Util;
 
 /**
  * 
@@ -55,27 +56,45 @@ public class RestConfPropsForConfigKey {
 	}
 
 	public static RestConfPropsForConfigKey mapToObject(Map<String, Object> map) {
-		return new RestConfPropsForConfigKey(RestConfPropsForMethod.mapToObject2((Map) map.get("configByHttpMethods")),
-				ProducerConfigProperties.mapToObject((Map) map.get("processingConfig")),
-				(String) map.get("responseBuilder"));
+		return map != null
+				? new RestConfPropsForConfigKey(
+						RestConfPropsForMethod.mapToObject2((Map) map.get("configByHttpMethods")),
+						ProducerConfigProperties.mapToObject((Map) map.get("processingConfig")),
+						Util.getString(map, "responseBuilder"))
+				: null;
 	}
 
 	public Map<String, Object> objectToMap() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("configByHttpMethods", RestConfPropsForMethod.objectToMap2(this.getConfigByHttpMethods()));
-		map.put("processingConfig", this.getProcessingConfig().objectToMap());
-		map.put("responseBuilder", this.getResponseBuilder());
+		if (this.getConfigByHttpMethods() != null) {
+			map.put("configByHttpMethods", RestConfPropsForMethod.objectToMap2(this.getConfigByHttpMethods()));
+		}
+		if (this.getProcessingConfig() != null) {
+			map.put("processingConfig", this.getProcessingConfig().objectToMap());
+		}
+		if (this.getResponseBuilder() != null) {
+			map.put("responseBuilder", this.getResponseBuilder());
+		}
 
 		return map;
 	}
 
 	public static Map<String, RestConfPropsForConfigKey> mapToObject2(Map<String, Object> map) {
-		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		if (map != null) {
+			return map.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		} else {
+			return null;
+		}
 	}
 
 	public static Map<String, Object> objectToMap2(Map<String, RestConfPropsForConfigKey> objectsMap) {
-		return objectsMap.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		if (objectsMap != null) {
+			return objectsMap.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		} else {
+			return null;
+		}
 	}
 
 }

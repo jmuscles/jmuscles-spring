@@ -47,12 +47,13 @@ public class SimpleSoapCallValidator extends RestValidator {
 
 	private boolean checkResponse(int statusCode, Object body, RestCallConfig restConfig) {
 		boolean isSuccess = false;
-		Map<Integer, List<String>> successCodePatterns = restConfig.getSuccessCodePatterns();
+		Map<String, List<String>> successCodePatterns = restConfig.getSuccessCodePatterns();
 		if (successCodePatterns == null || successCodePatterns.isEmpty()) {
 			isSuccess = statusCode > 199 && statusCode < 300;
 		} else {
-			isSuccess = restConfig.getSuccessCodePatterns().containsKey(statusCode)
-					? checkResponseBodyValidation(statusCode, body, successCodePatterns.get(statusCode))
+			String statusCodeStr = String.valueOf(statusCode);
+			isSuccess = successCodePatterns.containsKey(statusCodeStr)
+					? checkResponseBodyValidation(statusCode, body, successCodePatterns.get(statusCodeStr))
 					: false;
 		}
 		return isSuccess;

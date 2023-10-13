@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.jmuscles.util.Util;
+
 /**
  * @author manish goel
  *
@@ -52,25 +54,40 @@ public class SQLQueryCallConfig {
 	}
 
 	public static SQLQueryCallConfig mapToObject(Map<String, Object> map) {
-		return new SQLQueryCallConfig((String) map.get("dskey"), (String) map.get("query"),
-				(String) map.get("validator"));
+		return new SQLQueryCallConfig(Util.getString(map, "dskey"), Util.getString(map, "query"),
+				Util.getString(map, "validator"));
 	}
 
 	public Map<String, Object> objectToMap() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("dskey", this.getDskey());
-		map.put("query", this.getQuery());
-		map.put("validator", this.getValidator());
+		if (this.getDskey() != null) {
+			map.put("dskey", this.getDskey());
+		}
+		if (this.getQuery() != null) {
+			map.put("query", this.getQuery());
+		}
+		if (this.getValidator() != null) {
+			map.put("validator", this.getValidator());
+		}
 
 		return map;
 	}
 
 	public static Map<String, SQLQueryCallConfig> mapToObject2(Map<String, Object> map) {
-		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		if (map != null) {
+			return map.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		} else {
+			return null;
+		}
 	}
 
 	public static Map<String, Object> objectToMap2(Map<String, SQLQueryCallConfig> objectsMap) {
-		return objectsMap.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		if (objectsMap != null) {
+			return objectsMap.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		} else {
+			return null;
+		}
 	}
 }

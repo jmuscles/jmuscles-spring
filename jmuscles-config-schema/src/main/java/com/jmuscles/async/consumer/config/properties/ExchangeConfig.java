@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.jmuscles.util.Util;
+
 /**
  * @author manish goel
  *
@@ -54,7 +56,10 @@ public class ExchangeConfig {
 	}
 
 	public static ExchangeConfig mapToObject(Map<String, Object> map) {
-		return new ExchangeConfig((String) map.get("name"), (String) map.get("type"), (String) map.get("parent"));
+		return map != null
+				? new ExchangeConfig(Util.getString(map, "name"), Util.getString(map, "type"),
+						Util.getString(map, "parent"))
+				: null;
 	}
 
 	public Map<String, Object> objectToMap() {
@@ -67,20 +72,37 @@ public class ExchangeConfig {
 	}
 
 	public static Map<String, ExchangeConfig> mapToObject2(Map<String, Object> map) {
-		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		if (map != null) {
+			return map.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		} else {
+			return null;
+		}
 	}
 
 	public static Map<String, Object> objectToMap2(Map<String, ExchangeConfig> objectsMap) {
-		return objectsMap.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		if (objectsMap != null) {
+			return objectsMap.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		} else {
+			return null;
+		}
 	}
 
 	public static List<ExchangeConfig> listToObject(List<Map<String, Object>> list) {
-		return list.stream().map(obj -> mapToObject(obj)).collect(Collectors.toList());
+		if (list != null) {
+			return list.stream().map(obj -> mapToObject(obj)).collect(Collectors.toList());
+		} else {
+			return null;
+		}
 	}
 
 	public static List<Map<String, Object>> objectToList(List<ExchangeConfig> list) {
-		return list.stream().map(exchange -> exchange.objectToMap()).collect(Collectors.toList());
+		if (list != null) {
+			return list.stream().map(exchange -> exchange.objectToMap()).collect(Collectors.toList());
+		} else {
+			return null;
+		}
 	}
 
 }

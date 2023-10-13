@@ -43,7 +43,8 @@ public class ProducerDBConfig {
 	}
 
 	public static ProducerDBConfig mapToObject(Map<String, Object> map) {
-		return new ProducerDBConfig((String) map.get("dataSourceKey"), (Map) map.get("jpaProperties"));
+		return map != null ? new ProducerDBConfig((String) map.get("dataSourceKey"), (Map) map.get("jpaProperties"))
+				: null;
 	}
 
 	public Map<String, Object> objectToMap() {
@@ -55,12 +56,21 @@ public class ProducerDBConfig {
 	}
 
 	public static Map<String, ProducerDBConfig> mapToObject2(Map<String, Object> map) {
-		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		if (map != null) {
+			return map.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		} else {
+			return null;
+		}
 	}
 
 	public static Map<String, Object> objectToMap2(Map<String, ProducerDBConfig> objectsMap) {
-		return objectsMap.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		if (objectsMap != null) {
+			return objectsMap.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		} else {
+			return null;
+		}
 	}
 
 }

@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.jmuscles.util.Util;
+
 /**
  * @author manish goel
  *
@@ -63,8 +65,10 @@ public class QueueSetConfig {
 	}
 
 	public static QueueSetConfig mapToObject(Map<String, Object> map) {
-		return new QueueSetConfig((String) map.get("name"), (String) map.get("exchange"),
-				(boolean) map.get("retrySetupDisabled"), resolveArguments((Map) map.get("arguments")));
+		return map != null
+				? new QueueSetConfig(Util.getString(map, "name"), Util.getString(map, "exchange"),
+						Util.getBoolean(map, "retrySetupDisabled"), resolveArguments((Map) map.get("arguments")))
+				: null;
 	}
 
 	public Map<String, Object> objectToMap() {
@@ -79,21 +83,31 @@ public class QueueSetConfig {
 
 	// Map<String, Map<String, Object>> arguments = new HashMap<>()
 	private static Map<String, Map<String, Object>> resolveArguments(Map<String, Object> map) {
-		return map.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> resolveArgument((Map) e.getValue())));
+		return map != null ? map.entrySet().stream()
+				.collect(Collectors.toMap(e -> e.getKey(), e -> resolveArgument((Map) e.getValue()))) : null;
 	}
 
 	private static Map<String, Object> resolveArgument(Map<String, Object> map) {
-		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+		return map != null ? map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()))
+				: null;
 	}
 
 	public static Map<String, QueueSetConfig> mapToObject2(Map<String, Object> map) {
-		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		if (map != null) {
+			return map.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		} else {
+			return null;
+		}
 	}
 
 	public static Map<String, Object> objectToMap2(Map<String, QueueSetConfig> objectsMap) {
-		return objectsMap.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		if (objectsMap != null) {
+			return objectsMap.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		} else {
+			return null;
+		}
 	}
 
 }

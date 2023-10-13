@@ -63,15 +63,17 @@ public class ExecutorConfigProperties {
 	}
 
 	public static ExecutorConfigProperties mapToObject(Map<String, Object> map) {
-		return new ExecutorConfigProperties(RestConfig.mapToObject((Map) map.get("restConfig")),
-				RestCallConfig.mapToObject2((Map) map.get("restCalls")),
-				SQLProcedureCallConfig.mapToObject2((Map) map.get("sqlProcedures")),
-				SQLQueryCallConfig.mapToObject2((Map) map.get("sqlQueries")));
+		return map != null
+				? new ExecutorConfigProperties(RestConfig.mapToObject((Map) map.get("restConfig")),
+						RestCallConfig.mapToObject2((Map) map.get("restCalls")),
+						SQLProcedureCallConfig.mapToObject2((Map) map.get("sqlProcedures")),
+						SQLQueryCallConfig.mapToObject2((Map) map.get("sqlQueries")))
+				: null;
 	}
 
 	public Map<String, Object> objectToMap() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("restConfig", this.getRestConfig());
+		map.put("restConfig", this.getRestConfig().objectToMap());
 		map.put("restCalls", RestCallConfig.objectToMap2(this.getRestCalls()));
 		map.put("sqlProcedures", SQLProcedureCallConfig.objectToMap2(this.getSqlProcedures()));
 		map.put("sqlQueries", SQLQueryCallConfig.objectToMap2(this.getSqlQueries()));

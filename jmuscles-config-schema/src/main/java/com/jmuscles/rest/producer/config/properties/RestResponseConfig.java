@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.jmuscles.util.Util;
+
 /**
  * 
  */
@@ -52,25 +54,41 @@ public class RestResponseConfig {
 	}
 
 	public static RestResponseConfig mapToObject(Map<String, Object> map) {
-		return new RestResponseConfig((int) map.get("status"), (String) map.get("body"), (Map) map.get("headers"));
+		String statusStr = Util.getString(map, "status");
+		return new RestResponseConfig(statusStr != null ? Integer.parseInt(statusStr) : 0, Util.getString(map, "body"),
+				(Map) map.get("headers"));
 	}
 
 	public Map<String, Object> objectToMap() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("status", this.getStatus());
-		map.put("body", this.getBody());
-		map.put("headers", this.getHeaders());
+		map.put("status", String.valueOf(this.getStatus()));
+		if (this.getBody() != null) {
+			map.put("body", this.getBody());
+		}
+		if (this.getHeaders() != null) {
+			map.put("headers", this.getHeaders());
+		}
 
 		return map;
+
 	}
 
 	public static Map<String, RestResponseConfig> mapToObject2(Map<String, Object> map) {
-		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		if (map != null) {
+			return map.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		} else {
+			return null;
+		}
 	}
 
 	public static Map<String, Object> objectToMap2(Map<String, RestResponseConfig> objectsMap) {
-		return objectsMap.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		if (objectsMap != null) {
+			return objectsMap.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		} else {
+			return null;
+		}
 	}
 
 }

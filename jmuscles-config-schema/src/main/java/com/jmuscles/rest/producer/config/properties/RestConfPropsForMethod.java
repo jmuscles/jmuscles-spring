@@ -51,19 +51,32 @@ public class RestConfPropsForMethod {
 
 	public Map<String, Object> objectToMap() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("processingConfig", this.getProcessingConfig().objectToMap());
-		map.put("responseConfig", RestResponseConfig.objectToMap2(this.responseConfig));
+		if (this.getProcessingConfig() != null) {
+			map.put("processingConfig", this.getProcessingConfig().objectToMap());
+		}
+		if (this.getResponseConfig() != null) {
+			map.put("responseConfig", RestResponseConfig.objectToMap2(this.getResponseConfig()));
+		}
 
 		return map;
 	}
 
 	public static Map<String, RestConfPropsForMethod> mapToObject2(Map<String, Object> map) {
-		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		if (map != null) {
+			return map.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		} else {
+			return null;
+		}
 	}
 
 	public static Map<String, Object> objectToMap2(Map<String, RestConfPropsForMethod> objectsMap) {
-		return objectsMap.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		if (objectsMap != null) {
+			return objectsMap.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		} else {
+			return null;
+		}
 	}
 
 }

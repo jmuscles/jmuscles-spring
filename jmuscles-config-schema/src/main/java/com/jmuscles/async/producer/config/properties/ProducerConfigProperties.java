@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.jmuscles.util.Util;
+
 /**
  * @author manish goel
  *
@@ -55,27 +57,42 @@ public class ProducerConfigProperties {
 	}
 
 	public static ProducerConfigProperties mapToObject(Map<String, Object> map) {
-		return new ProducerConfigProperties((List) map.get("activeProducersInOrder"),
-				ProducerRabbitmqConfig.mapToObject((Map) map.get("rabbitmq")),
-				ProducerDBConfig.mapToObject((Map) map.get("database")));
+		return map != null
+				? new ProducerConfigProperties(Util.getListOfString(map, "activeProducersInOrder"),
+						ProducerRabbitmqConfig.mapToObject((Map) map.get("rabbitmq")),
+						ProducerDBConfig.mapToObject((Map) map.get("database")))
+				: null;
 	}
 
 	public Map<String, Object> objectToMap() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("activeProducersInOrder", this.getActiveProducersInOrder());
-		map.put("rabbitmq", this.getRabbitmq().objectToMap());
-		map.put("database", this.getDatabase().objectToMap());
+		if (this.getRabbitmq() != null) {
+			map.put("rabbitmq", this.getRabbitmq().objectToMap());
+		}
+		if (this.getDatabase() != null) {
+			map.put("database", this.getDatabase().objectToMap());
+		}
 
 		return map;
 	}
 
 	public static Map<String, ProducerConfigProperties> mapToObject2(Map<String, Object> map) {
-		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		if (map != null) {
+			return map.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		} else {
+			return null;
+		}
 	}
 
 	public static Map<String, Object> objectToMap2(Map<String, ProducerConfigProperties> objectsMap) {
-		return objectsMap.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		if (objectsMap != null) {
+			return objectsMap.entrySet().stream().collect(
+					Collectors.toMap(e -> e.getKey(), e -> e.getValue() != null ? e.getValue().objectToMap() : null));
+		} else {
+			return null;
+		}
 	}
 
 }

@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.jmuscles.util.Util;
+
 /**
  * @author manish goel
  *
@@ -64,8 +66,11 @@ public class RetryOnlyProcessingConfig {
 	}
 
 	public static RetryOnlyProcessingConfig mapToObject(Map<String, Object> map) {
-		return new RetryOnlyProcessingConfig((boolean) map.get("acceptingMessage"), (int) map.get("retryAttempt"),
-				(boolean) map.get("retryAfterDelay"), (int[]) map.get("retryInterval"));
+		return map != null
+				? new RetryOnlyProcessingConfig(Util.getBoolean(map, "acceptingMessage"),
+						Util.getInt(map, "retryAttempt"), Util.getBoolean(map, "retryAfterDelay"),
+						Util.getIntArray(map, "retryInterval"))
+				: null;
 	}
 
 	public Map<String, Object> objectToMap() {
@@ -79,12 +84,21 @@ public class RetryOnlyProcessingConfig {
 	}
 
 	public static Map<String, RetryOnlyProcessingConfig> mapToObject2(Map<String, Object> map) {
-		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		if (map != null) {
+			return map.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
+		} else {
+			return null;
+		}
 	}
 
 	public static Map<String, Object> objectToMap2(Map<String, RetryOnlyProcessingConfig> objectsMap) {
-		return objectsMap.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		if (objectsMap != null) {
+			return objectsMap.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		} else {
+			return null;
+		}
 	}
 
 }
