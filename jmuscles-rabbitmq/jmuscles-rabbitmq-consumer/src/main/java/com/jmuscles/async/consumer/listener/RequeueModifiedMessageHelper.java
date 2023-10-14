@@ -4,6 +4,7 @@
 package com.jmuscles.async.consumer.listener;
 
 import java.util.AbstractMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -134,12 +135,12 @@ public class RequeueModifiedMessageHelper {
 		messageProperties.setExpiration("" + getRetryDelay(currentRetryAttempt, retryOnlyConfig.getRetryInterval()));
 	}
 
-	private int getRetryDelay(Integer retryIntervalArrayIndex, int[] retryIntervals) {
+	private int getRetryDelay(Integer retryIntervalArrayIndex, List<Integer> retryIntervals) {
 		int retryDelay = defaultRetryDelay;
-		if (retryIntervalArrayIndex != null && retryIntervals != null) {
-			retryIntervalArrayIndex = retryIntervals.length < (retryIntervalArrayIndex + 1) ? retryIntervals.length - 1
+		if (retryIntervalArrayIndex != null && retryIntervals != null && retryIntervals.size() > 0) {
+			retryIntervalArrayIndex = retryIntervals.size() < (retryIntervalArrayIndex + 1) ? retryIntervals.size() - 1
 					: retryIntervalArrayIndex;
-			retryDelay = retryIntervals[retryIntervalArrayIndex];
+			retryDelay = retryIntervals.get(retryIntervalArrayIndex);
 		}
 
 		return retryDelay;

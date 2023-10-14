@@ -4,11 +4,13 @@
  */
 package com.jmuscles.util;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -16,18 +18,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class Util {
 
+	private static final Logger logger = LoggerFactory.getLogger(Util.class);
+
 	public static ObjectMapper objectMapper = new ObjectMapper();
 
 	public static ObjectMapper getObjectMapper() {
 		return objectMapper;
-	}
-
-	public static Map objectToMap(Object object) {
-		return objectMapper.convertValue(object, Map.class);
-	}
-
-	public static Object mapToObject(Object object, Class type) {
-		return objectMapper.convertValue(object, type);
 	}
 
 	public static String getString(Map<String, Object> map, String key) {
@@ -36,25 +32,6 @@ public class Util {
 			return obj.toString();
 		}
 		return null;
-	}
-
-	public static List<String> getListOfString(Map<String, Object> map, String key) {
-		return getListOfString(map.get(key));
-	}
-
-	public static List<String> getListOfString(Object obj) {
-		List<String> list = null;
-		if (obj != null) {
-			list = new ArrayList<>();
-			if (obj instanceof String) {
-				list.add((String) obj);
-			} else if (obj instanceof List) {
-				list = (List<String>) ((List) obj).stream().map(e -> e.toString()).collect(Collectors.toList());
-			} else {
-				list = null;
-			}
-		}
-		return list;
 	}
 
 	public static boolean getBoolean(Map<String, Object> map, String key) {
@@ -68,20 +45,6 @@ public class Util {
 			}
 		}
 		return value;
-	}
-
-	public static Map<String, List<String>> resolveMapOfStringList(Map<String, Object> map, String key) {
-		Map<String, List<String>> returnMap = null;
-		Object obj = map.get(key);
-		if (obj != null) {
-			if (obj instanceof Map) {
-				Map<String, Object> innerMap = (Map) obj;
-				returnMap = (Map<String, List<String>>) innerMap.entrySet().stream()
-						.collect(Collectors.toMap(e -> e.getKey(), e -> getListOfString(e.getValue())));
-			}
-		}
-
-		return returnMap;
 	}
 
 	public static Integer getInt(Map<String, Object> map, String key) {
@@ -100,22 +63,31 @@ public class Util {
 		return returnInt;
 	}
 
-	public static int[] getIntArray(Map<String, Object> map, String key) {
-		return getIntArray(map.get(key));
+	public static String listToString(List list) {
+		try {
+			return objectMapper.writeValueAsString(list);
+		} catch (JsonProcessingException e) {
+			logger.error("Error while listToString for list " + list, e);
+		}
+		return null;
 	}
 
-	public static int[] getIntArray(Object obj) {
-		int[] list = null;
-		if (obj != null) {
-			if (obj instanceof String) {
-				list = new int[] { getInt(obj) };
-			} else if (obj instanceof int[]) {
-				list = (int[]) obj;
-			} else {
-				list = null;
-			}
+	public static Object stringToList(Object obj, Class type) {
+		return obj != null ? stringToList(obj.toString(), type) : null;
+	}
+
+	public static Object stringToList(String string, Class type) {
+		try {
+			return objectMapper.readValue(string,
+					objectMapper.getTypeFactory().constructCollectionType(List.class, type));
+		} catch (JsonProcessingException e) {
+			logger.error("Error while stringToList  " + string, e);
 		}
-		return list;
+		return null;
+	}
+
+	public static Object stringToListFromMap(Map<String, Object> map, String key, Class type) {
+		return stringToList(getString(map, key), type);
 	}
 
 }

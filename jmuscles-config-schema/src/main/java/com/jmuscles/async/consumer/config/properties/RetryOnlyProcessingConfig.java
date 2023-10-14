@@ -4,6 +4,7 @@
 package com.jmuscles.async.consumer.config.properties;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -18,14 +19,14 @@ public class RetryOnlyProcessingConfig {
 	private boolean acceptingMessage;
 	private int retryAttempt;
 	private boolean retryAfterDelay;
-	private int[] retryInterval;
+	private List<Integer> retryInterval;
 
 	public RetryOnlyProcessingConfig() {
 		// TODO Auto-generated constructor stub
 	}
 
 	public RetryOnlyProcessingConfig(boolean acceptingMessage, int retryAttempt, boolean retryAfterDelay,
-			int[] retryInterval) {
+			List<Integer> retryInterval) {
 		super();
 		this.acceptingMessage = acceptingMessage;
 		this.retryAttempt = retryAttempt;
@@ -57,11 +58,11 @@ public class RetryOnlyProcessingConfig {
 		this.retryAfterDelay = retryAfterDelay;
 	}
 
-	public int[] getRetryInterval() {
+	public List<Integer> getRetryInterval() {
 		return retryInterval;
 	}
 
-	public void setRetryInterval(int[] retryInterval) {
+	public void setRetryInterval(List<Integer> retryInterval) {
 		this.retryInterval = retryInterval;
 	}
 
@@ -69,7 +70,7 @@ public class RetryOnlyProcessingConfig {
 		return map != null
 				? new RetryOnlyProcessingConfig(Util.getBoolean(map, "acceptingMessage"),
 						Util.getInt(map, "retryAttempt"), Util.getBoolean(map, "retryAfterDelay"),
-						Util.getIntArray(map, "retryInterval"))
+						(List<Integer>) Util.stringToListFromMap(map, "retryInterval", Integer.class))
 				: null;
 	}
 
@@ -78,7 +79,7 @@ public class RetryOnlyProcessingConfig {
 		map.put("acceptingMessage", this.isAcceptingMessage());
 		map.put("retryAttempt", this.getRetryAttempt());
 		map.put("retryAfterDelay", this.isRetryAfterDelay());
-		map.put("retryInterval", this.getRetryInterval());
+		map.put("retryInterval", Util.listToString(this.getRetryInterval()));
 
 		return map;
 	}

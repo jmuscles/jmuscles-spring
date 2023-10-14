@@ -69,7 +69,8 @@ public class RestCallConfig {
 	public static RestCallConfig mapToObject(Map<String, Object> map) {
 		return map != null
 				? new RestCallConfig(Util.getString(map, "url"), Util.getString(map, "validator"),
-						Util.resolveMapOfStringList(map, "successCodePatterns"), (Map) map.get("httpHeader"))
+						deserailizeSuccessCodePatterns((Map<String, Object>) map.get("successCodePatterns")),
+						(Map) map.get("httpHeader"))
 				: null;
 	}
 
@@ -82,12 +83,25 @@ public class RestCallConfig {
 			map.put("validator", this.getValidator());
 		}
 		if (this.getSuccessCodePatterns() != null) {
-			map.put("successCodePatterns", Util.objectToMap(this.getSuccessCodePatterns()));
+			map.put("successCodePatterns", serailizeSuccessCodePatterns(this.getSuccessCodePatterns()));
 		}
 		if (this.getHttpHeader() != null) {
 			map.put("httpHeader", this.getHttpHeader());
 		}
 		return map;
+	}
+
+	public static Map<String, Object> serailizeSuccessCodePatterns(Map<String, List<String>> successCodePatterns) {
+		return (successCodePatterns != null)
+				? successCodePatterns.entrySet().stream()
+						.collect(Collectors.toMap(e -> e.getKey(), e -> Util.listToString(e.getValue())))
+				: null;
+	}
+
+	public static Map<String, List<String>> deserailizeSuccessCodePatterns(Map<String, Object> map) {
+		return (map != null) ? map.entrySet().stream().collect(
+				Collectors.toMap(e -> e.getKey(), e -> (List<String>) Util.stringToList(e.getValue(), String.class)))
+				: null;
 	}
 
 	public static Map<String, RestCallConfig> mapToObject2(Map<String, Object> map) {

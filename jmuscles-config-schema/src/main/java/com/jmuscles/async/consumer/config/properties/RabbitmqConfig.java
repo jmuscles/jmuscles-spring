@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.jmuscles.util.Util;
+
 /**
  * @author manish goel
  *
@@ -58,7 +60,8 @@ public class RabbitmqConfig {
 
 	public static RabbitmqConfig mapToObject(Map<String, Object> map) {
 		return map != null
-				? new RabbitmqConfig(ExchangeConfig.listToObject((List<Map<String, Object>>) map.get("exchanges")),
+				? new RabbitmqConfig(
+						(List<ExchangeConfig>) Util.stringToListFromMap(map, "exchanges", ExchangeConfig.class),
 						QueueSetConfig.mapToObject2((Map) map.get("queueSetsConfig")),
 						QueueProcessingConfig.mapOfMapToMapOfObject((Map) map.get("queueSetsProcessingConfig")))
 				: null;
@@ -66,7 +69,8 @@ public class RabbitmqConfig {
 
 	public Map<String, Object> objectToMap() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("exchanges", ExchangeConfig.objectToList(this.getExchanges()));
+		// map.put("exchanges", ExchangeConfig.objectToList(this.getExchanges()));
+		map.put("exchanges", Util.listToString(this.getExchanges()));
 		map.put("queueSetsConfig", QueueSetConfig.objectToMap2(this.getQueueSetsConfig()));
 		map.put("queueSetsProcessingConfig",
 				QueueProcessingConfig.objectToMapOfMap(this.getQueueSetsProcessingConfig()));

@@ -89,20 +89,4 @@ public class ExchangeConfig {
 		}
 	}
 
-	public static List<ExchangeConfig> listToObject(List<Map<String, Object>> list) {
-		if (list != null) {
-			return list.stream().map(obj -> mapToObject(obj)).collect(Collectors.toList());
-		} else {
-			return null;
-		}
-	}
-
-	public static List<Map<String, Object>> objectToList(List<ExchangeConfig> list) {
-		if (list != null) {
-			return list.stream().map(exchange -> exchange.objectToMap()).collect(Collectors.toList());
-		} else {
-			return null;
-		}
-	}
-
 }

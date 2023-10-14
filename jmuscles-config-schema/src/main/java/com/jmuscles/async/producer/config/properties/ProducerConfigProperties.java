@@ -58,7 +58,8 @@ public class ProducerConfigProperties {
 
 	public static ProducerConfigProperties mapToObject(Map<String, Object> map) {
 		return map != null
-				? new ProducerConfigProperties(Util.getListOfString(map, "activeProducersInOrder"),
+				? new ProducerConfigProperties(
+						(List<String>) Util.stringToListFromMap(map, "activeProducersInOrder", String.class),
 						ProducerRabbitmqConfig.mapToObject((Map) map.get("rabbitmq")),
 						ProducerDBConfig.mapToObject((Map) map.get("database")))
 				: null;
@@ -66,7 +67,7 @@ public class ProducerConfigProperties {
 
 	public Map<String, Object> objectToMap() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("activeProducersInOrder", this.getActiveProducersInOrder());
+		map.put("activeProducersInOrder", Util.listToString(this.getActiveProducersInOrder()));
 		if (this.getRabbitmq() != null) {
 			map.put("rabbitmq", this.getRabbitmq().objectToMap());
 		}
