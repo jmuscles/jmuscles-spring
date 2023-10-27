@@ -47,12 +47,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.jmuscles</groupId>
-			<artifactId>jmuscles-config-schema</artifactId>
-			<version>${jmuscles-config-schema.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.jmuscles</groupId>
 			<artifactId>jmuscles-rabbitmq-producer</artifactId>
 			<version>${jmuscles-rabbitmq-producer.version}</version>
 		</dependency>

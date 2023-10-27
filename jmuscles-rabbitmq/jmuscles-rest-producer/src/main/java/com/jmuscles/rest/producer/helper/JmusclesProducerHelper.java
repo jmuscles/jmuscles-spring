@@ -36,11 +36,14 @@ public class JmusclesProducerHelper {
 	@Autowired
 	private AsyncPayloadDeliverer asyncPayloadDeliverer;
 
-	@Autowired
 	private ResponseBuilder responseBuilder;
-
-	@Autowired
 	private Map<String, RestConfPropsForConfigKey> restProducerConfigPropertiesMap;
+
+	public JmusclesProducerHelper(Map<String, RestConfPropsForConfigKey> restProducerConfigPropertiesMap,
+			ResponseBuilder responseBuilder) {
+		this.responseBuilder = responseBuilder;
+		this.restProducerConfigPropertiesMap = restProducerConfigPropertiesMap;
+	}
 
 	public ResponseEntity<?> queuePayload(Payload payload, TrackingDetail trackingDetail) {
 		return queuePayload(payload, trackingDetail, null) ? ResponseEntity.ok("Success")

@@ -21,7 +21,7 @@ import com.jmuscles.async.consumer.config.properties.RetryOnlyProcessingConfig;
 import com.jmuscles.async.consumer.config.setup.RabbitmqSetupConfigurator;
 import com.jmuscles.async.consumer.util.QueueTypes;
 import com.jmuscles.async.producer.messageprocessor.MessageProcessor;
-import com.jmuscles.processing.SpringBeanUtil;
+import com.jmuscles.props.util.SpringBeanUtil;
 
 /**
  * @author manish goel

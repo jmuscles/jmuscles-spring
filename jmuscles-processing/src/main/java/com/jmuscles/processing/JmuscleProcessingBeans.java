@@ -2,10 +2,13 @@ package com.jmuscles.processing;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
 import com.jmuscles.datasource.DataSourceGenerator;
 import com.jmuscles.processing.config.properties.ExecutorConfigProperties;
@@ -17,15 +20,25 @@ import com.jmuscles.processing.executor.implementation.RestExecutor;
 import com.jmuscles.processing.executor.implementation.SQLProcedureExecutor;
 import com.jmuscles.processing.executor.implementation.SQLQueryExecutor;
 import com.jmuscles.processing.executor.implementation.SequentialRequestExecutor;
+import com.jmuscles.props.JmusclesPropsBeans;
+import com.jmuscles.props.util.JmusclesConfig;
 
-public class JmuscleProcessingBeans {
+@Import(JmusclesPropsBeans.class)
+public class JmuscleProcessingBeans implements BeanFactoryAware {
 
 	private static final Logger logger = LoggerFactory.getLogger(JmuscleProcessingBeans.class);
 
+	private BeanFactory beanFactory;
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		this.beanFactory = beanFactory;
+	}
+
 	@Bean("executorConfigProperties")
-	@ConfigurationProperties(value = "jmuscles.executors-config")
-	public ExecutorConfigProperties executorConfigProperties() {
-		return new ExecutorConfigProperties();
+	public ExecutorConfigProperties executorConfigProperties(
+			@Qualifier("jmusclesConfig") JmusclesConfig jmusclesConfig) {
+		return jmusclesConfig.getExecutorsConfig();
 	}
 
 	@Bean("restTemplateProvider")
@@ -87,6 +100,11 @@ public class JmuscleProcessingBeans {
 			@Qualifier("executorConfigProperties") ExecutorConfigProperties executorConfigProperties,
 			@Qualifier("dataSourceGenerator") DataSourceGenerator dataSourceGenerator) {
 		return new SQLProcedureExecutor(standardExecutorRegistry, executorConfigProperties, dataSourceGenerator);
+	}
+
+	@Bean("refreshBeanProcessing")
+	public RefreshBeanProcessing refreshBeanProcessing() {
+		return new RefreshBeanProcessing(this.beanFactory);
 	}
 
 }

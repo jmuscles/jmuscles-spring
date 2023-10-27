@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 
-import com.jmuscles.processing.SpringBeanUtil;
+import com.jmuscles.props.util.SpringBeanUtil;
 
 /**
  * @author manish goel

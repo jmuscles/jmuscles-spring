@@ -6,15 +6,12 @@ package com.jmuscles.datasource;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
-import org.springframework.context.event.EventListener;
 
 import com.jmuscles.datasource.builder.DataSourceCreator;
 import com.jmuscles.datasource.builder.DataSourceHolder;
@@ -43,21 +40,20 @@ public class DataSourceGenerator {
 		this.dataSourceOperatorRegistry = new DataSourceOperatorRegistry();
 		this.dataSourceHolder = new DataSourceHolder();
 		JasyptUtil.setJasyptDecryptors(jasyptDecryptors);
+		initilize();
 	}
 
 	public DataSource get(String dskey) {
 		return dataSourceHolder.get(dskey);
 	}
 
-	@PostConstruct
-	public void initilize() {
+	private void initilize() {
 		logger.info("Datasources initialization start....");
 		DataSourceCreator.create(databaseProperties, dataSourceOperatorRegistry, dataSourceHolder);
 		// registerDataSourcesAsBean();
 		logger.info("Datasources initialized");
 	}
 
-	@EventListener(RefreshScopeRefreshedEvent.class)
 	public void refresh() {
 		logger.info("Datasources refresh start....");
 		DataSourceRefresher.refresh(databaseProperties, dataSourceOperatorRegistry, dataSourceHolder);
@@ -71,6 +67,40 @@ public class DataSourceGenerator {
 			dataSourceNames.forEach(dataSourceName -> configurableBeanFactory.registerSingleton(dataSourceName,
 					dataSourceHolder.get(dataSourceName)));
 		}
+	}
+
+	/**
+	 * @return the databaseProperties
+	 */
+	public DatabaseProperties getDatabaseProperties() {
+		return databaseProperties;
+	}
+
+	/**
+	 * @return the dataSourceOperatorRegistry
+	 */
+	public DataSourceOperatorRegistry getDataSourceOperatorRegistry() {
+		return dataSourceOperatorRegistry;
+	}
+
+	/**
+	 * @return the dataSourceHolder
+	 */
+	public DataSourceHolder getDataSourceHolder() {
+		return dataSourceHolder;
+	}
+
+	/**
+	 * @param databaseProperties the databaseProperties to set
+	 */
+	public void setDatabaseProperties(DatabaseProperties databaseProperties) {
+		this.databaseProperties = databaseProperties;
+	}
+
+	public void replace(DataSourceGenerator dataSourceGenerator) {
+		this.databaseProperties = dataSourceGenerator.getDatabaseProperties();
+		this.dataSourceOperatorRegistry = dataSourceGenerator.getDataSourceOperatorRegistry();
+		this.dataSourceHolder = dataSourceGenerator.getDataSourceHolder();
 	}
 
 }

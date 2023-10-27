@@ -33,7 +33,7 @@ public class DataSourceEssentialBeans implements BeanFactoryAware {
 	}
 
 	@Bean("jmusclesDatabaseProperties")
-	@ConfigurationProperties(value = "jmuscles.db-properties")
+	@ConfigurationProperties(value = "jmuscles.db-properties", ignoreInvalidFields = true, ignoreUnknownFields = true)
 	public DatabaseProperties databaseProperties() {
 		return new DatabaseProperties();
 	}

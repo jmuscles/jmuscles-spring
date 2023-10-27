@@ -1,3 +1,8 @@
+
+/**
+ * @author manish goel
+ *
+ */
 /**
  * 
  */
@@ -10,12 +15,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 
 import com.jmuscles.async.producer.config.properties.ProducerConfigProperties;
 import com.jmuscles.async.producer.jpa.asyncpayload.AsyncPayloadPersister;
@@ -26,30 +30,41 @@ import com.jmuscles.async.producer.producing.implementation.RabbitmqProducer;
 import com.jmuscles.async.producer.producing.implementation.SyncProcessingProducer;
 import com.jmuscles.datasource.DataSourceGenerator;
 import com.jmuscles.processing.JmuscleProcessingBeans;
-import com.jmuscles.processing.SpringBeanUtil;
 import com.jmuscles.processing.executor.StandardExecutorRegistry;
+import com.jmuscles.props.util.JmusclesConfig;
 
 /**
  * @author manish goel
  *
  */
-public class ProducerProcessingBeans implements BeanFactoryAware {
+@Import(JmuscleProcessingBeans.class)
+public class ProducerProcessingBeans implements BeanFactoryAware, EnvironmentAware {
 
 	private static final Logger logger = LoggerFactory.getLogger(JmuscleProcessingBeans.class);
 
 	private BeanFactory beanFactory;
+	private Environment environment;
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		this.beanFactory = beanFactory;
+	}
+
+	@Override
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
+	}
 
 	@Bean("producerConfigProperties")
-	@ConfigurationProperties(value = "jmuscles.async-producer-config")
-	public ProducerConfigProperties producerConfigProperties() {
-		return new ProducerConfigProperties();
+	public ProducerConfigProperties producerConfigProperties(
+			@Qualifier("jmusclesConfig") JmusclesConfig jmusclesConfig) {
+		return jmusclesConfig.getAsyncProducerConfig();
 	}
 
 	@ConditionalOnMissingBean(RabbitTemplateProvider.class)
 	@Bean("rabbitTemplateProvider")
-	public RabbitTemplateProvider rabbitTemplateProvider(ConnectionFactory connectionFactory,
-			@Value("${spring.application.name}") String appname) {
-		return new RabbitTemplateProvider(connectionFactory, appname);
+	public RabbitTemplateProvider rabbitTemplateProvider(ConnectionFactory connectionFactory) {
+		return new RabbitTemplateProvider(connectionFactory, environment.getProperty("spring.application.name"));
 	}
 
 	@Bean("asyncPayloadDeliverer")
@@ -58,10 +73,11 @@ public class ProducerProcessingBeans implements BeanFactoryAware {
 	}
 
 	@Bean("asyncPayloadPersister")
-	public AsyncPayloadPersister asyncPayloadPersister(@Value("${spring.application.name}") String applicationName,
+	public AsyncPayloadPersister asyncPayloadPersister(
 			@Qualifier("producerConfigProperties") ProducerConfigProperties producerConfigProperties,
 			@Qualifier("dataSourceGenerator") DataSourceGenerator dataSourceGenerator) {
-		return new AsyncPayloadPersister(applicationName, dataSourceGenerator, producerConfigProperties);
+		return new AsyncPayloadPersister(environment.getProperty("spring.application.name"), dataSourceGenerator,
+				producerConfigProperties);
 	}
 
 	/* producer beans start here .... */
@@ -104,16 +120,9 @@ public class ProducerProcessingBeans implements BeanFactoryAware {
 		return new PersistMessageToDBProcessor(asyncPayloadPersister);
 	}
 
-	@EventListener(RefreshScopeRefreshedEvent.class)
-	public void refreshAsyncPayloadPersister() {
-		AsyncPayloadPersister asyncPayloadPersister = (AsyncPayloadPersister) SpringBeanUtil
-				.getBean("asyncPayloadPersister", beanFactory);
-		asyncPayloadPersister.refresh();
-	}
-
-	@Override
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		this.beanFactory = beanFactory;
+	@Bean("refreshBeanProducer")
+	public RefreshBeanProducer refreshBeanProducer() {
+		return new RefreshBeanProducer(this.beanFactory);
 	}
 
 }

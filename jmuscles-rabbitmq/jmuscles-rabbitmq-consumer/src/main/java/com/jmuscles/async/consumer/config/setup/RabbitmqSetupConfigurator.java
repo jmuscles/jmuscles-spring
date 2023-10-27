@@ -3,6 +3,8 @@
  */
 package com.jmuscles.async.consumer.config.setup;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 
 import com.jmuscles.async.consumer.config.properties.RabbitmqConfig;
@@ -13,6 +15,8 @@ import com.jmuscles.async.producer.RabbitTemplateProvider;
  *
  */
 public class RabbitmqSetupConfigurator {
+
+	private static final Logger logger = LoggerFactory.getLogger(RabbitmqSetupConfigurator.class);
 
 	private RabbitmqConfig rabbitmqConfig;
 	private RabbitTemplateProvider rabbitTemplateProvider;
@@ -28,6 +32,12 @@ public class RabbitmqSetupConfigurator {
 		this.beanFactory = beanFactory;
 
 		configure();
+	}
+
+	public void refresh() {
+		logger.info("Refresh RabbitmqSetupConfigurator start....");
+		configure();
+		logger.info("....Refresh RabbitmqSetupConfigurator end");
 	}
 
 	public void configure() {

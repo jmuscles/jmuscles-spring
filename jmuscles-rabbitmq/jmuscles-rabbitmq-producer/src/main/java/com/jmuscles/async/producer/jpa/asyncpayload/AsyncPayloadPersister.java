@@ -73,7 +73,10 @@ public class AsyncPayloadPersister {
 	}
 
 	public void refresh() {
+		logger.info("Refresh AsyncPayloadPersister start....");
+		this.emf = null;
 		setupEntityManagerFactory();
+		logger.info("....Refresh AsyncPayloadPersister end");
 	}
 
 	private synchronized void setupEntityManagerFactory() {
