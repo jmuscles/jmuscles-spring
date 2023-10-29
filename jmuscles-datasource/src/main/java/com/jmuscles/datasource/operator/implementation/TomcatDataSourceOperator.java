@@ -86,6 +86,13 @@ public class TomcatDataSourceOperator extends DataSourceOperator {
 	}
 
 	@Override
+	public void close(DataSource dataSource) {
+		logger.warn(
+				"Tomcat datasource can not be closed at run time. Please restart app to update the datasource properties.");
+
+	}
+
+	@Override
 	public String dataSourceType() {
 		return "TOMCAT";
 	}

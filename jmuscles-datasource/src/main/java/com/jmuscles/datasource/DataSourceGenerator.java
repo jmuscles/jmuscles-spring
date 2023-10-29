@@ -16,6 +16,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import com.jmuscles.datasource.builder.DataSourceCreator;
 import com.jmuscles.datasource.builder.DataSourceHolder;
 import com.jmuscles.datasource.builder.DataSourceRefresher;
+import com.jmuscles.datasource.builder.JmusclesDataSource;
 import com.jmuscles.datasource.jasypt.JasyptDecryptor;
 import com.jmuscles.datasource.jasypt.JasyptUtil;
 import com.jmuscles.datasource.operator.DataSourceOperatorRegistry;
@@ -32,32 +33,57 @@ public class DataSourceGenerator {
 	private DatabaseProperties databaseProperties;
 	private DataSourceOperatorRegistry dataSourceOperatorRegistry;
 	private DataSourceHolder dataSourceHolder;
+	private String identifier;
 
 	private BeanFactory beanFactory;
 
-	public DataSourceGenerator(DatabaseProperties databaseProperties, List<JasyptDecryptor> jasyptDecryptors) {
+	public DataSourceGenerator(DatabaseProperties databaseProperties, List<JasyptDecryptor> jasyptDecryptors,
+			String identifier, DataSourceOperatorRegistry dataSourceOperatorRegistry,
+			DataSourceProvider dataSourceProvider) {
 		this.databaseProperties = databaseProperties;
-		this.dataSourceOperatorRegistry = new DataSourceOperatorRegistry();
-		this.dataSourceHolder = new DataSourceHolder();
-		JasyptUtil.setJasyptDecryptors(jasyptDecryptors);
+		this.identifier = identifier;
+		this.dataSourceHolder = new DataSourceHolder(identifier);
+
+		if (jasyptDecryptors != null) {
+			JasyptUtil.setJasyptDecryptors(jasyptDecryptors);
+		}
+		if (dataSourceOperatorRegistry == null) {
+			dataSourceOperatorRegistry = new DataSourceOperatorRegistry();
+		}
+		this.dataSourceOperatorRegistry = dataSourceOperatorRegistry;
 		initilize();
+		if (dataSourceProvider != null) {
+			dataSourceProvider.addDataSourceGenerator(this);
+		}
+	}
+
+	public DataSourceGenerator(DatabaseProperties databaseProperties, List<JasyptDecryptor> jasyptDecryptors) {
+		this(databaseProperties, jasyptDecryptors, "", null, null);
+	}
+
+	public DataSourceGenerator(DatabaseProperties databaseProperties) {
+		this(databaseProperties, null);
 	}
 
 	public DataSource get(String dskey) {
-		return dataSourceHolder.get(dskey);
+		return getJmusclesDataSource(dskey).getDataSource();
+	}
+
+	public JmusclesDataSource getJmusclesDataSource(String dskey) {
+		return this.dataSourceHolder.get(dskey);
 	}
 
 	private void initilize() {
-		logger.info("Datasources initialization start....");
+		logger.info("DataSourceGenerator :" + identifier + " initialization start....");
 		DataSourceCreator.create(databaseProperties, dataSourceOperatorRegistry, dataSourceHolder);
 		// registerDataSourcesAsBean();
-		logger.info("Datasources initialized");
+		logger.info("DataSourceGenerator :" + identifier + " initialized");
 	}
 
 	public void refresh() {
-		logger.info("Datasources refresh start....");
+		logger.info("DataSourceGenerator :" + identifier + " refresh start....");
 		DataSourceRefresher.refresh(databaseProperties, dataSourceOperatorRegistry, dataSourceHolder);
-		logger.info("Datasources refreshed");
+		logger.info("DataSourceGenerator :" + identifier + " refreshed");
 	}
 
 	private void registerDataSourcesAsBean() {
@@ -65,8 +91,15 @@ public class DataSourceGenerator {
 		ConfigurableBeanFactory configurableBeanFactory = (ConfigurableBeanFactory) beanFactory;
 		if (dataSourceNames != null && !dataSourceNames.isEmpty()) {
 			dataSourceNames.forEach(dataSourceName -> configurableBeanFactory.registerSingleton(dataSourceName,
-					dataSourceHolder.get(dataSourceName)));
+					this.dataSourceHolder.get(dataSourceName)));
 		}
+	}
+
+	/**
+	 * @return the identifier
+	 */
+	public String getIdentifier() {
+		return identifier;
 	}
 
 	/**
@@ -88,19 +121,6 @@ public class DataSourceGenerator {
 	 */
 	public DataSourceHolder getDataSourceHolder() {
 		return dataSourceHolder;
-	}
-
-	/**
-	 * @param databaseProperties the databaseProperties to set
-	 */
-	public void setDatabaseProperties(DatabaseProperties databaseProperties) {
-		this.databaseProperties = databaseProperties;
-	}
-
-	public void replace(DataSourceGenerator dataSourceGenerator) {
-		this.databaseProperties = dataSourceGenerator.getDatabaseProperties();
-		this.dataSourceOperatorRegistry = dataSourceGenerator.getDataSourceOperatorRegistry();
-		this.dataSourceHolder = dataSourceGenerator.getDataSourceHolder();
 	}
 
 }

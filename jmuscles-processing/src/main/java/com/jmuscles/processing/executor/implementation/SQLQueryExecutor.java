@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import com.jmuscles.datasource.DataSourceGenerator;
+import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.processing.config.properties.ExecutorConfigProperties;
 import com.jmuscles.processing.config.properties.SQLQueryCallConfig;
 import com.jmuscles.processing.executor.StandardExecutor;
@@ -27,13 +27,13 @@ public class SQLQueryExecutor extends StandardExecutor {
 	private static final Logger logger = LoggerFactory.getLogger(SQLQueryExecutor.class);
 
 	private ExecutorConfigProperties executorConfigProperties;
-	private DataSourceGenerator dataSourceGenerator;
+	private DataSourceProvider dataSourceProvider;
 
-	public SQLQueryExecutor(StandardExecutorRegistry executorRegistry, ExecutorConfigProperties executorConfigProperties,
-			DataSourceGenerator dataSourceGenerator) {
+	public SQLQueryExecutor(StandardExecutorRegistry executorRegistry,
+			ExecutorConfigProperties executorConfigProperties, DataSourceProvider dataSourceProvider) {
 		super(executorRegistry);
 		this.executorConfigProperties = executorConfigProperties;
-		this.dataSourceGenerator = dataSourceGenerator;
+		this.dataSourceProvider = dataSourceProvider;
 	}
 
 	@Override
@@ -42,8 +42,7 @@ public class SQLQueryExecutor extends StandardExecutor {
 
 		SQLQueryRequestData queryRequestData = (SQLQueryRequestData) requestData;
 		SQLQueryCallConfig queryConfig = getExecutorSQLQueryConfig(queryRequestData.getConfigKey());
-		int response = invoke(queryRequestData, queryConfig.getQuery(),
-				dataSourceGenerator.get(queryConfig.getDskey()));
+		int response = invoke(queryRequestData, queryConfig.getQuery(), dataSourceProvider.get(queryConfig.getDskey()));
 
 		logger.debug("response for queryconfigKey- " + queryRequestData.getConfigKey() + ": " + response);
 

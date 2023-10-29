@@ -28,10 +28,10 @@ import com.jmuscles.async.producer.messageprocessor.PersistMessageToDBProcessor;
 import com.jmuscles.async.producer.producing.implementation.DBProducer;
 import com.jmuscles.async.producer.producing.implementation.RabbitmqProducer;
 import com.jmuscles.async.producer.producing.implementation.SyncProcessingProducer;
-import com.jmuscles.datasource.DataSourceGenerator;
+import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.processing.JmuscleProcessingBeans;
 import com.jmuscles.processing.executor.StandardExecutorRegistry;
-import com.jmuscles.props.util.JmusclesConfig;
+import com.jmuscles.props.JmusclesConfig;
 
 /**
  * @author manish goel
@@ -75,8 +75,8 @@ public class ProducerProcessingBeans implements BeanFactoryAware, EnvironmentAwa
 	@Bean("asyncPayloadPersister")
 	public AsyncPayloadPersister asyncPayloadPersister(
 			@Qualifier("producerConfigProperties") ProducerConfigProperties producerConfigProperties,
-			@Qualifier("dataSourceGenerator") DataSourceGenerator dataSourceGenerator) {
-		return new AsyncPayloadPersister(environment.getProperty("spring.application.name"), dataSourceGenerator,
+			@Qualifier("dataSourceProvider") DataSourceProvider dataSourceProvider) {
+		return new AsyncPayloadPersister(environment.getProperty("spring.application.name"), dataSourceProvider,
 				producerConfigProperties);
 	}
 

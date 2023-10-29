@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 
-import com.jmuscles.datasource.DataSourceGenerator;
+import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.processing.config.properties.ExecutorConfigProperties;
 import com.jmuscles.processing.config.properties.SQLProcedureCallConfig;
 import com.jmuscles.processing.executor.StandardExecutor;
@@ -30,13 +30,13 @@ public class SQLProcedureExecutor extends StandardExecutor {
 	private static final Logger logger = LoggerFactory.getLogger(SQLProcedureExecutor.class);
 
 	private ExecutorConfigProperties executorConfigProperties;
-	private DataSourceGenerator dataSourceGenerator;
+	private DataSourceProvider dataSourceProvider;
 
-	public SQLProcedureExecutor(StandardExecutorRegistry executorRegistry, ExecutorConfigProperties executorConfigProperties,
-			DataSourceGenerator dataSourceGenerator) {
+	public SQLProcedureExecutor(StandardExecutorRegistry executorRegistry,
+			ExecutorConfigProperties executorConfigProperties, DataSourceProvider dataSourceProvider) {
 		super(executorRegistry);
 		this.executorConfigProperties = executorConfigProperties;
-		this.dataSourceGenerator = dataSourceGenerator;
+		this.dataSourceProvider = dataSourceProvider;
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class SQLProcedureExecutor extends StandardExecutor {
 		SQLProcedureRequestData procRequestData = (SQLProcedureRequestData) requestData;
 		SQLProcedureCallConfig procedureConfig = getExecutorSQLProcedureConfig(procRequestData.getConfigKey());
 		Object response = invoke(procRequestData, procedureConfig.getProcedure(),
-				dataSourceGenerator.get(procedureConfig.getDskey()));
+				dataSourceProvider.get(procedureConfig.getDskey()));
 
 		RequestData responseRequestData = SQLProcedureValidator.get(procedureConfig.getValidator())
 				.validateResponse(procRequestData, response, procedureConfig) ? null : requestData;

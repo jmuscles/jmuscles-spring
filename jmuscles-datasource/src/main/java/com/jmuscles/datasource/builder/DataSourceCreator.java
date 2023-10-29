@@ -35,14 +35,15 @@ public class DataSourceCreator {
 
 	public static void createNewDataSourceInHolder(String dataSourceName, DatabaseProperties databaseProperties,
 			DataSourceOperatorRegistry dataSourceOperatorRegistry, DataSourceHolder dataSourceHolder) {
-		DataSource dataSource = create(dataSourceName, databaseProperties, dataSourceOperatorRegistry);
-		if (dataSource != null) {
-			dataSourceHolder.add(dataSourceName, dataSource);
+		JmusclesDataSource jmusclesDataSource = create(dataSourceName, databaseProperties, dataSourceOperatorRegistry,
+				dataSourceHolder.getIdentifier());
+		if (jmusclesDataSource != null) {
+			dataSourceHolder.add(dataSourceName, jmusclesDataSource);
 		}
 	}
 
-	private static DataSource create(String dataSourceName, DatabaseProperties databaseProperties,
-			DataSourceOperatorRegistry dataSourceOperatorRegistry) {
+	private static JmusclesDataSource create(String dataSourceName, DatabaseProperties databaseProperties,
+			DataSourceOperatorRegistry dataSourceOperatorRegistry, String dsgIdentifier) {
 		DataSourceConfig dataSourceConfig = DataSourcePropertiesUtil.getDataSourceConfig(dataSourceName,
 				databaseProperties);
 		String dataSourceType = DataSourcePropertiesUtil.getDataSourceType(dataSourceConfig);
@@ -52,10 +53,12 @@ public class DataSourceCreator {
 		if (newProperties != null) {
 			dataSource = dataSourceOperatorRegistry.get(dataSourceType).create(dataSourceName, newProperties);
 		} else {
-			logger.error("Issue with the properties for dataSource : " + dataSourceName
-					+ ". Datasource can not be created.");
+			logger.error("dsgIdentifier : " + dsgIdentifier + " Issue with the properties for dataSource : "
+					+ dataSourceName + ". Datasource can not be created.");
 		}
-		return dataSource;
+
+		return dataSource != null ? JmusclesDataSource.of(dataSource).addType(dataSourceType).addDsgId(dsgIdentifier)
+				: null;
 	}
 
 }

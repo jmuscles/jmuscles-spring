@@ -33,7 +33,6 @@
 
 		<jmuscles-rest-producer.version>${jmuscles-post-fix}</jmuscles-rest-producer.version>
 
-
 		<jmuscles-rabbitmq-consumer.version>${jmuscles-post-fix}</jmuscles-rabbitmq-consumer.version>
 
 		<javax.annotation-api.version>1.3.2</javax.annotation-api.version>
@@ -53,6 +52,7 @@
 	</properties>
 
 	<modules>
+		<module>jmuscles-processing-schema</module>
 		<module>jmuscles-props-schema</module>
 		<module>jmuscles-datasource</module>
 		<module>jmuscles-props</module>

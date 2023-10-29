@@ -25,4 +25,7 @@ public abstract class DataSourceOperator {
 
 	public abstract String dataSourceType();
 
+	public abstract void close(DataSource dataSource);
+
+
 }

@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
-import com.jmuscles.datasource.DataSourceGenerator;
+import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.processing.config.properties.ExecutorConfigProperties;
 import com.jmuscles.processing.executor.CustomExecutorRegistry;
 import com.jmuscles.processing.executor.StandardExecutorRegistry;
@@ -20,8 +20,8 @@ import com.jmuscles.processing.executor.implementation.RestExecutor;
 import com.jmuscles.processing.executor.implementation.SQLProcedureExecutor;
 import com.jmuscles.processing.executor.implementation.SQLQueryExecutor;
 import com.jmuscles.processing.executor.implementation.SequentialRequestExecutor;
+import com.jmuscles.props.JmusclesConfig;
 import com.jmuscles.props.JmusclesPropsBeans;
-import com.jmuscles.props.util.JmusclesConfig;
 
 @Import(JmusclesPropsBeans.class)
 public class JmuscleProcessingBeans implements BeanFactoryAware {
@@ -90,16 +90,16 @@ public class JmuscleProcessingBeans implements BeanFactoryAware {
 	public SQLQueryExecutor sQLQueryExecutor(
 			@Qualifier("standardExecutorRegistry") StandardExecutorRegistry standardExecutorRegistry,
 			@Qualifier("executorConfigProperties") ExecutorConfigProperties executorConfigProperties,
-			@Qualifier("dataSourceGenerator") DataSourceGenerator dataSourceGenerator) {
-		return new SQLQueryExecutor(standardExecutorRegistry, executorConfigProperties, dataSourceGenerator);
+			@Qualifier("dataSourceProvider") DataSourceProvider dataSourceProvider) {
+		return new SQLQueryExecutor(standardExecutorRegistry, executorConfigProperties, dataSourceProvider);
 	}
 
 	@Bean("sQLProcedureExecutor")
 	public SQLProcedureExecutor sQLProcedureExecutor(
 			@Qualifier("standardExecutorRegistry") StandardExecutorRegistry standardExecutorRegistry,
 			@Qualifier("executorConfigProperties") ExecutorConfigProperties executorConfigProperties,
-			@Qualifier("dataSourceGenerator") DataSourceGenerator dataSourceGenerator) {
-		return new SQLProcedureExecutor(standardExecutorRegistry, executorConfigProperties, dataSourceGenerator);
+			@Qualifier("dataSourceProvider") DataSourceProvider dataSourceProvider) {
+		return new SQLProcedureExecutor(standardExecutorRegistry, executorConfigProperties, dataSourceProvider);
 	}
 
 	@Bean("refreshBeanProcessing")

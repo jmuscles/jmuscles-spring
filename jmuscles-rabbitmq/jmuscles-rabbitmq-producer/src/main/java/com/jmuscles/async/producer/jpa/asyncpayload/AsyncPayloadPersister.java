@@ -24,7 +24,7 @@ import org.springframework.util.StringUtils;
 import com.jmuscles.async.producer.config.properties.ProducerConfigProperties;
 import com.jmuscles.async.producer.constant.AsyncMessageConstants;
 import com.jmuscles.async.producer.constant.MessageStatus;
-import com.jmuscles.datasource.DataSourceGenerator;
+import com.jmuscles.datasource.DataSourceProvider;
 
 /**
  * @author manish goel
@@ -41,7 +41,7 @@ public class AsyncPayloadPersister {
 	public static final int PAYLOAD_PROPS_VALUE_MAX_LENGTH = 500;
 
 	public String applicationName;
-	private DataSourceGenerator dataSourceGenerator;
+	private DataSourceProvider dataSourceProvider;
 	ProducerConfigProperties producerConfigProperties;
 
 	public AsyncPayloadEntity persist(byte[] payload, Map<String, String> payloadProps) {
@@ -57,11 +57,11 @@ public class AsyncPayloadPersister {
 		return persist(asyncPayloadEntity);
 	}
 
-	public AsyncPayloadPersister(String applicationName, DataSourceGenerator dataSourceGenerator,
+	public AsyncPayloadPersister(String applicationName, DataSourceProvider dataSourceProvider,
 			ProducerConfigProperties producerConfigProperties) {
 		super();
 		this.applicationName = applicationName;
-		this.dataSourceGenerator = dataSourceGenerator;
+		this.dataSourceProvider = dataSourceProvider;
 		this.producerConfigProperties = producerConfigProperties;
 	}
 
@@ -96,14 +96,14 @@ public class AsyncPayloadPersister {
 
 	private DataSource getProducerDataSource() {
 		DataSource dataSource = null;
-		if (this.dataSourceGenerator == null) {
+		if (this.dataSourceProvider == null) {
 			logger.error("dataSourceGenerator is null hence AsyncPayloadPersister can not be initialized.");
 		} else if (this.producerConfigProperties == null || this.producerConfigProperties.getDatabase() == null
 				|| this.producerConfigProperties.getDatabase().getDataSourceKey() == null) {
 			logger.error("'async-producer-config.database.datasourceKey' is not configured "
 					+ "hence AsyncPayloadPersister can not be initialized.");
 		} else {
-			dataSource = this.dataSourceGenerator.get(this.producerConfigProperties.getDatabase().getDataSourceKey());
+			dataSource = this.dataSourceProvider.get(this.producerConfigProperties.getDatabase().getDataSourceKey());
 		}
 		return dataSource;
 	}

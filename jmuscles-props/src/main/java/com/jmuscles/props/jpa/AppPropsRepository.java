@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -22,7 +21,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.util.StringUtils;
 
-import com.jmuscles.datasource.DataSourceGenerator;
+import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.props.AppPropsDBConfig;
 
 /**
@@ -38,18 +37,17 @@ public class AppPropsRepository {
 
 	private EntityManagerFactory emf;
 	public String applicationName;
-	private DataSourceGenerator dataSourceGenerator;
+	private DataSourceProvider dataSourceProvider;
 	private AppPropsDBConfig appPropsDBConfig;
 
-	public AppPropsRepository(String applicationName, DataSourceGenerator dataSourceGenerator,
+	public AppPropsRepository(String applicationName, DataSourceProvider dataSourceProvider,
 			AppPropsDBConfig appPropsDBConfig) {
 		super();
 		this.applicationName = applicationName;
-		this.dataSourceGenerator = dataSourceGenerator;
+		this.dataSourceProvider = dataSourceProvider;
 		this.appPropsDBConfig = appPropsDBConfig;
 	}
 
-	@PostConstruct
 	private void initialize() {
 		setupEntityManagerFactory();
 	}
@@ -188,13 +186,13 @@ public class AppPropsRepository {
 
 	private DataSource getProducerDataSource() {
 		DataSource dataSource = null;
-		if (this.dataSourceGenerator == null) {
+		if (this.dataSourceProvider == null) {
 			logger.error("dataSourceGenerator is null hence AppPropsResource can not be initialized.");
 		} else if (this.appPropsDBConfig == null || this.appPropsDBConfig.getDataSourceKey() == null) {
 			logger.error("'config-props-from-db.datasourceKey' is not configured "
 					+ "hence AppPropsResource can not be initialized.");
 		} else {
-			dataSource = this.dataSourceGenerator.get(this.appPropsDBConfig.getDataSourceKey());
+			dataSource = this.dataSourceProvider.get(this.appPropsDBConfig.getDataSourceKey());
 		}
 		return dataSource;
 	}

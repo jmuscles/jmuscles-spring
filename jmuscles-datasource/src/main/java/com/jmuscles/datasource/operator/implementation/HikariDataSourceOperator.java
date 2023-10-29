@@ -32,10 +32,12 @@ public class HikariDataSourceOperator extends DataSourceOperator {
 	private static final String GET_HIKARI_CONFIG_MXBEAN_METHOD = "getHikariConfigMXBean";
 	private static final String HIKARI_CONFIG_CLASS_NAME = "com.zaxxer.hikari.HikariConfig";
 	private static final String HIKARI_CONFIG_MXBEAN_CLASS_NAME = "com.zaxxer.hikari.HikariConfigMXBean";
+	private static final String HIKARI_DATASOURCE_CLOSE_METHOD = "close";
 
 	private static Class<?> hikariDataSourceClass;
 	private static Constructor<?> hikariDataSourceConstructor;
 	private static Method getHikariConfigMXBeanMethod;
+	private static Method closeMethod;
 
 	private static Class<?> hikariConfigClass;
 	private static Constructor<?> hikariConfigConstructor;
@@ -60,6 +62,7 @@ public class HikariDataSourceOperator extends DataSourceOperator {
 
 				hikariConfigConstructor = hikariConfigClass.getConstructor(Properties.class);
 				hikariDataSourceConstructor = hikariDataSourceClass.getConstructor(hikariConfigClass);
+				closeMethod = hikariDataSourceClass.getMethod(HIKARI_DATASOURCE_CLOSE_METHOD);
 				getHikariConfigMXBeanMethod = hikariDataSourceClass.getMethod(GET_HIKARI_CONFIG_MXBEAN_METHOD);
 				hikariConfigMXBeanClass = Class.forName(HIKARI_CONFIG_MXBEAN_CLASS_NAME, false,
 						HikariDataSourceOperator.class.getClassLoader());
@@ -132,6 +135,18 @@ public class HikariDataSourceOperator extends DataSourceOperator {
 				}
 			}
 
+		}
+	}
+
+	@Override
+	public void close(DataSource dataSource) {
+		if (hikariDataSourceClass.isInstance(dataSource)) {
+			try {
+				closeMethod.invoke(dataSource);
+			} catch (Exception e) {
+				logger.error("Error while closing the hikari datasource", e);
+				return;
+			}
 		}
 	}
 

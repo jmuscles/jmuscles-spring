@@ -8,16 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jmuscles.props.JmusclesConfig;
 import com.jmuscles.props.jpa.AppPropsEntity;
 import com.jmuscles.props.jpa.AppPropsRepository;
-import com.jmuscles.props.util.JmusclesConfig;
 
 /**
  * @author manish goel
@@ -36,7 +34,6 @@ public class ReadPropsFromDBService {
 		return getProperties(null);
 	}
 
-	@PostConstruct
 	public void initialize() {
 		this.jmusclesConfig = getLatestProperties();
 	}
@@ -50,7 +47,6 @@ public class ReadPropsFromDBService {
 			jmusclesConfig = latestProperties;
 		}
 		logger.info("....Refresh RestTemplateProvider end");
-
 	}
 
 	/**

@@ -2,7 +2,7 @@
  * @author manish goel
  *
  */
-package com.jmuscles.props.util;
+package com.jmuscles.props;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,7 @@ import com.jmuscles.async.consumer.config.properties.RabbitmqConfig;
 import com.jmuscles.async.producer.config.properties.ProducerConfigProperties;
 import com.jmuscles.datasource.properties.DatabaseProperties;
 import com.jmuscles.processing.config.properties.ExecutorConfigProperties;
+import com.jmuscles.props.util.DatabasePropertiesMapper;
 import com.jmuscles.rest.producer.config.properties.RestConfPropsForConfigKey;
 
 /**

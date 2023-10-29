@@ -4,57 +4,72 @@
  */
 package com.jmuscles.props;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.env.Environment;
 
 import com.jmuscles.datasource.DataSourceGenerator;
+import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.props.service.ReadPropsFromDBService;
 import com.jmuscles.props.util.RefreshBean;
+import com.jmuscles.props.util.SpringBeanUtil;
 
 /**
  * 
  */
 public class RefreshBeanProps implements RefreshBean {
 
-	private BeanFactory beanFactory;
-	private Environment environment;
-	boolean enabledDbConfig;
+	private static final Logger logger = LoggerFactory.getLogger(RefreshBeanProps.class);
 
-	public RefreshBeanProps(boolean enabledDbConfig, BeanFactory beanFactory, Environment environment) {
+	private JmusclesPropsBeans jmusclesPropsBeans;
+
+	public RefreshBeanProps(JmusclesPropsBeans jmusclesPropsBeans, BeanFactory beanFactory, Environment environment) {
 		super();
-		this.enabledDbConfig = enabledDbConfig;
-		this.beanFactory = beanFactory;
-		this.environment = environment;
+		this.jmusclesPropsBeans = jmusclesPropsBeans;
 	}
 
 	public void handleRefreshEvent() {
-		// boolean enabledDbConfig =
-		// environment.getProperty(Constants.PROP_ENABLED_DB_CONFIG, Boolean.class,
-		// false);
 
-		if (enabledDbConfig) {
-			ReadPropsFromDBService readPropsFromDBService = (ReadPropsFromDBService) beanFactory
-					.getBean("readPropsFromDBService");
-			if (readPropsFromDBService != null) {
-				readPropsFromDBService.refresh();
-				DataSourceGenerator jmusclesDatasources = (DataSourceGenerator) beanFactory
-						.getBean("jmusclesDatasources");
-				if (jmusclesDatasources != null) {
-					jmusclesDatasources
-							.setDatabaseProperties(readPropsFromDBService.getJmusclesConfig().getDbProperties());
-					jmusclesDatasources.refresh();
-				}
+		logger.info("Refresh start...");
+
+		BeanFactory beanFactory = this.jmusclesPropsBeans.getBeanFactory();
+		
+		JmusclesConfig jmusclesConfig = (JmusclesConfig) SpringBeanUtil.getBean("jmusclesConfig", beanFactory);
+
+		DataSourceProvider dataSourceProvider = (DataSourceProvider) SpringBeanUtil.getBean("dataSourceProvider",
+				beanFactory);
+		DataSourceGenerator dsgConfigProps = dataSourceProvider.getDsgConfigProps();
+		DataSourceGenerator dsgDbProps = dataSourceProvider.getDsgDbProps();
+
+		if (dsgConfigProps != null) {
+			dsgConfigProps.refresh();
+		}
+
+		ReadPropsFromDBService readPropsFromDBService = (ReadPropsFromDBService) SpringBeanUtil
+				.getBean("readPropsFromDBService", beanFactory);
+		
+		if (this.jmusclesPropsBeans.isEnabledDbConfig()) {
+			readPropsFromDBService.refresh();
+			if (dsgDbProps == null) {
+				jmusclesPropsBeans.createDbPropsDsg(readPropsFromDBService.getJmusclesConfig().getDbProperties());
+			} else {
+				dsgDbProps.refresh();
 			}
+			jmusclesConfig.replaceValues(readPropsFromDBService.getJmusclesConfig());
 		} else {
-			DataSourceGenerator dataSourceGenerator = (DataSourceGenerator) beanFactory.getBean("dataSourceGenerator");
-			// DataSourceGenerator dsGeneratorToCleanup = (DataSourceGenerator)
-			// beanFactory.getBean("jmusclesDatasources");
-			if (dataSourceGenerator != null) {
-				dataSourceGenerator.refresh();
-				// SpringBeanUtil.registerSingletonBean("jmusclesDatasources",
-				// dataSourceGenerator, this.beanFactory);
+			if (readPropsFromDBService.getJmusclesConfig() != null) {
+				readPropsFromDBService.getJmusclesConfig().clear();
+				if (dsgDbProps != null) {
+					dsgDbProps.refresh();
+				}
+				JmusclesConfig jmusclesConfigProps = (JmusclesConfig) SpringBeanUtil.getBean("jmusclesConfigProps",
+						beanFactory);
+				jmusclesConfig.replaceValues(jmusclesConfigProps);
 			}
 		}
+
+		logger.info(" ...Refresh end");
 	}
 
 }

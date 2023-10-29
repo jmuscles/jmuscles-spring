@@ -10,11 +10,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
 import com.jmuscles.datasource.jasypt.JasyptDecryptor;
+import com.jmuscles.datasource.operator.DataSourceOperatorRegistry;
 import com.jmuscles.datasource.properties.DatabaseProperties;
 
 /**
@@ -38,10 +40,23 @@ public class DataSourceEssentialBeans implements BeanFactoryAware {
 		return new DatabaseProperties();
 	}
 
+	@Bean("dataSourceOperatorRegistry")
+	public DataSourceOperatorRegistry dataSourceOperatorRegistry() {
+		return new DataSourceOperatorRegistry();
+	}
+
+	@Bean("dataSourceProvider")
+	public DataSourceProvider dataSourceProvider() {
+		return new DataSourceProvider();
+	}
+
 	@Bean("dataSourceGenerator")
 	public DataSourceGenerator dataSourceGenerator(
-			@Qualifier("jmusclesDatabaseProperties") DatabaseProperties databaseProperties) {
-		return new DataSourceGenerator(databaseProperties, this.jasyptDecryptors);
+			@Qualifier("jmusclesDatabaseProperties") DatabaseProperties databaseProperties,
+			@Qualifier("dataSourceOperatorRegistry") @Autowired(required = false) DataSourceOperatorRegistry dataSourceOperatorRegistry,
+			@Qualifier("dataSourceProvider") DataSourceProvider dataSourceProvider) {
+		return new DataSourceGenerator(databaseProperties, this.jasyptDecryptors, DataSourceProvider.DSG_CONFIG_PROPS,
+				dataSourceOperatorRegistry, dataSourceProvider);
 	}
 
 	@Override
