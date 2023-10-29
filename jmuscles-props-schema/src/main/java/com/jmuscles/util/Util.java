@@ -39,7 +39,7 @@ public class Util {
 		Object obj = map.get(key);
 		if (obj != null) {
 			if (obj instanceof String) {
-				value = Boolean.getBoolean(obj.toString());
+				value = Boolean.parseBoolean(obj.toString());
 			} else if (obj instanceof Boolean) {
 				value = (Boolean) obj;
 			}
