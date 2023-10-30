@@ -4,6 +4,7 @@
  */
 package com.jmuscles.util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -73,17 +74,19 @@ public class Util {
 	}
 
 	public static Object stringToList(Object obj, Class type) {
-		return obj != null ? stringToList(obj.toString(), type) : null;
+		return obj != null ? stringToList(obj.toString(), type) : new ArrayList();
 	}
 
 	public static Object stringToList(String string, Class type) {
-		try {
-			return objectMapper.readValue(string,
-					objectMapper.getTypeFactory().constructCollectionType(List.class, type));
-		} catch (JsonProcessingException e) {
-			logger.error("Error while stringToList  " + string, e);
+		if (string != null) {
+			try {
+				return objectMapper.readValue(string,
+						objectMapper.getTypeFactory().constructCollectionType(List.class, type));
+			} catch (JsonProcessingException e) {
+				logger.error("Error while stringToList  " + string, e);
+			}
 		}
-		return null;
+		return new ArrayList<>();
 	}
 
 	public static Object stringToListFromMap(Map<String, Object> map, String key, Class type) {
