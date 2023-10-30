@@ -163,6 +163,14 @@ public class JmusclesConfig {
 				DatabasePropertiesMapper.mapToObject((Map) map.get("dbProperties")));
 	}
 
+	public static JmusclesConfig mapToObjectForSnakeCaseYaml(Map<String, Object> map) {
+		return new JmusclesConfig(RestConfPropsForConfigKey.mapToObject2((Map) map.get("rest-producer-config")),
+				ProducerConfigProperties.mapToObject((Map) map.get("async-producer-config")),
+				RabbitmqConfig.mapToObject((Map) map.get("rabbitmq-config")),
+				ExecutorConfigProperties.mapToObject((Map) map.get("executors-config")),
+				DatabasePropertiesMapper.mapToObject((Map) map.get("db-properties")));
+	}
+
 	public Map<String, Object> objectToMap() {
 		Map<String, Object> map = new HashMap<>();
 		if (this.getRestProducerConfig() != null) {

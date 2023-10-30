@@ -143,6 +143,12 @@ public class AppPropsRepository {
 		return result;
 	}
 
+	public void deleteAll() {
+		executeInTransaction(em -> {
+			em.createQuery("DELETE FROM AppPropsEntity a WHERE a.id<" + Long.MAX_VALUE).executeUpdate();
+		});
+	}
+
 	public void executeInTransaction(Consumer<EntityManager> action) {
 		initialize();
 		if (this.emf == null) {
