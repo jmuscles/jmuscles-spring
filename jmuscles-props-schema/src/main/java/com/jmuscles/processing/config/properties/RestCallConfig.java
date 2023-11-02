@@ -3,6 +3,7 @@
  */
 package com.jmuscles.processing.config.properties;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,9 +100,13 @@ public class RestCallConfig {
 	}
 
 	public static Map<String, List<String>> deserailizeSuccessCodePatterns(Map<String, Object> map) {
-		return (map != null) ? map.entrySet().stream().collect(
-				Collectors.toMap(e -> e.getKey(), e -> (List<String>) Util.stringToList(e.getValue(), String.class)))
-				: null;
+		return (map != null) ? map.entrySet().stream()
+				.collect(Collectors.toMap(e -> e.getKey(), e -> (List<String>) stringToList(e.getValue()))) : null;
+	}
+
+	// MapToObject - deserailizeSuccessCodePatterns(Map<String, Object>)
+	private static Object stringToList(Object obj) {
+		return obj != null ? Util.stringToList(obj.toString(), String.class) : new ArrayList<>();
 	}
 
 	public static Map<String, RestCallConfig> mapToObject2(Map<String, Object> map) {

@@ -58,7 +58,11 @@ public class ReadPropsFromDBService {
 
 	public JmusclesConfig getProperties(String requestPath) {
 		JmusclesConfig jmusclesConfig = null;
-		Map<String, Object> map = readDataFromDatabase(requestPath);
+		String[] paths = null;
+		if (StringUtils.hasText(requestPath)) {
+			paths = requestPath.split("\\.");
+		}
+		Map<String, Object> map = readDataFromDatabase(paths);
 		if (map != null) {
 			jmusclesConfig = JmusclesConfig.mapToObject((Map<String, Object>) map.get("jmuscles"));
 		}
@@ -66,11 +70,19 @@ public class ReadPropsFromDBService {
 	}
 
 	public Map<String, Object> readDataFromDatabase(String requestPath) {
+		String[] paths = null;
+		if (StringUtils.hasText(requestPath)) {
+			paths = requestPath.split("\\.");
+		}
+		return readDataFromDatabase(paths);
+	}
+
+	public Map<String, Object> readDataFromDatabase(String[] paths) {
 		List<AppPropsEntity> topLevelProperties = null;
-		if (!StringUtils.hasText(requestPath)) {
+		if (paths == null) {
 			topLevelProperties = appPropsRepository.findAllByParentIsNull();
 		} else {
-			AppPropsEntity appPropsEntity = appPropsRepository.findByKeyPath(requestPath.split("\\."));
+			AppPropsEntity appPropsEntity = appPropsRepository.findByKeyPath(paths);
 			if (appPropsEntity != null) {
 				topLevelProperties = new ArrayList<AppPropsEntity>();
 				topLevelProperties.add(appPropsEntity);

@@ -4,7 +4,6 @@
  */
 package com.jmuscles.util;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,9 +34,8 @@ public class Util {
 		return null;
 	}
 
-	public static boolean getBoolean(Map<String, Object> map, String key) {
+	public static boolean getBoolean(Object obj) {
 		boolean value = false;
-		Object obj = map.get(key);
 		if (obj != null) {
 			if (obj instanceof String) {
 				value = Boolean.parseBoolean(obj.toString());
@@ -46,6 +44,10 @@ public class Util {
 			}
 		}
 		return value;
+	}
+
+	public static boolean getBoolean(Map<String, Object> map, String key) {
+		return getBoolean(map.get(key));
 	}
 
 	public static Integer getInt(Map<String, Object> map, String key) {
@@ -64,6 +66,7 @@ public class Util {
 		return returnInt;
 	}
 
+	// ObjectToMap
 	public static String listToString(List list) {
 		try {
 			return objectMapper.writeValueAsString(list);
@@ -73,22 +76,18 @@ public class Util {
 		return null;
 	}
 
-	public static Object stringToList(Object obj, Class type) {
-		return obj != null ? stringToList(obj.toString(), type) : new ArrayList();
-	}
-
+	// MapToObject
 	public static Object stringToList(String string, Class type) {
-		if (string != null) {
-			try {
-				return objectMapper.readValue(string,
-						objectMapper.getTypeFactory().constructCollectionType(List.class, type));
-			} catch (JsonProcessingException e) {
-				logger.error("Error while stringToList  " + string, e);
-			}
+		try {
+			return objectMapper.readValue(string,
+					objectMapper.getTypeFactory().constructCollectionType(List.class, type));
+		} catch (JsonProcessingException e) {
+			logger.error("Error while stringToList  " + string, e);
 		}
-		return new ArrayList<>();
+		return null;
 	}
 
+	// MapToObject
 	public static Object stringToListFromMap(Map<String, Object> map, String key, Class type) {
 		return stringToList(getString(map, key), type);
 	}
