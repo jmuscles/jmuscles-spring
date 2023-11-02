@@ -5,6 +5,7 @@
 package com.jmuscles.props;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.jmuscles.async.consumer.config.properties.RabbitmqConfig;
@@ -155,22 +156,6 @@ public class JmusclesConfig {
 		this.dbProperties = dbProperties;
 	}
 
-	public static JmusclesConfig mapToObject(Map<String, Object> map) {
-		return new JmusclesConfig(RestConfPropsForConfigKey.mapToObject2((Map) map.get("restProducerConfig")),
-				ProducerConfigProperties.mapToObject((Map) map.get("asyncProducerConfig")),
-				RabbitmqConfig.mapToObject((Map) map.get("rabbitmqConfig")),
-				ExecutorConfigProperties.mapToObject((Map) map.get("executorsConfig")),
-				DatabasePropertiesMapper.mapToObject((Map) map.get("dbProperties")));
-	}
-
-	public static JmusclesConfig mapToObjectForSnakeCaseYaml(Map<String, Object> map) {
-		return new JmusclesConfig(RestConfPropsForConfigKey.mapToObject2((Map) map.get("rest-producer-config")),
-				ProducerConfigProperties.mapToObject((Map) map.get("async-producer-config")),
-				RabbitmqConfig.mapToObject((Map) map.get("rabbitmq-config")),
-				ExecutorConfigProperties.mapToObject((Map) map.get("executors-config")),
-				DatabasePropertiesMapper.mapToObject((Map) map.get("db-properties")));
-	}
-
 	public Map<String, Object> objectToMap() {
 		Map<String, Object> map = new HashMap<>();
 		if (this.getRestProducerConfig() != null) {
@@ -209,6 +194,51 @@ public class JmusclesConfig {
 			map.put("async-producer-config", this.getAsyncProducerConfig());
 		}
 		return map;
+	}
+
+	public static JmusclesConfig mapToObject(Map<String, Object> map, List<String> requestPath) {
+		JmusclesConfig jmusclesConfig = null;
+		if (requestPath.size() > 0) {
+			jmusclesConfig = new JmusclesConfig();
+			String path = requestPath.remove(0);
+			switch (path) {
+			case "restProducerConfig":
+				jmusclesConfig.setRestProducerConfig(RestConfPropsForConfigKey.mapToObject2(map, requestPath));
+				break;
+			case "asyncProducerConfig":
+				jmusclesConfig.setAsyncProducerConfig(ProducerConfigProperties.mapToObject(map));
+				break;
+			case "rabbitmqConfig":
+				jmusclesConfig.setRabbitmqConfig(RabbitmqConfig.mapToObject(map));
+				break;
+			case "executorsConfig":
+				jmusclesConfig.setExecutorsConfig(ExecutorConfigProperties.mapToObject(map));
+				break;
+			case "dbProperties":
+				jmusclesConfig.setDbProperties(DatabasePropertiesMapper.mapToObject(map));
+				break;
+			}
+		} else {
+			jmusclesConfig = JmusclesConfig.mapToObject((Map<String, Object>) map.get("jmuscles"));
+		}
+
+		return jmusclesConfig;
+	}
+
+	public static JmusclesConfig mapToObject(Map<String, Object> map) {
+		return new JmusclesConfig(RestConfPropsForConfigKey.mapToObject2((Map) map.get("restProducerConfig")),
+				ProducerConfigProperties.mapToObject((Map) map.get("asyncProducerConfig")),
+				RabbitmqConfig.mapToObject((Map) map.get("rabbitmqConfig")),
+				ExecutorConfigProperties.mapToObject((Map) map.get("executorsConfig")),
+				DatabasePropertiesMapper.mapToObject((Map) map.get("dbProperties")));
+	}
+
+	public static JmusclesConfig mapToObjectForSnakeCaseYaml(Map<String, Object> map) {
+		return new JmusclesConfig(RestConfPropsForConfigKey.mapToObject2((Map) map.get("rest-producer-config")),
+				ProducerConfigProperties.mapToObject((Map) map.get("async-producer-config")),
+				RabbitmqConfig.mapToObject((Map) map.get("rabbitmq-config")),
+				ExecutorConfigProperties.mapToObject((Map) map.get("executors-config")),
+				DatabasePropertiesMapper.mapToObject((Map) map.get("db-properties")));
 	}
 
 }

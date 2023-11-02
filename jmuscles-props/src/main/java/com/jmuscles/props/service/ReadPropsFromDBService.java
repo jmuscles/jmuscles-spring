@@ -3,6 +3,7 @@ package com.jmuscles.props.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,26 +59,29 @@ public class ReadPropsFromDBService {
 
 	public JmusclesConfig getProperties(String requestPath) {
 		JmusclesConfig jmusclesConfig = null;
-		String[] paths = null;
+		List<String> paths = null;
 		if (StringUtils.hasText(requestPath)) {
-			paths = requestPath.split("\\.");
+			paths = new ArrayList<>(Arrays.asList(requestPath.split("\\.")));
 		}
 		Map<String, Object> map = readDataFromDatabase(paths);
 		if (map != null) {
-			jmusclesConfig = JmusclesConfig.mapToObject((Map<String, Object>) map.get("jmuscles"));
+			if (paths != null) {
+				paths.remove(0);
+			}
+			jmusclesConfig = JmusclesConfig.mapToObject(map, paths);
 		}
 		return jmusclesConfig;
 	}
 
 	public Map<String, Object> readDataFromDatabase(String requestPath) {
-		String[] paths = null;
+		List<String> paths = null;
 		if (StringUtils.hasText(requestPath)) {
-			paths = requestPath.split("\\.");
+			paths = Arrays.asList(requestPath.split("\\."));
 		}
 		return readDataFromDatabase(paths);
 	}
 
-	public Map<String, Object> readDataFromDatabase(String[] paths) {
+	public Map<String, Object> readDataFromDatabase(List<String> paths) {
 		List<AppPropsEntity> topLevelProperties = null;
 		if (paths == null) {
 			topLevelProperties = appPropsRepository.findAllByParentIsNull();

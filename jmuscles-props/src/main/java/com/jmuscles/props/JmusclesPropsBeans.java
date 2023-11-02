@@ -24,6 +24,7 @@ import com.jmuscles.datasource.jasypt.JasyptUtil;
 import com.jmuscles.datasource.operator.DataSourceOperatorRegistry;
 import com.jmuscles.datasource.properties.DatabaseProperties;
 import com.jmuscles.props.jpa.AppPropsRepository;
+import com.jmuscles.props.jpa.AppPropsRepositorySetup;
 import com.jmuscles.props.service.ReadPropsFromDBService;
 import com.jmuscles.props.util.SpringBeanUtil;
 
@@ -69,11 +70,18 @@ public class JmusclesPropsBeans implements BeanFactoryAware, EnvironmentAware {
 		return new AppPropsDBConfig();
 	}
 
-	@Bean("appPropsRepository")
-	public AppPropsRepository appPropsRepository(@Qualifier("dataSourceProvider") DataSourceProvider dataSourceProvider,
+	@Bean("appPropsRepositorySetup")
+	public AppPropsRepositorySetup appPropsRepositorySetup(
+			@Qualifier("dataSourceProvider") DataSourceProvider dataSourceProvider,
 			@Qualifier("appPropsDBConfig") AppPropsDBConfig appPropsDBConfig) {
-		return new AppPropsRepository(environment.getProperty("spring.application.name"), dataSourceProvider,
+		return new AppPropsRepositorySetup(environment.getProperty("spring.application.name"), dataSourceProvider,
 				appPropsDBConfig);
+	}
+
+	@Bean("appPropsRepository")
+	public AppPropsRepository appPropsRepository(
+			@Qualifier("appPropsRepositorySetup") AppPropsRepositorySetup appPropsRepositorySetup) {
+		return new AppPropsRepository(appPropsRepositorySetup);
 	}
 
 	@Bean("readPropsFromDBService")

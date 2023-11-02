@@ -4,6 +4,7 @@
 package com.jmuscles.rest.producer.config.properties;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -44,9 +45,13 @@ public class RestConfPropsForMethod {
 		this.responseConfig = responseConfig;
 	}
 
-	public static RestConfPropsForMethod mapToObject(Map<String, Object> map) {
-		return new RestConfPropsForMethod(ProducerConfigProperties.mapToObject((Map) map.get("processingConfig")),
-				RestResponseConfig.mapToObject2((Map) map.get("responseConfig")));
+	public static Map<String, Object> objectToMap2(Map<String, RestConfPropsForMethod> objectsMap) {
+		if (objectsMap != null) {
+			return objectsMap.entrySet().stream()
+					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+		} else {
+			return null;
+		}
 	}
 
 	public Map<String, Object> objectToMap() {
@@ -61,6 +66,18 @@ public class RestConfPropsForMethod {
 		return map;
 	}
 
+	public static Map<String, RestConfPropsForMethod> mapToObject2(Map<String, Object> map, List<String> requestPath) {
+		Map<String, RestConfPropsForMethod> returnMap = null;
+		if (requestPath != null && requestPath.size() > 0) {
+			returnMap = new HashMap<>();
+			String nextPath = requestPath.remove(0);
+			returnMap.put(nextPath, mapToObject(map, requestPath, nextPath));
+		} else {
+			returnMap = mapToObject2((Map<String, Object>) map.get("configByHttpMethods"));
+		}
+		return returnMap;
+	}
+
 	public static Map<String, RestConfPropsForMethod> mapToObject2(Map<String, Object> map) {
 		if (map != null) {
 			return map.entrySet().stream()
@@ -70,13 +87,31 @@ public class RestConfPropsForMethod {
 		}
 	}
 
-	public static Map<String, Object> objectToMap2(Map<String, RestConfPropsForMethod> objectsMap) {
-		if (objectsMap != null) {
-			return objectsMap.entrySet().stream()
-					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
+	public static RestConfPropsForMethod mapToObject(Map<String, Object> map, List<String> requestPath, String path) {
+		RestConfPropsForMethod returnObject = null;
+		if (requestPath != null && requestPath.size() > 0) {
+			returnObject = new RestConfPropsForMethod();
+			String nextPath = requestPath.remove(0);
+			switch (nextPath) {
+			case "processingConfig":
+				returnObject
+						.setProcessingConfig(ProducerConfigProperties.mapToObject((Map) map.get("processingConfig")));
+				break;
+			case "responseConfig":
+				returnObject.setResponseConfig(RestResponseConfig.mapToObject2(map, requestPath));
+				break;
+			}
+
 		} else {
-			return null;
+			returnObject = mapToObject((Map<String, Object>) map.get(path));
 		}
+
+		return returnObject;
+	}
+
+	public static RestConfPropsForMethod mapToObject(Map<String, Object> map) {
+		return new RestConfPropsForMethod(ProducerConfigProperties.mapToObject((Map) map.get("processingConfig")),
+				RestResponseConfig.mapToObject2((Map) map.get("responseConfig")));
 	}
 
 }
