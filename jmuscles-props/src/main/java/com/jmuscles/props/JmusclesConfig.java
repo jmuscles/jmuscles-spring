@@ -198,7 +198,7 @@ public class JmusclesConfig {
 
 	public static JmusclesConfig mapToObject(Map<String, Object> map, List<String> requestPath) {
 		JmusclesConfig jmusclesConfig = null;
-		if (requestPath.size() > 0) {
+		if (requestPath != null && requestPath.size() > 0) {
 			jmusclesConfig = new JmusclesConfig();
 			String path = requestPath.remove(0);
 			switch (path) {
