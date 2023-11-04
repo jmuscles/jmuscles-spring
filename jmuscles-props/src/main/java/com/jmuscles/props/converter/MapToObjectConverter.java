@@ -2,6 +2,7 @@ package com.jmuscles.props.converter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,6 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jmuscles.datasource.properties.DataSourceConfig;
 import com.jmuscles.props.JmusclesConfig;
 
 public class MapToObjectConverter {
@@ -34,10 +34,6 @@ public class MapToObjectConverter {
 
 	public static <T> T mapToObject(Map<String, Object> map, Class<T> clazz) {
 		T obj = null;
-		// TODO delete this if
-		if (clazz == DataSourceConfig.class) {
-			logger.debug(clazz.toString());
-		}
 		try {
 			obj = clazz.getDeclaredConstructor().newInstance();
 		} catch (Exception e) {
@@ -48,10 +44,6 @@ public class MapToObjectConverter {
 		for (Field field : fields) {
 			field.setAccessible(true);
 			String fieldName = field.getName();
-			// TODO delete this if
-			if ("connections".equals(fieldName)) {
-				logger.debug(fieldName);
-			}
 			if (map.containsKey(fieldName)) {
 				Object value = map.get(fieldName);
 				try {
@@ -67,10 +59,6 @@ public class MapToObjectConverter {
 	private static Object mapToObject(Object value, Class<?> type, String fieldName, Field field,
 			List<Type> valueTypes) {
 		Object returnValue = null;
-		// TODO delete this if
-		if ("connections".equals(fieldName)) {
-			logger.debug(fieldName);
-		}
 		try {
 			if (type.equals(String.class)) {
 				returnValue = String.valueOf(value);
@@ -105,10 +93,11 @@ public class MapToObjectConverter {
 			Map<String, Object> inputMapValue = (Map<String, Object>) value;
 			Map<String, Object> returnMap = new HashMap<>();
 			if (valueTypes != null && valueTypes.size() > 0) {
-				Type localClazz = valueTypes.remove(0);
+				List<Type> valueTypeForProcessing = new ArrayList<Type>(valueTypes);
+				Type localClazz = valueTypeForProcessing.remove(0);
 				for (Entry<String, Object> entry : inputMapValue.entrySet()) {
-					returnMap.put(entry.getKey(),
-							mapToObject(entry.getValue(), (Class<?>) localClazz, null, null, valueTypes));
+					returnMap.put(entry.getKey(), mapToObject(entry.getValue(), (Class<?>) localClazz, null, null,
+							valueTypeForProcessing));
 				}
 			}
 			returnValue = returnMap;
