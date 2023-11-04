@@ -26,6 +26,85 @@ public class Util {
 		return objectMapper;
 	}
 
+	public static boolean isWrapperClass(Class<?> clazz) {
+		return clazz == Integer.class || clazz == Double.class || clazz == Float.class || clazz == Long.class
+				|| clazz == Short.class || clazz == Byte.class || clazz == Character.class || clazz == Boolean.class;
+	}
+
+	// Handle primitive types
+	public static Object handlePrimitive(Object value, Class<?> type) {
+		if (type == int.class) {
+			return Integer.parseInt(String.valueOf(value));
+		} else if (type == boolean.class) {
+			return Boolean.parseBoolean(String.valueOf(value));
+		} else if (type == double.class) {
+			return ((Number) value).doubleValue();
+		} else if (type == float.class) {
+			return ((Number) value).floatValue();
+		} else if (type == long.class) {
+			return ((Number) value).longValue();
+		} else if (type == short.class) {
+			return ((Number) value).shortValue();
+		} else if (type == byte.class) {
+			return ((Number) value).byteValue();
+		} else if (type == char.class) {
+			return ((String) value).charAt(0);
+		}
+		return value;
+	}
+
+	public static Object handleWrapper(Object value, Class<?> type) {
+		if (type == Integer.class) {
+			if (value instanceof Number) {
+				return ((Number) value).intValue();
+			} else if (value instanceof String) {
+				return Integer.parseInt(String.valueOf(value));
+			}
+		} else if (type == Double.class) {
+			if (value instanceof Number) {
+				return ((Number) value).doubleValue();
+			} else if (value instanceof String) {
+				return Double.parseDouble(String.valueOf(value));
+			}
+		} else if (type == Float.class) {
+			if (value instanceof Number) {
+				return ((Number) value).floatValue();
+			} else if (value instanceof String) {
+				return Float.parseFloat(String.valueOf(value));
+			}
+		} else if (type == Long.class) {
+			if (value instanceof Number) {
+				return ((Number) value).longValue();
+			} else if (value instanceof String) {
+				return Long.parseLong(String.valueOf(value));
+			}
+		} else if (type == Short.class) {
+			if (value instanceof Number) {
+				return ((Number) value).shortValue();
+			} else if (value instanceof String) {
+				return Short.parseShort(String.valueOf(value));
+			}
+		} else if (type == Byte.class) {
+			if (value instanceof Number) {
+				return ((Number) value).byteValue();
+			} else if (value instanceof String) {
+				return Byte.parseByte(String.valueOf(value));
+			}
+		} else if (type == Character.class) {
+			if (value instanceof String && ((String) value).length() == 1) {
+				return ((String) value).charAt(0);
+			}
+		} else if (type == Boolean.class) {
+			if (value instanceof Boolean) {
+				return (Boolean) value;
+			} else if (value instanceof String) {
+				return Boolean.parseBoolean(String.valueOf(value));
+			}
+		}
+
+		return value; // Return value as is if no conversion was performed
+	}
+
 	public static String getString(Map<String, Object> map, String key) {
 		Object obj = map.get(key);
 		if (obj != null && obj instanceof String) {

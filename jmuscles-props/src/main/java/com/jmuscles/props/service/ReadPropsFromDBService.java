@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jmuscles.props.JmusclesConfig;
+import com.jmuscles.props.converter.MapToObjectConverter;
 import com.jmuscles.props.jpa.AppPropsEntity;
 import com.jmuscles.props.jpa.AppPropsRepository;
 
@@ -32,7 +33,7 @@ public class ReadPropsFromDBService {
 	}
 
 	public JmusclesConfig getLatestProperties() {
-		return getProperties(null);
+		return (JmusclesConfig) getProperties(null);
 	}
 
 	public void initialize() {
@@ -57,20 +58,17 @@ public class ReadPropsFromDBService {
 		return jmusclesConfig;
 	}
 
-	public JmusclesConfig getProperties(String requestPath) {
-		JmusclesConfig jmusclesConfig = null;
+	public Object getProperties(String requestPath) {
+		Object returnObject = null;
 		List<String> paths = null;
 		if (StringUtils.hasText(requestPath)) {
 			paths = new ArrayList<>(Arrays.asList(requestPath.split("\\.")));
 		}
 		Map<String, Object> map = readDataFromDatabase(paths);
 		if (map != null) {
-			if (paths != null) {
-				paths.remove(0);
-			}
-			jmusclesConfig = JmusclesConfig.mapToObject(map, paths);
+			returnObject = MapToObjectConverter.mapToObject(map, paths);
 		}
-		return jmusclesConfig;
+		return returnObject;
 	}
 
 	public Map<String, Object> readDataFromDatabase(String requestPath) {
