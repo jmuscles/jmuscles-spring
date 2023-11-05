@@ -83,10 +83,10 @@ public class ConverterUtil {
 			Field[] fields = ConverterUtil.class.getDeclaredFields();
 			Field[] fields1 = RabbitmqConfig.class.getDeclaredFields();
 
-			getNestedMapValueTypes(QueueSetConfig.class.getDeclaredField("arguments"));
+			getNestedValueTypes(QueueSetConfig.class.getDeclaredField("arguments"));
 			// getNestedMapValueTypes(ConverterUtil.class.getDeclaredField("specialFields"));
 			for (Field field : QueueSetConfig.class.getDeclaredFields()) {
-				getNestedMapValueTypes(field);
+				getNestedValueTypes(field);
 			}
 
 		} catch (Exception e) {
@@ -95,15 +95,7 @@ public class ConverterUtil {
 		}
 	}
 
-	public static List<Type> getNesteListValueTypes(Field field) {
-		return getNestedValueTypes(field, List.class);
-	}
-
-	public static List<Type> getNestedMapValueTypes(Field field) {
-		return getNestedValueTypes(field, Map.class);
-	}
-
-	public static List<Type> getNestedValueTypes(Field field, Class<?> parameterizedType) {
+	public static List<Type> getNestedValueTypes(Field field) {
 		List<Type> valueTypes = new ArrayList<>();
 		Type valueType = field.getGenericType();
 		int i = 1;

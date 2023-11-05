@@ -17,19 +17,91 @@ public class MapToObjectConverter {
 
 	private static final Logger logger = LoggerFactory.getLogger(MapToObjectConverter.class);
 
-	public static JmusclesConfig mapToObjectForSnakeCaseYaml(Map<String, Object> map) {
-		return mapToObject(JmusclesConfigUtil.convertJmusclesFieldsFromSnakeToCamelCase(map));
+	public static JmusclesConfig mapToJmusclesConfigForSnakeCaseYaml(Map<String, Object> map) {
+		return mapToObject(JmusclesConfigUtil.convertJmusclesFieldsFromSnakeToCamelCase(map), JmusclesConfig.class);
 	}
 
-	public static JmusclesConfig mapToObject(Map<String, Object> map) {
-		return mapToObject(map, JmusclesConfig.class);
+	public static JmusclesConfig mapToJmusclesConfig(Map<String, Object> map, List<String> paths) throws Exception {
+		JmusclesConfig jmusclesConfig = null;
+		if (paths == null || paths.isEmpty() || paths.size() == 1) {
+			jmusclesConfig = mapToObject((Map<String, Object>) map.get("jmuscles"), JmusclesConfig.class);
+		} else {
+			jmusclesConfig = (JmusclesConfig) mapToObject(map, paths, new JmusclesConfig());
+		}
+		return jmusclesConfig;
 	}
 
-	public static Object mapToObject(Map<String, Object> map, List<String> paths) {
-		return mapToObject(
-				(Map<String, Object>) map
-						.get((paths != null && paths.size() > 0) ? paths.get(paths.size() - 1) : "jmuscles"),
-				JmusclesConfigUtil.getClass(paths));
+	// jmuscles.dbProperties
+
+	public static Object mapToObject(Map<String, Object> map, List<String> paths, Object mainObject) throws Exception {
+		Object currentObject = mainObject;
+		for (int i = 1; i < paths.size(); i++) {
+			Field field = currentObject.getClass().getDeclaredField(paths.get(i));
+			field.setAccessible(true);
+			Class<?> fieldType = field.getType();
+			Object nextObject = null;
+			if (i == (paths.size() - 1)) {
+				nextObject = mapToObject(map.get(paths.get(i)), fieldType, field, null);
+				field.set(currentObject, nextObject);
+			} else {
+				// Map<String, Map<String, Map<String, RestConfig>>>
+				if (field.getType() == Map.class) {
+					Map<String, Object> localMap = mapToObject_helperMethod_whenFieldIsMap(map, field, paths, i,
+							currentObject);
+					nextObject = localMap.get("nextObject");
+					i = (Integer) localMap.get("pathsPoiter");
+				} else {
+					nextObject = getNewInstance(fieldType);
+					field.set(currentObject, nextObject);
+				}
+			}
+			currentObject = nextObject;
+		}
+
+		return mainObject;
+	}
+
+	public static Map<String, Object> mapToObject_helperMethod_whenFieldIsMap(Map<String, Object> map, Field field,
+			List<String> paths, int pathsPoiter, Object currentObject) throws Exception {
+		Map<String, Object> fieldMap = new HashMap<>();
+		field.set(currentObject, fieldMap);
+		Object nextObject = fieldMap;
+		List<Type> valueTypes = ConverterUtil.getNestedValueTypes(field);
+		for (int vtCounter = 0; vtCounter < valueTypes.size(); vtCounter++) {
+			pathsPoiter++;
+			Class<?> lType = (Class<?>) valueTypes.get(vtCounter);
+			if (pathsPoiter == (paths.size() - 1)) {
+				Object newInstance = mapToObject(map.get(paths.get(pathsPoiter)), lType, null,
+						valueTypes.subList(vtCounter + 1, valueTypes.size()));
+				((Map) nextObject).put(paths.get(pathsPoiter), newInstance);
+				nextObject = newInstance;
+				break;
+			}
+			if (lType == Map.class) {
+				Map<String, Object> innerMap = new HashMap<>();
+				((Map) nextObject).put(paths.get(pathsPoiter), innerMap);
+				nextObject = innerMap;
+			} else {
+				Object newInstance = getNewInstance(lType);
+				((Map) nextObject).put(paths.get(pathsPoiter), newInstance);
+				nextObject = newInstance;
+				break;
+			}
+		}
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		returnMap.put("nextObject", nextObject);
+		returnMap.put("pathsPoiter", pathsPoiter);
+		return returnMap;
+	}
+
+	public static Object getNewInstance(Class<?> clazz) {
+		Object obj = null;
+		try {
+			obj = clazz.getDeclaredConstructor().newInstance();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return obj;
 	}
 
 	public static <T> T mapToObject(Map<String, Object> map, Class<T> clazz) {
@@ -47,7 +119,7 @@ public class MapToObjectConverter {
 			if (map.containsKey(fieldName)) {
 				Object value = map.get(fieldName);
 				try {
-					field.set(obj, mapToObject(value, field.getType(), fieldName, field, null));
+					field.set(obj, mapToObject(value, field.getType(), field, null));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -56,8 +128,7 @@ public class MapToObjectConverter {
 		return obj;
 	}
 
-	private static Object mapToObject(Object value, Class<?> type, String fieldName, Field field,
-			List<Type> valueTypes) {
+	private static Object mapToObject(Object value, Class<?> type, Field field, List<Type> valueTypes) {
 		Object returnValue = null;
 		try {
 			if (type.equals(String.class)) {
@@ -69,7 +140,7 @@ public class MapToObjectConverter {
 			} else if (type.equals(Map.class)) {
 				returnValue = mapToObject_fieldTypeMap(value, valueTypes, field);
 			} else if (type.equals(List.class)) {
-				returnValue = mapToObject_fieldTypeList(value, fieldName, valueTypes, field);
+				returnValue = mapToObject_fieldTypeList(value, valueTypes, field);
 				// (value, fieldName, field);
 			} else if (ConverterUtil.isLocalType(type)) {
 				if (value instanceof Map) {
@@ -79,14 +150,14 @@ public class MapToObjectConverter {
 				returnValue = value;
 			}
 		} catch (Exception e) {
-			logger.error("error for field: " + fieldName + " with value : " + value, e);
+			logger.error("error for field with value : " + value, e);
 		}
 		return returnValue;
 	}
 
 	private static Object mapToObject_fieldTypeMap(Object value, List<Type> valueTypes, Field field) {
 		if (valueTypes == null && field != null) {
-			valueTypes = ConverterUtil.getNestedMapValueTypes(field);
+			valueTypes = ConverterUtil.getNestedValueTypes(field);
 		}
 		Object returnValue = null;
 		if (value instanceof Map) {
@@ -96,8 +167,8 @@ public class MapToObjectConverter {
 				List<Type> valueTypeForProcessing = new ArrayList<Type>(valueTypes);
 				Type localClazz = valueTypeForProcessing.remove(0);
 				for (Entry<String, Object> entry : inputMapValue.entrySet()) {
-					returnMap.put(entry.getKey(), mapToObject(entry.getValue(), (Class<?>) localClazz, null, null,
-							valueTypeForProcessing));
+					returnMap.put(entry.getKey(),
+							mapToObject(entry.getValue(), (Class<?>) localClazz, null, valueTypeForProcessing));
 				}
 			}
 			returnValue = returnMap;
@@ -105,10 +176,9 @@ public class MapToObjectConverter {
 		return returnValue;
 	}
 
-	private static Object mapToObject_fieldTypeList(Object value, String fieldName, List<Type> valueTypes,
-			Field field) {
+	private static Object mapToObject_fieldTypeList(Object value, List<Type> valueTypes, Field field) {
 		if (valueTypes == null && field != null) {
-			valueTypes = ConverterUtil.getNestedMapValueTypes(field);
+			valueTypes = ConverterUtil.getNestedValueTypes(field);
 		}
 		if (value == null || valueTypes == null || valueTypes.size() == 0) {
 			return null;

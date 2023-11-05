@@ -66,7 +66,12 @@ public class ReadPropsFromDBService {
 		}
 		Map<String, Object> map = readDataFromDatabase(paths);
 		if (map != null) {
-			returnObject = MapToObjectConverter.mapToObject(map, paths);
+			try {
+				returnObject = MapToObjectConverter.mapToJmusclesConfig(map, paths);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return returnObject;
 	}
