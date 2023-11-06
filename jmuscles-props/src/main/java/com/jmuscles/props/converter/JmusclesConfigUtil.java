@@ -4,9 +4,7 @@
  */
 package com.jmuscles.props.converter;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +19,41 @@ import com.jmuscles.props.JmusclesConfig;
 public class JmusclesConfigUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(JmusclesConfigUtil.class);
+
+	public static JmusclesConfig mapToJmusclesConfigForSnakeCaseYaml(Map<String, Object> map) {
+		return MapToObjectConverter.mapToObject(JmusclesConfigUtil.convertJmusclesFieldsFromSnakeToCamelCase(map),
+				JmusclesConfig.class);
+	}
+
+	public static JmusclesConfig mapToJmusclesConfig(Map<String, Object> map, List<String> paths) throws Exception {
+		JmusclesConfig jmusclesConfig = null;
+		if (paths == null || paths.isEmpty() || paths.size() == 1) {
+			jmusclesConfig = MapToObjectConverter.mapToObject((Map<String, Object>) map.get("jmuscles"),
+					JmusclesConfig.class);
+		} else {
+			jmusclesConfig = (JmusclesConfig) MapToObjectConverter.mapToObject(map, paths, new JmusclesConfig());
+		}
+		return jmusclesConfig;
+	}
+
+	public static Map<String, Object> jmusclesConfigToMap_SnakCaseKeys(JmusclesConfig jmusclesConfig) {
+		return jmusclesConfigToMap(jmusclesConfig, true);
+	}
+
+	public static Map<String, Object> jmusclesConfigToMap(JmusclesConfig jmusclesConfig) {
+		return jmusclesConfigToMap(jmusclesConfig, false);
+	}
+
+	public static Map<String, Object> jmusclesConfigToMap(JmusclesConfig jmusclesConfig, boolean snakeCaseKeys) {
+		Map<String, Object> objectToMap = ObjectToMapConverter.objectToMap(jmusclesConfig);
+		if (snakeCaseKeys) {
+			objectToMap = JmusclesConfigUtil.convertJmusclesFieldsFromCamelCaseToSnake(objectToMap);
+		}
+		Map<String, Object> map = new HashMap<>();
+		map.put("jmuscles", objectToMap);
+
+		return map;
+	}
 
 	public static Map<String, Object> convertJmusclesFieldsFromSnakeToCamelCase(Map<String, Object> map) {
 		if (map != null) {
@@ -43,48 +76,25 @@ public class JmusclesConfigUtil {
 		return map;
 	}
 
-	public static Class<?> getClass(List<String> paths) {
-		if (paths == null || paths.size() < 2) {
-			return JmusclesConfig.class;
-		} else {
-			return findTypeByPath(new JmusclesConfig(), paths.subList(1, paths.size()));
+	public static Map<String, Object> convertJmusclesFieldsFromCamelCaseToSnake(Map<String, Object> map) {
+		if (map != null) {
+			if (map.get("asyncProducerConfig") != null) {
+				map.put("async-producer-config", map.get("asyncProducerConfig"));
+			}
+			if (map.get("restProducerConfig") != null) {
+				map.put("rest-producer-config", map.get("restProducerConfig"));
+			}
+			if (map.get("rabbitmqConfig") != null) {
+				map.put("rabbitmq-config", map.get("rabbitmqConfig"));
+			}
+			if (map.get("executorsConfig") != null) {
+				map.put("executors-config", map.get("executorsConfig"));
+			}
+			if (map.get("dbProperties") != null) {
+				map.put("db-properties", map.get("dbProperties"));
+			}
 		}
-	}
-
-	public static Class<?> findTypeByPath(JmusclesConfig config, List<String> fieldPath) {
-		Class<?> currentType = config.getClass();
-		for (int i = 0; i < fieldPath.size(); i++) {
-			String fieldOrKey = fieldPath.get(i);
-			if (currentType == null) {
-				return null; // The type is null; stop searching.
-			}
-			Field currentField;
-			try {
-				currentField = currentType.getDeclaredField(fieldOrKey);
-			} catch (NoSuchFieldException e) {
-				return null; // Field not found, but continue the search.
-			}
-			if (i < fieldPath.size() - 1 && currentField.getType() == Map.class) {
-				i++; // Skip the next field in the path.
-			}
-			if (currentField.getGenericType() instanceof ParameterizedType) {
-				ParameterizedType parameterizedType = (ParameterizedType) currentField.getGenericType();
-				Type innerValueType = parameterizedType
-						.getActualTypeArguments()[1]; /* Assuming Map<String, CustomObject> */
-				if (innerValueType instanceof Class<?>) {
-					currentType = (Class<?>) innerValueType;
-				} else if (innerValueType instanceof ParameterizedType) {
-					currentType = (Class<?>) ((ParameterizedType) innerValueType).getRawType();
-				} else {
-					logger.error("error while dtermining the for request path ", fieldPath);
-				}
-
-			} else {
-				currentType = currentField.getType();
-			}
-
-		}
-		return currentType;
+		return map;
 	}
 
 }

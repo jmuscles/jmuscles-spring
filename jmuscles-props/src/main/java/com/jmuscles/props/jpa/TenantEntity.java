@@ -1,5 +1,6 @@
 /**
- * 
+ * @author manish goel
+ *
  */
 package com.jmuscles.props.jpa;
 
@@ -10,44 +11,27 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.jmuscles.props.util.Constants;
-
+/**
+ * 
+ */
 @Entity
-@Table(name = "APP_PROPS")
-public class AppPropsEntity {
+@Table(name = "TENANT")
+public class TenantEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "APP_PROPS_SEQ")
-	@SequenceGenerator(sequenceName = "APP_PROPS_SEQ", name = "APP_PROPS_SEQ", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "TENANT_SEQ")
+	@SequenceGenerator(sequenceName = "TENANT_SEQ", name = "TENANT_SEQ", allocationSize = 1)
 	@Column(unique = true, nullable = false, name = "ID")
 	private Long id;
 
-	@Column(name = "PROP_KEY", length = 250)
-	private String prop_key;
-
-	@Column(name = "PROP_VALUE", length = Constants.PROP_VALUE_LENGTH)
-	private String prop_value;
+	@Column(name = "NAME", unique = true, nullable = false, length = 100)
+	private String name;
 
 	@Column(name = "STATUS", length = 25)
 	private String status;
-
-	@Lob
-	@Column(name = "PROP_VALUE_BLOB")
-	private byte[] prop_value_blob;
-
-	@ManyToOne
-	@JoinColumn(name = "PARENT_ID")
-	private AppPropsEntity parent;
-
-	@ManyToOne
-	@JoinColumn(name = "TENANT_ID") // This is the join column
-	private TenantEntity tenant;
 
 	@Column(name = "CREATED_AT")
 	private Timestamp createdAt;
@@ -61,58 +45,32 @@ public class AppPropsEntity {
 	@Column(name = "UPDATED_BY")
 	private String updatedBy;
 
+	/**
+	 * @return the id
+	 */
 	public Long getId() {
 		return id;
 	}
 
+	/**
+	 * @param id the id to set
+	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public String getProp_key() {
-		return prop_key;
-	}
-
-	public void setProp_key(String prop_key) {
-		this.prop_key = prop_key;
-	}
-
-	public String getProp_value() {
-		return prop_value;
-	}
-
-	public void setProp_value(String prop_value) {
-		this.prop_value = prop_value;
-	}
-
-	public byte[] getProp_value_blob() {
-		return prop_value_blob;
-	}
-
-	public void setProp_value_blob(byte[] prop_value_blob) {
-		this.prop_value_blob = prop_value_blob;
-	}
-
-	public AppPropsEntity getParent() {
-		return parent;
-	}
-
-	public void setParent(AppPropsEntity parent) {
-		this.parent = parent;
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
 	}
 
 	/**
-	 * @return the tenant
+	 * @param name the name to set
 	 */
-	public TenantEntity getTenant() {
-		return tenant;
-	}
-
-	/**
-	 * @param tenant the tenant to set
-	 */
-	public void setTenant(TenantEntity tenant) {
-		this.tenant = tenant;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**

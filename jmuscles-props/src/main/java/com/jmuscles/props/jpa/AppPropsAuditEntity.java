@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.jmuscles.props.jpa;
 
 import java.sql.Timestamp;
@@ -11,43 +8,29 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.jmuscles.props.util.Constants;
-
 @Entity
-@Table(name = "APP_PROPS")
-public class AppPropsEntity {
+@Table(name = "APP_PROPS_AUDIT")
+public class AppPropsAuditEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "APP_PROPS_SEQ")
-	@SequenceGenerator(sequenceName = "APP_PROPS_SEQ", name = "APP_PROPS_SEQ", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "APP_PROPS_AUDIT_SEQ")
+	@SequenceGenerator(sequenceName = "APP_PROPS_AUDIT_SEQ", name = "APP_PROPS_AUDIT_SEQ", allocationSize = 1)
 	@Column(unique = true, nullable = false, name = "ID")
 	private Long id;
 
-	@Column(name = "PROP_KEY", length = 250)
-	private String prop_key;
-
-	@Column(name = "PROP_VALUE", length = Constants.PROP_VALUE_LENGTH)
-	private String prop_value;
-
-	@Column(name = "STATUS", length = 25)
-	private String status;
-
-	@Lob
-	@Column(name = "PROP_VALUE_BLOB")
-	private byte[] prop_value_blob;
-
 	@ManyToOne
-	@JoinColumn(name = "PARENT_ID")
-	private AppPropsEntity parent;
+	@JoinColumn(name = "APP_PROPS_ID")
+	private AppPropsEntity appPropsEntity;
 
-	@ManyToOne
-	@JoinColumn(name = "TENANT_ID") // This is the join column
-	private TenantEntity tenant;
+	@Column(name = "OLD_STATUS")
+	private String oldStatus;
+
+	@Column(name = "NEW_STATUS")
+	private String newStatus;
 
 	@Column(name = "CREATED_AT")
 	private Timestamp createdAt;
@@ -61,72 +44,64 @@ public class AppPropsEntity {
 	@Column(name = "UPDATED_BY")
 	private String updatedBy;
 
+	@ManyToOne
+	@JoinColumn(name = "TENANT_ID") // This is the join column
+	private TenantEntity tenant;
+
+	/**
+	 * @return the id
+	 */
 	public Long getId() {
 		return id;
 	}
 
+	/**
+	 * @param id the id to set
+	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public String getProp_key() {
-		return prop_key;
-	}
-
-	public void setProp_key(String prop_key) {
-		this.prop_key = prop_key;
-	}
-
-	public String getProp_value() {
-		return prop_value;
-	}
-
-	public void setProp_value(String prop_value) {
-		this.prop_value = prop_value;
-	}
-
-	public byte[] getProp_value_blob() {
-		return prop_value_blob;
-	}
-
-	public void setProp_value_blob(byte[] prop_value_blob) {
-		this.prop_value_blob = prop_value_blob;
-	}
-
-	public AppPropsEntity getParent() {
-		return parent;
-	}
-
-	public void setParent(AppPropsEntity parent) {
-		this.parent = parent;
+	/**
+	 * @return the appPropsEntity
+	 */
+	public AppPropsEntity getAppPropsEntity() {
+		return appPropsEntity;
 	}
 
 	/**
-	 * @return the tenant
+	 * @param appPropsEntity the appPropsEntity to set
 	 */
-	public TenantEntity getTenant() {
-		return tenant;
+	public void setAppPropsEntity(AppPropsEntity appPropsEntity) {
+		this.appPropsEntity = appPropsEntity;
 	}
 
 	/**
-	 * @param tenant the tenant to set
+	 * @return the oldStatus
 	 */
-	public void setTenant(TenantEntity tenant) {
-		this.tenant = tenant;
+	public String getOldStatus() {
+		return oldStatus;
 	}
 
 	/**
-	 * @return the status
+	 * @param oldStatus the oldStatus to set
 	 */
-	public String getStatus() {
-		return status;
+	public void setOldStatus(String oldStatus) {
+		this.oldStatus = oldStatus;
 	}
 
 	/**
-	 * @param status the status to set
+	 * @return the newStatus
 	 */
-	public void setStatus(String status) {
-		this.status = status;
+	public String getNewStatus() {
+		return newStatus;
+	}
+
+	/**
+	 * @param newStatus the newStatus to set
+	 */
+	public void setNewStatus(String newStatus) {
+		this.newStatus = newStatus;
 	}
 
 	/**
@@ -183,6 +158,20 @@ public class AppPropsEntity {
 	 */
 	public void setUpdatedBy(String updatedBy) {
 		this.updatedBy = updatedBy;
+	}
+
+	/**
+	 * @return the tenant
+	 */
+	public TenantEntity getTenant() {
+		return tenant;
+	}
+
+	/**
+	 * @param tenant the tenant to set
+	 */
+	public void setTenant(TenantEntity tenant) {
+		this.tenant = tenant;
 	}
 
 }

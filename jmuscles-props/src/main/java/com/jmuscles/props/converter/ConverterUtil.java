@@ -8,7 +8,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jmuscles.async.consumer.config.properties.QueueSetConfig;
-import com.jmuscles.async.consumer.config.properties.RabbitmqConfig;
-import com.jmuscles.datasource.properties.DataSourceConfig;
 
 /**
  * 
@@ -31,77 +27,25 @@ public class ConverterUtil {
 	private static final Logger logger = LoggerFactory.getLogger(ConverterUtil.class);
 
 	private static Set<String> localPackages;
-	private static Set<String> specialFields;
-	private Map<String, Map<String, Map<String, Map<String, DataSourceConfig>>>> map = new HashMap<>();
-
 	public static ObjectMapper objectMapper = new ObjectMapper();
 
 	static {
 		// Initialize the set of allowed packages in the static block
 		localPackages = new HashSet<>();
+
+		localPackages.add("com.jmuscles.props");
 		localPackages.add("com.jmuscles.datasource.properties");
 		localPackages.add("com.jmuscles.async.consumer.config.properties");
 		localPackages.add("com.jmuscles.async.producer.config.properties");
 		localPackages.add("com.jmuscles.processing.config.properties");
 		localPackages.add("com.jmuscles.rest.producer.config.properties");
-
-		// Initialize the set of allowed field names
-		specialFields = new HashSet<>();
-		specialFields.add("dataSources");
-		/* specialFields.add("arguments"); //Map<String, Map<String, Object>> */
-		specialFields.add("queueSetsConfig");
-		specialFields.add("queueSetsProcessingConfig");
-		// specialFields.add("jpaProperties");
-		specialFields.add("restCalls");
-		specialFields.add("sqlProcedures");
-		specialFields.add("sqlQueries");
-		specialFields.add("successCodePatterns");// Map<String, List<String>>
-		specialFields.add("configByHttpMethods");
-		specialFields.add("responseConfig");
-
-		/* specialFields.add("connections");//Map<String, Map<String, Object>> */
-		/* specialFields.add("commonHeaders");//Map<String, String> */
-		/* specialFields.add("httpHeader");//Map<String, String> */
-
-		/* specialFields.add("retryInterval");//List<Integer> */
-		/* specialFields.add("activeProducersInOrder");//List<String> */
-		/* specialFields.add("exchanges");//List<ExchangeConfig> */
-	}
-
-	public static Type getMapValueType(Field field) {
-		if (field.getType() == Map.class) {
-			ParameterizedType mapType = (ParameterizedType) field.getGenericType();
-			Type valueType = mapType.getActualTypeArguments()[1];
-			return valueType;
-		}
-		return null; // Field is not of type Map
-	}
-
-	public static void main(String[] args) {
-
-		try {
-			Field[] fields = ConverterUtil.class.getDeclaredFields();
-			Field[] fields1 = RabbitmqConfig.class.getDeclaredFields();
-
-			getNestedValueTypes(QueueSetConfig.class.getDeclaredField("arguments"));
-			// getNestedMapValueTypes(ConverterUtil.class.getDeclaredField("specialFields"));
-			for (Field field : QueueSetConfig.class.getDeclaredFields()) {
-				getNestedValueTypes(field);
-			}
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	public static List<Type> getNestedValueTypes(Field field) {
 		List<Type> valueTypes = new ArrayList<>();
 		Type valueType = field.getGenericType();
 		int i = 1;
-		while (valueType instanceof ParameterizedType
-		// && ((ParameterizedType) valueType).getRawType() == parameterizedType
-		) {
+		while (valueType instanceof ParameterizedType) {
 			ParameterizedType mapType = (ParameterizedType) valueType;
 			Type innerValueType = null;
 
@@ -128,9 +72,19 @@ public class ConverterUtil {
 		return valueTypes;
 	}
 
-	public static boolean isWrapperClass(Class<?> clazz) {
-		return clazz == Integer.class || clazz == Double.class || clazz == Float.class || clazz == Long.class
-				|| clazz == Short.class || clazz == Byte.class || clazz == Character.class || clazz == Boolean.class;
+	public static boolean isLocalType(Class<?> clazz) {
+		for (String packageName : localPackages) {
+			if (clazz.getName().startsWith(packageName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean isPrimitive(Object value) {
+		return value instanceof Integer || value instanceof Long || value instanceof Double || value instanceof Float
+				|| value instanceof Short || value instanceof Byte || value instanceof Character
+				|| value instanceof Boolean || value.getClass().isPrimitive();
 	}
 
 	// Handle primitive types
@@ -153,6 +107,11 @@ public class ConverterUtil {
 			return ((String) value).charAt(0);
 		}
 		return value;
+	}
+
+	public static boolean isWrapperClass(Class<?> clazz) {
+		return clazz == Integer.class || clazz == Double.class || clazz == Float.class || clazz == Long.class
+				|| clazz == Short.class || clazz == Byte.class || clazz == Character.class || clazz == Boolean.class;
 	}
 
 	public static Object getWrapperValue(Object value, Class<?> type) {
@@ -206,25 +165,23 @@ public class ConverterUtil {
 		return value; // Return value as is if no conversion was performed
 	}
 
-	public static boolean isLocalType(Class<?> clazz) {
-		for (String packageName : localPackages) {
-			if (clazz.getName().startsWith(packageName)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public static boolean isSpecialField(String fieldName) {
-		return specialFields.contains(fieldName);
-	}
-
+	// MapToObject
 	public static Object stringToList(String string, Class<?> type) {
 		try {
 			return objectMapper.readValue(string,
 					objectMapper.getTypeFactory().constructCollectionType(List.class, type));
 		} catch (JsonProcessingException e) {
 			logger.error("Error while stringToList  " + string, e);
+		}
+		return null;
+	}
+
+	// ObjectToMap
+	public static String listToString(List list) {
+		try {
+			return objectMapper.writeValueAsString(list);
+		} catch (JsonProcessingException e) {
+			logger.error("Error while listToString for list " + list, e);
 		}
 		return null;
 	}

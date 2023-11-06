@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jmuscles.props.JmusclesConfig;
-import com.jmuscles.props.converter.MapToObjectConverter;
+import com.jmuscles.props.converter.JmusclesConfigUtil;
 import com.jmuscles.props.jpa.AppPropsEntity;
 import com.jmuscles.props.jpa.AppPropsRepository;
 
@@ -67,7 +67,7 @@ public class ReadPropsFromDBService {
 		Map<String, Object> map = readDataFromDatabase(paths);
 		if (map != null) {
 			try {
-				returnObject = MapToObjectConverter.mapToJmusclesConfig(map, paths);
+				returnObject = JmusclesConfigUtil.mapToJmusclesConfig(map, paths);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

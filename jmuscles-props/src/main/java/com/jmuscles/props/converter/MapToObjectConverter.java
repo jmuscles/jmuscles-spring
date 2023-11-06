@@ -11,27 +11,9 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jmuscles.props.JmusclesConfig;
-
 public class MapToObjectConverter {
 
 	private static final Logger logger = LoggerFactory.getLogger(MapToObjectConverter.class);
-
-	public static JmusclesConfig mapToJmusclesConfigForSnakeCaseYaml(Map<String, Object> map) {
-		return mapToObject(JmusclesConfigUtil.convertJmusclesFieldsFromSnakeToCamelCase(map), JmusclesConfig.class);
-	}
-
-	public static JmusclesConfig mapToJmusclesConfig(Map<String, Object> map, List<String> paths) throws Exception {
-		JmusclesConfig jmusclesConfig = null;
-		if (paths == null || paths.isEmpty() || paths.size() == 1) {
-			jmusclesConfig = mapToObject((Map<String, Object>) map.get("jmuscles"), JmusclesConfig.class);
-		} else {
-			jmusclesConfig = (JmusclesConfig) mapToObject(map, paths, new JmusclesConfig());
-		}
-		return jmusclesConfig;
-	}
-
-	// jmuscles.dbProperties
 
 	public static Object mapToObject(Map<String, Object> map, List<String> paths, Object mainObject) throws Exception {
 		Object currentObject = mainObject;
@@ -141,11 +123,8 @@ public class MapToObjectConverter {
 				returnValue = mapToObject_fieldTypeMap(value, valueTypes, field);
 			} else if (type.equals(List.class)) {
 				returnValue = mapToObject_fieldTypeList(value, valueTypes, field);
-				// (value, fieldName, field);
-			} else if (ConverterUtil.isLocalType(type)) {
-				if (value instanceof Map) {
-					returnValue = mapToObject((Map<String, Object>) value, type);
-				}
+			} else if (ConverterUtil.isLocalType(type) && value instanceof Map) {
+				returnValue = mapToObject((Map<String, Object>) value, type);
 			} else {
 				returnValue = value;
 			}
