@@ -3,13 +3,6 @@
  */
 package com.jmuscles.async.consumer.config.properties;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import com.jmuscles.util.Util;
-
 /**
  * @author manish goel
  *
@@ -53,40 +46,6 @@ public class ExchangeConfig {
 
 	public void setParent(String parentExchange) {
 		this.parent = parentExchange;
-	}
-
-	public static ExchangeConfig mapToObject(Map<String, Object> map) {
-		return map != null
-				? new ExchangeConfig(Util.getString(map, "name"), Util.getString(map, "type"),
-						Util.getString(map, "parent"))
-				: null;
-	}
-
-	public Map<String, Object> objectToMap() {
-		Map<String, Object> map = new HashMap<>();
-		map.put("name", this.getName());
-		map.put("type", this.getType());
-		map.put("parent", this.getParent());
-
-		return map;
-	}
-
-	public static Map<String, ExchangeConfig> mapToObject2(Map<String, Object> map) {
-		if (map != null) {
-			return map.entrySet().stream()
-					.collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
-		} else {
-			return null;
-		}
-	}
-
-	public static Map<String, Object> objectToMap2(Map<String, ExchangeConfig> objectsMap) {
-		if (objectsMap != null) {
-			return objectsMap.entrySet().stream()
-					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
-		} else {
-			return null;
-		}
 	}
 
 }

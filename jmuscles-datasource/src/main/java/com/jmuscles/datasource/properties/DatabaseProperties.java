@@ -62,11 +62,10 @@ public class DatabaseProperties {
 		this.dataSources = dataSources;
 	}
 
-	public boolean add(DatabaseProperties databaseProperties) {
+	private boolean add(DatabaseProperties databaseProperties) {
 		if (databaseProperties != null) {
 			this.connections.putAll(databaseProperties.getConnections());
 			this.dataSources.putAll(databaseProperties.getDataSources());
-
 			return true;
 		}
 		return false;

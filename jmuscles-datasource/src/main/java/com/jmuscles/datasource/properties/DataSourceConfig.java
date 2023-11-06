@@ -3,9 +3,7 @@
  */
 package com.jmuscles.datasource.properties;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author manish goel
@@ -50,28 +48,4 @@ public class DataSourceConfig {
 	public void setConnectionPoolProperties(Map<String, Object> connectionPoolProperties) {
 		this.connectionPoolProperties = connectionPoolProperties;
 	}
-
-	public static DataSourceConfig mapToObject(Map<String, Object> map) {
-		return new DataSourceConfig((String) map.get("connectionPropsKey"), (String) map.get("type"),
-				(Map) map.get("connectionPoolProperties"));
-	}
-
-	public Map<String, Object> objectToMap() {
-		Map<String, Object> map = new HashMap<>();
-		map.put("connectionPropsKey", this.getConnectionPropsKey());
-		map.put("type", this.getType());
-		map.put("connectionPoolProperties", this.getConnectionPoolProperties());
-
-		return map;
-	}
-
-	public static Map<String, DataSourceConfig> mapToObject2(Map<String, Object> map) {
-		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
-	}
-
-	public static Map<String, Object> objectToMap2(Map<String, DataSourceConfig> objectsMap) {
-		return objectsMap.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
-	}
-
 }

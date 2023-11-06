@@ -5,7 +5,6 @@ package com.jmuscles.async.producer.config.properties;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author manish goel
@@ -40,37 +39,6 @@ public class ProducerDBConfig {
 
 	public void setJpaProperties(Map<String, String> jpaProperties) {
 		this.jpaProperties = jpaProperties;
-	}
-
-	public static ProducerDBConfig mapToObject(Map<String, Object> map) {
-		return map != null ? new ProducerDBConfig((String) map.get("dataSourceKey"), (Map) map.get("jpaProperties"))
-				: null;
-	}
-
-	public Map<String, Object> objectToMap() {
-		Map<String, Object> map = new HashMap<>();
-		map.put("dataSourceKey", this.getDataSourceKey());
-		map.put("jpaProperties", this.getJpaProperties());
-
-		return map;
-	}
-
-	public static Map<String, ProducerDBConfig> mapToObject2(Map<String, Object> map) {
-		if (map != null) {
-			return map.entrySet().stream()
-					.collect(Collectors.toMap(e -> e.getKey(), e -> mapToObject((Map) e.getValue())));
-		} else {
-			return null;
-		}
-	}
-
-	public static Map<String, Object> objectToMap2(Map<String, ProducerDBConfig> objectsMap) {
-		if (objectsMap != null) {
-			return objectsMap.entrySet().stream()
-					.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().objectToMap()));
-		} else {
-			return null;
-		}
 	}
 
 }
