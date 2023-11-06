@@ -40,7 +40,7 @@ public class ConverterUtil {
 		localPackages.add("com.jmuscles.processing.config.properties");
 		localPackages.add("com.jmuscles.rest.producer.config.properties");
 	}
-
+	
 	public static List<Type> getNestedValueTypes(Field field) {
 		List<Type> valueTypes = new ArrayList<>();
 		Type valueType = field.getGenericType();

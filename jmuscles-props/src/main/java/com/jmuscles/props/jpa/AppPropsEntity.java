@@ -61,6 +61,28 @@ public class AppPropsEntity {
 	@Column(name = "UPDATED_BY")
 	private String updatedBy;
 
+	public AppPropsEntity() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public static AppPropsEntity of(String prop_key, String prop_value, String status, byte[] prop_value_blob,
+			AppPropsEntity parent, TenantEntity tenant, Timestamp createdAt, String createdBy) {
+		return new AppPropsEntity(prop_key, prop_value, status, prop_value_blob, parent, tenant, createdAt, createdBy);
+	}
+
+	public AppPropsEntity(String prop_key, String prop_value, String status, byte[] prop_value_blob,
+			AppPropsEntity parent, TenantEntity tenant, Timestamp createdAt, String createdBy) {
+		super();
+		this.prop_key = prop_key;
+		this.prop_value = prop_value;
+		this.status = status;
+		this.prop_value_blob = prop_value_blob;
+		this.parent = parent;
+		this.tenant = tenant;
+		this.createdAt = createdAt;
+		this.createdBy = createdBy;
+	}
+
 	public Long getId() {
 		return id;
 	}

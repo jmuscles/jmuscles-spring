@@ -4,6 +4,7 @@
  */
 package com.jmuscles.props.converter;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,35 @@ public class JmusclesConfigUtil {
 		map.put("jmuscles", objectToMap);
 
 		return map;
+	}
+
+	public static Object getObjectByPath(JmusclesConfig jmusclesConfig, List<String> paths) {
+		Object returnObject = null;
+		if (paths == null || paths.isEmpty() || paths.size() == 1) {
+			returnObject = jmusclesConfig;
+		} else {
+			Object currentObject = jmusclesConfig;
+			for (int i = 1; i < paths.size(); i++) {
+				if (currentObject instanceof Map) {
+					currentObject = ((Map<?, ?>) currentObject).get(paths.get(i));
+				} else if (ConverterUtil.isLocalType(currentObject.getClass())) {
+					try {
+						Field field = currentObject.getClass().getDeclaredField(paths.get(i));
+						field.setAccessible(true);
+						currentObject = field.get(currentObject);
+					} catch (Exception e) {
+						logger.error(
+								"Error while finding out the object represented by request path from JmusclesConfig",
+								e);
+					}
+				} else {
+					break;
+				}
+			}
+			returnObject = currentObject;
+		}
+		return returnObject;
+
 	}
 
 	public static Map<String, Object> convertJmusclesFieldsFromSnakeToCamelCase(Map<String, Object> map) {

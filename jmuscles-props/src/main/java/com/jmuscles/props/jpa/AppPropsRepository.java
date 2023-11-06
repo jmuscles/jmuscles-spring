@@ -4,11 +4,15 @@
  */
 package com.jmuscles.props.jpa;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 /**
@@ -42,63 +46,53 @@ public class AppPropsRepository {
 		});
 	}
 
-	public AppPropsEntity findByKeyPath(List<String> keyPath) {
+	public AppPropsEntity findByKeyPath(List<String> keyPath, String status) {
 		AppPropsEntity currentEntity = null;
-
 		for (String key : keyPath) {
-			currentEntity = findChildByKey(currentEntity, key);
+			currentEntity = findChildByKey(currentEntity, key, status);
 			if (currentEntity == null) {
 				// Entity with the given key doesn't exist, so break the loop
 				break;
 			}
 		}
-
 		return currentEntity;
 	}
 
-	private AppPropsEntity findChildByKey(AppPropsEntity parent, String key) {
-		List<AppPropsEntity> result = new ArrayList<>();
-
+	private AppPropsEntity findChildByKey(AppPropsEntity parent, String key, String status) {
+		String query = null;
+		Map<String, Object> params = new HashMap<>();
 		if (parent == null) {
-			// If parent is null, search for the root entity
-			executeInTransaction(em -> {
-				TypedQuery<AppPropsEntity> query = em.createQuery(
-						"SELECT e FROM AppPropsEntity e WHERE e.prop_key = :key AND e.parent IS NULL",
-						AppPropsEntity.class);
-				query.setParameter("key", key);
-				result.addAll(query.getResultList());
-			});
-			return result.isEmpty() ? null : result.get(0);
+			query = "SELECT a FROM AppPropsEntity a WHERE a.prop_key = :key AND a.parent IS NULL AND a.status= :status";
 		} else {
-			// Search for a child entity
-			executeInTransaction(em -> {
-				TypedQuery<AppPropsEntity> query = em.createQuery(
-						"SELECT e FROM AppPropsEntity e WHERE e.prop_key = :key AND e.parent = :parent",
-						AppPropsEntity.class);
-				query.setParameter("key", key);
-				query.setParameter("parent", parent);
-				result.addAll(query.getResultList());
-			});
-			return result.isEmpty() ? null : result.get(0);
+			query = "SELECT a FROM AppPropsEntity a WHERE a.prop_key = :key AND a.parent = :parent AND a.status= :status";
+			params.put("parent", parent);
 		}
+		params.put("key", key);
+		params.put("status", status);
+		List<AppPropsEntity> result = dbCommunicator.selectAppPropsEntity(query, params);
+		return result.isEmpty() ? null : result.get(0);
 	}
 
-	public List<AppPropsEntity> findAllByParent(Long parentId) {
+	public List<AppPropsEntity> findAllByParent(Long parentId, String status) {
 		List<AppPropsEntity> result = new ArrayList<>();
 		executeInTransaction(em -> {
-			TypedQuery<AppPropsEntity> query = em
-					.createQuery("SELECT a FROM AppPropsEntity a WHERE a.parent.id = :parentId", AppPropsEntity.class);
+			TypedQuery<AppPropsEntity> query = em.createQuery(
+					"SELECT a FROM AppPropsEntity a WHERE a.parent.id = :parentId AND a.status= :status",
+					AppPropsEntity.class);
 			query.setParameter("parentId", parentId);
+			query.setParameter("status", status);
 			result.addAll(query.getResultList());
 		});
 		return result;
 	}
 
-	public List<AppPropsEntity> findAllByParentIsNull() {
+	public List<AppPropsEntity> findAllByParentIsNull(String status) {
 		List<AppPropsEntity> result = new ArrayList<>();
 		executeInTransaction(em -> {
-			TypedQuery<AppPropsEntity> query = em.createQuery("SELECT p FROM AppPropsEntity p WHERE p.parent IS NULL",
+			TypedQuery<AppPropsEntity> query = em.createQuery(
+					"SELECT a FROM AppPropsEntity a WHERE a.parent IS NULL AND a.status= :status",
 					AppPropsEntity.class);
+			query.setParameter("status", status);
 			result.addAll(query.getResultList());
 		});
 		return result;
@@ -111,6 +105,58 @@ public class AppPropsRepository {
 			result.addAll(query.getResultList());
 		});
 		return result;
+	}
+
+	public void updateAllChildren(AppPropsEntity parentEntity, String status) {
+		updateAllChildren(parentEntity, status, new Timestamp((new java.util.Date()).getTime()), "SYSTEM");
+	}
+
+	public void updateAllChildren(AppPropsEntity parentEntity, String status, Timestamp updatedAt, String updatedBy) {
+		executeInTransaction(em -> {
+			bulkUpdateStatus(findAllChildren(parentEntity, em), status, updatedAt, updatedBy, em);
+		});
+	}
+
+	private void bulkUpdateStatus(List<AppPropsEntity> entities, String status, Timestamp updatedAt, String updatedBy,
+			EntityManager em) {
+		for (AppPropsEntity entity : entities) {
+			entity.setStatus(status);
+			entity.setUpdatedAt(updatedAt);
+			entity.setUpdatedBy(updatedBy);
+			em.merge(entity);
+		}
+	}
+
+	public List<AppPropsEntity> findAllChildren(AppPropsEntity parent) {
+		List<AppPropsEntity> returnResult = new ArrayList<>();
+		executeInTransaction(em -> {
+			List<AppPropsEntity> result = findAllChildren(parent, em);
+			if (result != null) {
+				returnResult.addAll(result);
+			}
+		});
+		return returnResult;
+	}
+
+	private List<AppPropsEntity> findAllChildren(AppPropsEntity parent, EntityManager entityManager) {
+		Query query = entityManager.createQuery("SELECT a FROM AppPropsEntity a WHERE a.parent = :parent");
+		query.setParameter("parent", parent);
+		@SuppressWarnings("unchecked")
+		List<AppPropsEntity> children = query.getResultList();
+
+		// Create a separate list to collect the grandchildren
+		List<AppPropsEntity> allGrandchildren = new ArrayList<>();
+
+		for (AppPropsEntity child : children) {
+			// Recursively select children of children
+			List<AppPropsEntity> grandchildren = findAllChildren(child, entityManager);
+			allGrandchildren.addAll(grandchildren);
+		}
+
+		// Add the grandchildren to the children list after the loop
+		children.addAll(allGrandchildren);
+
+		return children;
 	}
 
 	public void deleteAll() {

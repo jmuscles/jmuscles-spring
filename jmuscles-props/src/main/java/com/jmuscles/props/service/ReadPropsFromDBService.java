@@ -18,6 +18,7 @@ import com.jmuscles.props.JmusclesConfig;
 import com.jmuscles.props.converter.JmusclesConfigUtil;
 import com.jmuscles.props.jpa.AppPropsEntity;
 import com.jmuscles.props.jpa.AppPropsRepository;
+import com.jmuscles.props.util.Constants;
 
 /**
  * @author manish goel
@@ -85,27 +86,31 @@ public class ReadPropsFromDBService {
 	}
 
 	public Map<String, Object> readDataFromDatabase(List<String> paths) {
+		return readDataFromDatabase(paths, Constants.STATUS_ACTIVE);
+	}
+
+	public Map<String, Object> readDataFromDatabase(List<String> paths, String status) {
 		List<AppPropsEntity> topLevelProperties = null;
 		if (paths == null) {
-			topLevelProperties = appPropsRepository.findAllByParentIsNull();
+			topLevelProperties = appPropsRepository.findAllByParentIsNull(status);
 		} else {
-			AppPropsEntity appPropsEntity = appPropsRepository.findByKeyPath(paths);
+			AppPropsEntity appPropsEntity = appPropsRepository.findByKeyPath(paths, status);
 			if (appPropsEntity != null) {
 				topLevelProperties = new ArrayList<AppPropsEntity>();
 				topLevelProperties.add(appPropsEntity);
 			}
 		}
 		return topLevelProperties != null
-				? topLevelProperties.stream()
-						.collect(Collectors.toMap(AppPropsEntity::getProp_key, this::buildNestedMap))
+				? topLevelProperties.stream().collect(
+						Collectors.toMap(entity -> entity.getProp_key(), entity -> buildNestedMap(entity, status)))
 				: null;
 	}
 
-	private Object buildNestedMap(AppPropsEntity propertyEntity) {
+	private Object buildNestedMap(AppPropsEntity propertyEntity, String status) {
 		Map<String, Object> nestedMap = new HashMap<>();
-		List<AppPropsEntity> children = appPropsRepository.findAllByParent(propertyEntity.getId());
+		List<AppPropsEntity> children = appPropsRepository.findAllByParent(propertyEntity.getId(), status);
 		for (AppPropsEntity child : children) {
-			nestedMap.put(child.getProp_key(), buildNestedMap(child));
+			nestedMap.put(child.getProp_key(), buildNestedMap(child, status));
 		}
 		if (propertyEntity.getProp_value() != null) {
 			// Check if the value is a JSON string representing a map and parse it
