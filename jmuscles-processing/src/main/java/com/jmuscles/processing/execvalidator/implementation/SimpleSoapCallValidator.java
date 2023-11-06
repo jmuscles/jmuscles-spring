@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientResponseException;
 
-import com.jmuscles.processing.config.RestCallConfig;
+import com.jmuscles.processing.config.properties.RestCallConfig;
 import com.jmuscles.processing.execvalidator.RestValidator;
 import com.jmuscles.processing.schema.requestdata.RequestData;
 
@@ -47,12 +47,13 @@ public class SimpleSoapCallValidator extends RestValidator {
 
 	private boolean checkResponse(int statusCode, Object body, RestCallConfig restConfig) {
 		boolean isSuccess = false;
-		Map<Integer, List<String>> successCodePatterns = restConfig.getSuccessCodePatterns();
+		Map<String, List<String>> successCodePatterns = restConfig.getSuccessCodePatterns();
 		if (successCodePatterns == null || successCodePatterns.isEmpty()) {
 			isSuccess = statusCode > 199 && statusCode < 300;
 		} else {
-			isSuccess = restConfig.getSuccessCodePatterns().containsKey(statusCode)
-					? checkResponseBodyValidation(statusCode, body, successCodePatterns.get(statusCode))
+			String statusCodeStr = String.valueOf(statusCode);
+			isSuccess = successCodePatterns.containsKey(statusCodeStr)
+					? checkResponseBodyValidation(statusCode, body, successCodePatterns.get(statusCodeStr))
 					: false;
 		}
 		return isSuccess;

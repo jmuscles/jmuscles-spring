@@ -12,10 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.jmuscles.async.producer.config.properties.ProducerConfigProperties;
+import com.jmuscles.async.producer.config.properties.ProducerRabbitmqConfig;
 import com.jmuscles.async.producer.constant.ProducerDataMapKeys;
 import com.jmuscles.async.producer.producing.Producer;
-import com.jmuscles.async.producer.properties.ProducerConfigProperties;
-import com.jmuscles.async.producer.properties.ProducerRabbitmqConfig;
+import com.jmuscles.async.producer.util.AmqpMessageBuilderUtil;
 import com.jmuscles.processing.schema.Payload;
 import com.jmuscles.processing.schema.TrackingDetail;
 
@@ -62,7 +63,7 @@ public class AsyncPayloadDeliverer {
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(ProducerDataMapKeys.PAYLOAD, asyncPayload);
-		map.put(ProducerDataMapKeys.TRACKING_DETAIL, trackingDetail);
+		map.put(ProducerDataMapKeys.TRACKING_DETAIL, AmqpMessageBuilderUtil.resolveForTraceId(trackingDetail));
 		map.put(ProducerDataMapKeys.ROUTING_KEY, routingKey);
 		map.put(ProducerDataMapKeys.EXCHANGE, exchange);
 		map.put(ProducerDataMapKeys.NON_PERSISTENT_DELIVERY_MODE, isNonPersistentDeliveryMode);

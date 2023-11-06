@@ -14,6 +14,17 @@ public class DataSourceConfig {
 	private String type;
 	private Map<String, Object> connectionPoolProperties;
 
+	public DataSourceConfig() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public DataSourceConfig(String connectionPropsKey, String type, Map<String, Object> connectionPoolProperties) {
+		super();
+		this.connectionPropsKey = connectionPropsKey;
+		this.type = type;
+		this.connectionPoolProperties = connectionPoolProperties;
+	}
+
 	public String getConnectionPropsKey() {
 		return connectionPropsKey;
 	}

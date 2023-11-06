@@ -12,10 +12,10 @@ import org.springframework.amqp.core.MessageDeliveryMode;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jmuscles.async.producer.RabbitTemplateProvider;
+import com.jmuscles.async.producer.config.properties.ProducerConfigProperties;
+import com.jmuscles.async.producer.config.properties.ProducerRabbitmqConfig;
 import com.jmuscles.async.producer.constant.ProducerDataMapKeys;
 import com.jmuscles.async.producer.producing.SelfRegisteredProducer;
-import com.jmuscles.async.producer.properties.ProducerConfigProperties;
-import com.jmuscles.async.producer.properties.ProducerRabbitmqConfig;
 import com.jmuscles.async.producer.util.AmqpMessageBuilderUtil;
 import com.jmuscles.async.producer.util.PayloadObjectMapper;
 import com.jmuscles.processing.schema.Payload;

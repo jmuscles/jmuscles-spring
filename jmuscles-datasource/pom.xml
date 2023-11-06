@@ -38,22 +38,44 @@
 
 
 	<dependencies>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-config</artifactId>
 			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+
 		</dependency>
 
 
@@ -70,7 +92,8 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- <dependency> <groupId>org.apache.tomcat</groupId> <artifactId>tomcat-jdbc</artifactId> 
+		<!-- <dependency> <groupId>org.apache.tomcat</groupId>
+		<artifactId>tomcat-jdbc</artifactId> 
 			</dependency> -->
 	</dependencies>
 
@@ -90,8 +113,10 @@
 	</developers>
 
 	<scm>
-		<connection>scm:git:git@github.com:jmuscles/jmuscles-spring-datasource-starter.git</connection>
-		<developerConnection>scm:git:ssh://github.com:jmuscles/jmuscles-spring-datasource-starter.git</developerConnection>
+		<connection>
+			scm:git:git@github.com:jmuscles/jmuscles-spring-datasource-starter.git</connection>
+		<developerConnection>
+			scm:git:ssh://github.com:jmuscles/jmuscles-spring-datasource-starter.git</developerConnection>
 		<url>https://github.com/jmuscles/jmuscles-spring-datasource-starter</url>
 	</scm>
 
@@ -103,20 +128,25 @@
 		</snapshotRepository>
 		<repository>
 			<id>ossrh</id>
-			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+			<url>
+				https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
 
 	<build>
 		<plugins>
-			<!-- <plugin> <artifactId>maven-deploy-plugin</artifactId> <executions> 
-				<execution> <id>default-deploy</id> <phase>deploy</phase> <goals> <goal>deploy</goal> 
+			<!-- <plugin> <artifactId>maven-deploy-plugin</artifactId>
+			<executions> 
+				<execution> <id>default-deploy</id> <phase>deploy</phase> <goals>
+			<goal>deploy</goal> 
 				</goals> </execution> </executions> </plugin> -->
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-release-plugin</artifactId> 
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-release-plugin</artifactId> 
 				<version>2.5.3</version> <configuration> <localCheckout>true</localCheckout> 
 				<pushChanges>false</pushChanges> <mavenExecutorId>forked-path</mavenExecutorId> 
 				<arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments> </configuration> 
-				<dependencies> <dependency> <groupId>org.apache.maven.scm</groupId> <artifactId>maven-scm-provider-gitexe</artifactId> 
+				<dependencies> <dependency> <groupId>org.apache.maven.scm</groupId>
+			<artifactId>maven-scm-provider-gitexe</artifactId> 
 				<version>1.9.5</version> </dependency> </dependencies> </plugin> -->
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
@@ -192,7 +222,8 @@
 									<goal>sign</goal>
 								</goals>
 								<configuration>
-									<!-- Prevent gpg from using pinentry programs. Fixes: gpg: signing 
+									<!-- Prevent gpg from using pinentry
+									programs. Fixes: gpg: signing 
 										failed: Inappropriate ioctl for device -->
 									<gpgArguments>
 										<arg>--pinentry-mode</arg>

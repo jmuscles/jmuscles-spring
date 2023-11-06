@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.jmuscles</groupId>
+		<artifactId>jmuscles-spring</artifactId>
+		<version>1.0</version>
+	</parent>
+	<artifactId>jmuscles-processing-schema</artifactId>
+	<name>jmuscles-processing-schema</name>
+	<version>${jmuscles-processing-schema.version}</version>
+	<packaging>jar</packaging>
+	<description>Jmuscle processing POJO</description>
+
+	<url>http://maven.apache.org</url>
+
+
+	<properties>
+		<java.version>1.8</java.version>
+		<jackson.version>2.10.2</jackson.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<nexus.url>https://s01.oss.sonatype.org</nexus.url>
+		<project.repository>jmuscles/jmuscles-processing-schema</project.repository>
+		<repository.url>git@github.com:${project.repository}.git</repository.url>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+</project>

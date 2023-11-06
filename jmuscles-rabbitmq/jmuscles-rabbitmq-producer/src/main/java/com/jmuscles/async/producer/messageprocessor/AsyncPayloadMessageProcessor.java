@@ -9,7 +9,7 @@ import org.springframework.amqp.core.Message;
 
 import com.jmuscles.async.producer.util.AmqpMessageBuilderUtil;
 import com.jmuscles.async.producer.util.PayloadObjectMapper;
-import com.jmuscles.processing.executor.ExecutorRegistry;
+import com.jmuscles.processing.executor.StandardExecutorRegistry;
 import com.jmuscles.processing.processor.Processor;
 import com.jmuscles.processing.schema.Payload;
 
@@ -21,9 +21,9 @@ public class AsyncPayloadMessageProcessor implements MessageProcessor {
 
 	private static final Logger logger = LoggerFactory.getLogger(AsyncPayloadMessageProcessor.class);
 
-	private ExecutorRegistry executorRegistry;
+	private StandardExecutorRegistry executorRegistry;
 
-	public AsyncPayloadMessageProcessor(ExecutorRegistry executorRegistry) {
+	public AsyncPayloadMessageProcessor(StandardExecutorRegistry executorRegistry) {
 		super();
 		this.executorRegistry = executorRegistry;
 	}

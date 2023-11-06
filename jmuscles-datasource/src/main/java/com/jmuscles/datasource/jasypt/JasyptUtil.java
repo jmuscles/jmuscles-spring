@@ -27,6 +27,10 @@ public class JasyptUtil {
 		JasyptUtil.jasyptDecryptors = jasyptDecryptors;
 	}
 
+	public static List<JasyptDecryptor> getJasyptDecryptors() {
+		return jasyptDecryptors;
+	}
+
 	public static Properties decryptProperties(Properties dsProps) {
 		if (jasyptDecryptors != null && !jasyptDecryptors.isEmpty() && jasyptDecryptors.get(0) != null) {
 			return jasyptDecryptors.get(0).decrypt(dsProps);

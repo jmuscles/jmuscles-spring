@@ -7,20 +7,22 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 
 import com.jmuscles.processing.schema.Payload;
 import com.jmuscles.processing.schema.requestdata.RestRequestData;
-import com.jmuscles.rest.producer.config.RestConfPropsForConfigKey;
+import com.jmuscles.rest.producer.config.properties.RestConfPropsForConfigKey;
 
 public class ResponseBuilder {
 
 	private static final Logger logger = LoggerFactory.getLogger(ResponseBuilder.class);
 
-	@Autowired
 	private Map<String, RestConfPropsForConfigKey> restProducerConfigPropertiesMap;
+
+	public ResponseBuilder(Map<String, RestConfPropsForConfigKey> restProducerConfigPropertiesMap) {
+		this.restProducerConfigPropertiesMap = restProducerConfigPropertiesMap;
+	}
 
 	public ResponseEntity<?> buildResponse(boolean queued, RestRequestData restRequestData, HttpServletRequest request,
 			Payload payload) {

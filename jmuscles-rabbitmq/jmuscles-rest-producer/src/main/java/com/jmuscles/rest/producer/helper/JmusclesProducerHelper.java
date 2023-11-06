@@ -16,14 +16,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.jmuscles.async.producer.AsyncPayloadDeliverer;
-import com.jmuscles.async.producer.properties.ProducerConfigProperties;
+import com.jmuscles.async.producer.config.properties.ProducerConfigProperties;
 import com.jmuscles.async.producer.util.JmusclesRestResponseException;
 import com.jmuscles.processing.schema.Payload;
 import com.jmuscles.processing.schema.TrackingDetail;
 import com.jmuscles.processing.schema.requestdata.RequestData;
 import com.jmuscles.processing.schema.requestdata.RestRequestData;
-import com.jmuscles.rest.producer.config.RestConfPropsForConfigKey;
-import com.jmuscles.rest.producer.config.RestConfPropsForMethod;
+import com.jmuscles.rest.producer.config.properties.RestConfPropsForConfigKey;
+import com.jmuscles.rest.producer.config.properties.RestConfPropsForMethod;
 import com.jmuscles.rest.producer.response.ResponseBuilder;
 
 /**
@@ -36,11 +36,14 @@ public class JmusclesProducerHelper {
 	@Autowired
 	private AsyncPayloadDeliverer asyncPayloadDeliverer;
 
-	@Autowired
 	private ResponseBuilder responseBuilder;
-
-	@Autowired
 	private Map<String, RestConfPropsForConfigKey> restProducerConfigPropertiesMap;
+
+	public JmusclesProducerHelper(Map<String, RestConfPropsForConfigKey> restProducerConfigPropertiesMap,
+			ResponseBuilder responseBuilder) {
+		this.responseBuilder = responseBuilder;
+		this.restProducerConfigPropertiesMap = restProducerConfigPropertiesMap;
+	}
 
 	public ResponseEntity<?> queuePayload(Payload payload, TrackingDetail trackingDetail) {
 		return queuePayload(payload, trackingDetail, null) ? ResponseEntity.ok("Success")

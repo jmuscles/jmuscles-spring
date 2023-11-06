@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.jmuscles.processing.constant.Constants;
-import com.jmuscles.processing.executor.ExecutorRegistry;
-import com.jmuscles.processing.executor.SelfRegisteredExecutor;
+import com.jmuscles.processing.executor.StandardExecutor;
+import com.jmuscles.processing.executor.StandardExecutorRegistry;
 import com.jmuscles.processing.schema.requestdata.DemoRequestData;
 import com.jmuscles.processing.schema.requestdata.RequestData;
 
@@ -17,11 +17,11 @@ import com.jmuscles.processing.schema.requestdata.RequestData;
  * @author manish goel
  *
  */
-public class DemoRequestExecutor extends SelfRegisteredExecutor {
+public class DemoRequestExecutor extends StandardExecutor {
 
 	private static final Logger logger = LoggerFactory.getLogger(DemoRequestExecutor.class);
 
-	public DemoRequestExecutor(ExecutorRegistry executorRegistry) {
+	public DemoRequestExecutor(StandardExecutorRegistry executorRegistry) {
 		super(executorRegistry);
 	}
 

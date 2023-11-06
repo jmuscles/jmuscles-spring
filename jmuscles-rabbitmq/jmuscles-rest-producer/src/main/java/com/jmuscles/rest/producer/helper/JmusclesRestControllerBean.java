@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,8 +27,11 @@ public class JmusclesRestControllerBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(JmusclesRestControllerBean.class);
 
-	@Autowired
 	private JmusclesProducerHelper jmusclesProducerHelper;
+
+	public JmusclesRestControllerBean(JmusclesProducerHelper jmusclesProducerHelper) {
+		this.jmusclesProducerHelper = jmusclesProducerHelper;
+	}
 
 	public ResponseEntity<?> queuePayload(Payload payload, TrackingDetail trackingDetail)
 			throws JsonProcessingException {

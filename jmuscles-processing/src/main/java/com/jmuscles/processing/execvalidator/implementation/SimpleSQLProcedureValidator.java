@@ -5,7 +5,7 @@ package com.jmuscles.processing.execvalidator.implementation;
 
 import java.util.Map;
 
-import com.jmuscles.processing.config.SQLProcedureCallConfig;
+import com.jmuscles.processing.config.properties.SQLProcedureCallConfig;
 import com.jmuscles.processing.execvalidator.SQLProcedureValidator;
 import com.jmuscles.processing.schema.requestdata.RequestData;
 

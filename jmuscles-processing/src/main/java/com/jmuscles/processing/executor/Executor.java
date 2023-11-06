@@ -16,7 +16,7 @@ public class Executor {
 
 	private static final Logger logger = LoggerFactory.getLogger(Executor.class);
 
-	public static RequestData execute(RequestData requestData, ExecutorRegistry executorRegistry) {
+	public static RequestData execute(RequestData requestData, StandardExecutorRegistry executorRegistry) {
 		logger.debug("start ... " + requestData);
 		RequestData response = null;
 		BaseExecutor executor = executorRegistry.getExecutor(requestData);

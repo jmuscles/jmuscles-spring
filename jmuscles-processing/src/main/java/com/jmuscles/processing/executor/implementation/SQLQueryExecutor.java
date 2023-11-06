@@ -9,11 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import com.jmuscles.datasource.DataSourceGenerator;
-import com.jmuscles.processing.config.ExecutorConfigProperties;
-import com.jmuscles.processing.config.SQLQueryCallConfig;
-import com.jmuscles.processing.executor.ExecutorRegistry;
-import com.jmuscles.processing.executor.SelfRegisteredExecutor;
+import com.jmuscles.datasource.DataSourceProvider;
+import com.jmuscles.processing.config.properties.ExecutorConfigProperties;
+import com.jmuscles.processing.config.properties.SQLQueryCallConfig;
+import com.jmuscles.processing.executor.StandardExecutor;
+import com.jmuscles.processing.executor.StandardExecutorRegistry;
 import com.jmuscles.processing.execvalidator.SQLQueryValidator;
 import com.jmuscles.processing.schema.requestdata.RequestData;
 import com.jmuscles.processing.schema.requestdata.SQLQueryRequestData;
@@ -22,18 +22,18 @@ import com.jmuscles.processing.schema.requestdata.SQLQueryRequestData;
  * @author manish goel
  *
  */
-public class SQLQueryExecutor extends SelfRegisteredExecutor {
+public class SQLQueryExecutor extends StandardExecutor {
 
 	private static final Logger logger = LoggerFactory.getLogger(SQLQueryExecutor.class);
 
 	private ExecutorConfigProperties executorConfigProperties;
-	private DataSourceGenerator dataSourceGenerator;
+	private DataSourceProvider dataSourceProvider;
 
-	public SQLQueryExecutor(ExecutorRegistry executorRegistry, ExecutorConfigProperties executorConfigProperties,
-			DataSourceGenerator dataSourceGenerator) {
+	public SQLQueryExecutor(StandardExecutorRegistry executorRegistry,
+			ExecutorConfigProperties executorConfigProperties, DataSourceProvider dataSourceProvider) {
 		super(executorRegistry);
 		this.executorConfigProperties = executorConfigProperties;
-		this.dataSourceGenerator = dataSourceGenerator;
+		this.dataSourceProvider = dataSourceProvider;
 	}
 
 	@Override
@@ -42,8 +42,7 @@ public class SQLQueryExecutor extends SelfRegisteredExecutor {
 
 		SQLQueryRequestData queryRequestData = (SQLQueryRequestData) requestData;
 		SQLQueryCallConfig queryConfig = getExecutorSQLQueryConfig(queryRequestData.getConfigKey());
-		int response = invoke(queryRequestData, queryConfig.getQuery(),
-				dataSourceGenerator.get(queryConfig.getDskey()));
+		int response = invoke(queryRequestData, queryConfig.getQuery(), dataSourceProvider.get(queryConfig.getDskey()));
 
 		logger.debug("response for queryconfigKey- " + queryRequestData.getConfigKey() + ": " + response);
 

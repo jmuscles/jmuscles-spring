@@ -42,7 +42,7 @@ public class AmqpMessageBuilderUtil {
 		messageProperties.setDeliveryMode(messageDeliveryMode);
 		Map<String, Object> headers = messageProperties.getHeaders();
 		headers.put(AsyncMessageConstants.PAYLOAD_TYPE, Payload.class.getSimpleName());
-		trackingDetail = resolveForTraceId(trackingDetail);
+		//trackingDetail = resolveForTraceId(trackingDetail);
 		if (trackingDetail != null) {
 			trackingDetail.getAttributes().entrySet().forEach(entry -> headers.put(entry.getKey(), entry.getValue()));
 		}

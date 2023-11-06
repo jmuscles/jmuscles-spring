@@ -39,6 +39,17 @@
 	</dependencyManagement>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.jmuscles</groupId>
+			<artifactId>jmuscles-processing-schema</artifactId>
+			<version>${jmuscles-processing-schema.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jmuscles</groupId>
+			<artifactId>jmuscles-props-schema</artifactId>
+			<version>${jmuscles-props-schema.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.jmuscles</groupId>
@@ -48,8 +59,8 @@
 
 		<dependency>
 			<groupId>com.jmuscles</groupId>
-			<artifactId>jmuscles-processing-schema</artifactId>
-			<version>${jmuscles-processing-schema.version}</version>
+			<artifactId>jmuscles-props</artifactId>
+			<version>${jmuscles-props.version}</version>
 		</dependency>
 
 		<dependency>
@@ -103,6 +114,11 @@
 			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-api-trace</artifactId>
 			<version>${otel-api-trace.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jmuscles</groupId>
+			<artifactId>jmuscles-props</artifactId>
+			<version>j8sb2713-0.2</version>
 		</dependency>
 	</dependencies>
 
