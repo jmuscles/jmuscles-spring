@@ -14,7 +14,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import javax.sql.DataSource;
 
 import org.hibernate.jpa.HibernatePersistenceProvider;
@@ -26,6 +25,7 @@ import org.springframework.util.StringUtils;
 
 import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.props.AppPropsDBConfig;
+import com.jmuscles.props.util.Constants;
 
 /**
  * @author manish goel
@@ -59,60 +59,48 @@ public class AppPropsRepositorySetup {
 		setupEntityManagerFactory();
 	}
 
-	public List<AppPropsEntity> selectAppPropsEntity(String queryString, Map<String, Object> queryParams) {
-		List<AppPropsEntity> result = new ArrayList<>();
-		executeInTransaction(em -> result.addAll(selectAppPropsEntity(queryString, queryParams, em)));
+	public List<AppPropsAuditEntity> selectAppPropsAudit(Map<String, Object> queryParams) {
+		List<AppPropsAuditEntity> result = new ArrayList<>();
+		executeInTransaction(em -> result.addAll(selectAppPropsAudit(em, queryParams)));
 		return result;
 	}
 
-	public List<AppPropsEntity> selectAppPropsEntity(String queryString, Map<String, Object> queryParams,
-			EntityManager entityManager) {
+	public List<AppPropsAuditEntity> selectAppPropsAudit(EntityManager em, Map<String, Object> parameters) {
+		return dynamicSelect(em, parameters, "AppPropsAuditEntity");
+	}
+
+	public List<AppPropsEntity> selectAppProps(Map<String, Object> queryParams) {
 		List<AppPropsEntity> result = new ArrayList<>();
-		TypedQuery<AppPropsEntity> query = entityManager.createQuery(queryString, AppPropsEntity.class);
-		if (queryParams != null) {
-			queryParams.entrySet().forEach(entry -> query.setParameter(entry.getKey(), entry.getValue()));
-		}
-		result.addAll(query.getResultList());
+		executeInTransaction(em -> result.addAll(selectAppProps(em, queryParams)));
 		return result;
 	}
 
-	private AppPropsEntity findChildByKey(AppPropsEntity parent, String key, String status) {
-		String query = null;
-		Map<String, Object> params = new HashMap<>();
-		if (parent == null) {
-			query = "SELECT a FROM AppPropsEntity a WHERE a.prop_key = :key AND a.parent IS NULL AND a.status= :status";
-		} else {
-			query = "SELECT a FROM AppPropsEntity a WHERE a.prop_key = :key AND a.parent = :parent AND a.status= :status";
-			params.put("parent", parent);
-		}
-		params.put("key", key);
-		params.put("status", status);
-		List<AppPropsEntity> result = dbCommunicator.selectAppPropsEntity(query, params);
-		return result.isEmpty() ? null : result.get(0);
+	public List<AppPropsEntity> selectAppProps(EntityManager em, Map<String, Object> parameters) {
+		return dynamicSelect(em, parameters, "AppPropsEntity");
 	}
 
-	public List<AppPropsEntity> dynamicSelect(EntityManager em, Map<String, Object> parameters) {
-		StringBuilder jpql = new StringBuilder("SELECT ap FROM AppPropsEntity ap WHERE ap.tenant = :tenant");
+	public <T> List<T> dynamicSelect(EntityManager em, Map<String, Object> parameters, String entityName) {
+		StringBuilder jpql = new StringBuilder("SELECT a FROM " + entityName + " a WHERE a.id IS NOT NULL");
 		Map<String, Object> queryParameters = new HashMap<>();
-		queryParameters.put("tenant", tenant); // Replace 'tenant' with the actual TenantEntity object.
-
 		if (parameters != null) {
 			for (Map.Entry<String, Object> entry : parameters.entrySet()) {
 				String paramName = entry.getKey();
 				Object paramValue = entry.getValue();
-
 				if (paramValue != null) {
-					jpql.append(" AND ap.").append(paramName).append(" = :").append(paramName);
-					queryParameters.put(paramName, paramValue);
+					if (paramValue instanceof String && Constants.VALUE_FOR_IS_NULL_CHECK.equals(paramValue)) {
+						jpql.append(" AND a.").append(paramName).append(" IS NULL");
+					} else {
+						jpql.append(" AND a.").append(paramName).append(" = :").append(paramName);
+						queryParameters.put(paramName, paramValue);
+					}
 				}
 			}
 		}
-
 		Query query = em.createQuery(jpql.toString());
 		for (Map.Entry<String, Object> entry : queryParameters.entrySet()) {
 			query.setParameter(entry.getKey(), entry.getValue());
 		}
-		List<AppPropsEntity> results = query.getResultList();
+		List<T> results = query.getResultList();
 		return results;
 	}
 

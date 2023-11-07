@@ -1,23 +1,18 @@
 
 package com.jmuscles.props.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jmuscles.props.JmusclesConfig;
 import com.jmuscles.props.converter.JmusclesConfigUtil;
-import com.jmuscles.props.jpa.AppPropsEntity;
-import com.jmuscles.props.jpa.AppPropsRepository;
+import com.jmuscles.props.jpa.AppPropsReadRepository;
 import com.jmuscles.props.util.Constants;
 
 /**
@@ -26,11 +21,11 @@ import com.jmuscles.props.util.Constants;
 public class ReadPropsFromDBService {
 	private static final Logger logger = LoggerFactory.getLogger(ReadPropsFromDBService.class);
 
-	private AppPropsRepository appPropsRepository;
+	private AppPropsReadRepository appPropsReadRepository;
 	private JmusclesConfig jmusclesConfig;
 
-	public ReadPropsFromDBService(AppPropsRepository appPropsRepository) {
-		this.appPropsRepository = appPropsRepository;
+	public ReadPropsFromDBService(AppPropsReadRepository appPropsReadRepository) {
+		this.appPropsReadRepository = appPropsReadRepository;
 	}
 
 	public JmusclesConfig getLatestProperties() {
@@ -86,42 +81,7 @@ public class ReadPropsFromDBService {
 	}
 
 	public Map<String, Object> readDataFromDatabase(List<String> paths) {
-		return readDataFromDatabase(paths, Constants.STATUS_ACTIVE);
-	}
-
-	public Map<String, Object> readDataFromDatabase(List<String> paths, String status) {
-		List<AppPropsEntity> topLevelProperties = null;
-		if (paths == null) {
-			topLevelProperties = appPropsRepository.findAllByParentIsNull(status);
-		} else {
-			AppPropsEntity appPropsEntity = appPropsRepository.findByKeyPath(paths, status);
-			if (appPropsEntity != null) {
-				topLevelProperties = new ArrayList<AppPropsEntity>();
-				topLevelProperties.add(appPropsEntity);
-			}
-		}
-		return topLevelProperties != null
-				? topLevelProperties.stream().collect(
-						Collectors.toMap(entity -> entity.getProp_key(), entity -> buildNestedMap(entity, status)))
-				: null;
-	}
-
-	private Object buildNestedMap(AppPropsEntity propertyEntity, String status) {
-		Map<String, Object> nestedMap = new HashMap<>();
-		List<AppPropsEntity> children = appPropsRepository.findAllByParent(propertyEntity.getId(), status);
-		for (AppPropsEntity child : children) {
-			nestedMap.put(child.getProp_key(), buildNestedMap(child, status));
-		}
-		if (propertyEntity.getProp_value() != null) {
-			// Check if the value is a JSON string representing a map and parse it
-			try {
-				return new ObjectMapper().readValue(propertyEntity.getProp_value(), Map.class);
-			} catch (IOException e) {
-				// Value is not a valid JSON, return it as a string
-				return propertyEntity.getProp_value();
-			}
-		}
-		return nestedMap;
+		return appPropsReadRepository.readDataFromDatabase(paths, Constants.STATUS_ACTIVE);
 	}
 
 }
