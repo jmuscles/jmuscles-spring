@@ -2,7 +2,7 @@
  * @author manish goel
  *
  */
-package com.jmuscles.props.jpa;
+package com.jmuscles.props.jpa.entity.repository;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jmuscles.props.jpa.entity.PropEntity;
 import com.jmuscles.props.util.Constants;
 
 /**
@@ -36,13 +37,13 @@ public class AppPropsWriteRepository {
 		dbCommunicator.executeInTransaction(action);
 	}
 
-	public void replaceDescendants(Map<String, Object> properties, AppPropsEntity parentEntity) {
+	public void replaceDescendants(Map<String, Object> properties, PropEntity parentEntity) {
 		Timestamp updatedAt = new Timestamp((new Date()).getTime());
 		String updatedBy = "SYSTEM";
 		replaceDescendants(properties, parentEntity, updatedAt, updatedBy);
 	}
 
-	public void replaceDescendants(Map<String, Object> properties, AppPropsEntity parentEntity, Timestamp updatedAt,
+	public void replaceDescendants(Map<String, Object> properties, PropEntity parentEntity, Timestamp updatedAt,
 			String updatedBy) {
 		executeInTransaction(em -> {
 			updateStatusToDescendants(em, parentEntity, Constants.STATUS_ACTIVE, Constants.STATUS_DELETE, updatedAt,
@@ -51,15 +52,15 @@ public class AppPropsWriteRepository {
 		});
 	}
 
-	public void updateStatusToDescendants(EntityManager em, AppPropsEntity parentEntity, String currentStatus,
+	public void updateStatusToDescendants(EntityManager em, PropEntity parentEntity, String currentStatus,
 			String newStatus, Timestamp updatedAt, String updatedBy) {
-		List<AppPropsEntity> list = appPropsReadRepository.findEntireDescendants(em, parentEntity, currentStatus);
+		List<PropEntity> list = appPropsReadRepository.findEntireDescendants(em, parentEntity, currentStatus);
 		bulkUpdateStatus(em, list, newStatus, updatedAt, updatedBy);
 	}
 
-	private void bulkUpdateStatus(EntityManager em, List<AppPropsEntity> entities, String status, Timestamp updatedAt,
+	private void bulkUpdateStatus(EntityManager em, List<PropEntity> entities, String status, Timestamp updatedAt,
 			String updatedBy) {
-		for (AppPropsEntity entity : entities) {
+		for (PropEntity entity : entities) {
 			entity.setStatus(status);
 			entity.setUpdatedAt(updatedAt);
 			entity.setUpdatedBy(updatedBy);
@@ -79,14 +80,15 @@ public class AppPropsWriteRepository {
 
 	@SuppressWarnings("unchecked")
 	public void savePropertiesToDatabase(EntityManager entityManager, Map<String, Object> properties,
-			AppPropsEntity parent, String status, Timestamp createdAt, String createdBy) {
+			PropEntity parent, String status, Timestamp createdAt, String createdBy) {
 		for (Map.Entry<String, Object> entry : properties.entrySet()) {
 			String key = entry.getKey();
 			String value = (entry.getValue() != null && !(entry.getValue() instanceof Map))
 					? entry.getValue().toString()
 					: null;
-			AppPropsEntity propertyEntity = AppPropsEntity.of(key, value, status, null, parent, null, createdAt,
-					createdBy);
+			PropEntity propertyEntity = PropEntity.of(key, value, status, null, parent, createdAt, createdBy,
+					version);
+
 			try {
 				entityManager.persist(propertyEntity);
 			} catch (Exception ex1) {

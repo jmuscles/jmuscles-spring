@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.jmuscles.props.jpa;
+package com.jmuscles.props.jpa.entity.repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +25,9 @@ import org.springframework.util.StringUtils;
 
 import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.props.AppPropsDBConfig;
+import com.jmuscles.props.jpa.entity.PropEntity;
+import com.jmuscles.props.jpa.entity.PropVersionEntity;
+import com.jmuscles.props.jpa.entity.TenantEntity;
 import com.jmuscles.props.util.Constants;
 
 /**
@@ -59,24 +62,29 @@ public class AppPropsRepositorySetup {
 		setupEntityManagerFactory();
 	}
 
-	public List<AppPropsAuditEntity> selectAppPropsAudit(Map<String, Object> queryParams) {
-		List<AppPropsAuditEntity> result = new ArrayList<>();
-		executeInTransaction(em -> result.addAll(selectAppPropsAudit(em, queryParams)));
-		return result;
+	public List<TenantEntity> selectTenant(EntityManager em, Map<String, Object> parameters) {
+		return dynamicSelect(em, parameters, "TenantEntity");
 	}
 
-	public List<AppPropsAuditEntity> selectAppPropsAudit(EntityManager em, Map<String, Object> parameters) {
-		return dynamicSelect(em, parameters, "AppPropsAuditEntity");
+	public List<PropVersionEntity> selectAppPropsVersion(EntityManager em, Map<String, Object> parameters) {
+		if ((parameters != null && (parameters.get("tenant") != null || parameters.get("tenant.id") != null))
+				&& (parameters.get("parentAppProp") != null || parameters.get("parentAppProp.id") != null)) {
+			return dynamicSelect(em, parameters, "AppPropsVersionEntity");
+		} else {
+			return null;
+		}
 	}
 
-	public List<AppPropsEntity> selectAppProps(Map<String, Object> queryParams) {
-		List<AppPropsEntity> result = new ArrayList<>();
-		executeInTransaction(em -> result.addAll(selectAppProps(em, queryParams)));
-		return result;
+	boolean isAppPropsValid(Map<String, Object> parameters) {
+		return (parameters != null && (parameters.get("version") != null || parameters.get("version.id") != null));
 	}
 
-	public List<AppPropsEntity> selectAppProps(EntityManager em, Map<String, Object> parameters) {
-		return dynamicSelect(em, parameters, "AppPropsEntity");
+	public List<PropEntity> selectAppProps(EntityManager em, Map<String, Object> parameters) {
+		if (isAppPropsValid(parameters)) {
+			return dynamicSelect(em, parameters, "AppPropsEntity");
+		} else {
+			return null;
+		}
 	}
 
 	public <T> List<T> dynamicSelect(EntityManager em, Map<String, Object> parameters, String entityName) {
@@ -99,6 +107,29 @@ public class AppPropsRepositorySetup {
 		Query query = em.createQuery(jpql.toString());
 		for (Map.Entry<String, Object> entry : queryParameters.entrySet()) {
 			query.setParameter(entry.getKey(), entry.getValue());
+		}
+		List<T> results = query.getResultList();
+		return results;
+	}
+
+	public <T> List<T> dynamicSelect(Map<String, Object> parameters, String entityName) {
+		List<T> result = new ArrayList<>();
+		executeInTransaction(em -> result.addAll(dynamicSelect(em, parameters, entityName)));
+		return result;
+	}
+
+	public <T> List<T> runSelectQuery(String queryString, Map<String, Object> parameters) {
+		List<T> result = new ArrayList<>();
+		executeInTransaction(em -> result.addAll(runSelectQuery(queryString, parameters)));
+		return result;
+	}
+
+	public <T> List<T> runSelectQuery(EntityManager em, String queryString, Map<String, Object> parameters) {
+		Query query = em.createQuery(queryString);
+		if (parameters != null) {
+			for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+				query.setParameter(entry.getKey(), entry.getValue());
+			}
 		}
 		List<T> results = query.getResultList();
 		return results;

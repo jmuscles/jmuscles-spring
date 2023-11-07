@@ -1,4 +1,4 @@
-package com.jmuscles.props.jpa;
+package com.jmuscles.props.jpa.entity;
 
 import java.sql.Timestamp;
 
@@ -13,24 +13,23 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "APP_PROPS_AUDIT")
-public class AppPropsAuditEntity {
+@Table(name = "PROP_VERSION")
+public class PropVersionEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "APP_PROPS_AUDIT_SEQ")
-	@SequenceGenerator(sequenceName = "APP_PROPS_AUDIT_SEQ", name = "APP_PROPS_AUDIT_SEQ", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "PROP_VERSION_SEQ")
+	@SequenceGenerator(sequenceName = "PROP_VERSION_SEQ", name = "PROP_VERSION_SEQ", allocationSize = 1)
 	@Column(unique = true, nullable = false, name = "ID")
 	private Long id;
 
-	@ManyToOne
-	@JoinColumn(name = "APP_PROPS_ID")
-	private AppPropsEntity appPropsEntity;
+	@JoinColumn(name = "PARENT_PROP")
+	private PropEntity parentProp;
 
-	@Column(name = "OLD_STATUS")
-	private String oldStatus;
+	@Column(name = "REQUEST_PATH")
+	private String requestPath;
 
-	@Column(name = "NEW_STATUS")
-	private String newStatus;
+	@Column(name = "DESCRIPTION")
+	private String description;
 
 	@Column(name = "CREATED_AT")
 	private Timestamp createdAt;
@@ -45,8 +44,24 @@ public class AppPropsAuditEntity {
 	private String updatedBy;
 
 	@ManyToOne
-	@JoinColumn(name = "TENANT_ID") // This is the join column
+	@JoinColumn(name = "TENANT_ID", nullable = false) // This is the join column
 	private TenantEntity tenant;
+
+	public static PropVersionEntity of(PropEntity parentProp, String requestPath, String description,
+			Timestamp createdAt, String createdBy, TenantEntity tenant) {
+		return new PropVersionEntity(parentProp, requestPath, description, createdAt, createdBy, tenant);
+	}
+
+	public PropVersionEntity(PropEntity parentProp, String requestPath, String description, Timestamp createdAt,
+			String createdBy, TenantEntity tenant) {
+		super();
+		this.parentProp = parentProp;
+		this.requestPath = requestPath;
+		this.description = description;
+		this.createdAt = createdAt;
+		this.createdBy = createdBy;
+		this.tenant = tenant;
+	}
 
 	/**
 	 * @return the id
@@ -63,45 +78,45 @@ public class AppPropsAuditEntity {
 	}
 
 	/**
-	 * @return the appPropsEntity
+	 * @return the parentProp
 	 */
-	public AppPropsEntity getAppPropsEntity() {
-		return appPropsEntity;
+	public PropEntity getParentProp() {
+		return parentProp;
 	}
 
 	/**
-	 * @param appPropsEntity the appPropsEntity to set
+	 * @param parentProp the parentProp to set
 	 */
-	public void setAppPropsEntity(AppPropsEntity appPropsEntity) {
-		this.appPropsEntity = appPropsEntity;
+	public void setParentProp(PropEntity parentProp) {
+		this.parentProp = parentProp;
 	}
 
 	/**
-	 * @return the oldStatus
+	 * @return the requestPath
 	 */
-	public String getOldStatus() {
-		return oldStatus;
+	public String getRequestPath() {
+		return requestPath;
 	}
 
 	/**
-	 * @param oldStatus the oldStatus to set
+	 * @param requestPath the requestPath to set
 	 */
-	public void setOldStatus(String oldStatus) {
-		this.oldStatus = oldStatus;
+	public void setRequestPath(String requestPath) {
+		this.requestPath = requestPath;
 	}
 
 	/**
-	 * @return the newStatus
+	 * @return the description
 	 */
-	public String getNewStatus() {
-		return newStatus;
+	public String getDescription() {
+		return description;
 	}
 
 	/**
-	 * @param newStatus the newStatus to set
+	 * @param description the description to set
 	 */
-	public void setNewStatus(String newStatus) {
-		this.newStatus = newStatus;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	/**

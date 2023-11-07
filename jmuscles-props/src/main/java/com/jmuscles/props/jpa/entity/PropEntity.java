@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.jmuscles.props.jpa;
+package com.jmuscles.props.jpa.entity;
 
 import java.sql.Timestamp;
 
@@ -19,12 +19,12 @@ import javax.persistence.Table;
 import com.jmuscles.props.util.Constants;
 
 @Entity
-@Table(name = "APP_PROPS")
-public class AppPropsEntity {
+@Table(name = "PROPERTIES")
+public class PropEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "APP_PROPS_SEQ")
-	@SequenceGenerator(sequenceName = "APP_PROPS_SEQ", name = "APP_PROPS_SEQ", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "PROP_SEQ")
+	@SequenceGenerator(sequenceName = "PROP_SEQ", name = "PROP_SEQ", allocationSize = 1)
 	@Column(unique = true, nullable = false, name = "ID")
 	private Long id;
 
@@ -34,20 +34,13 @@ public class AppPropsEntity {
 	@Column(name = "PROP_VALUE", length = Constants.PROP_VALUE_LENGTH)
 	private String prop_value;
 
-	@Column(name = "STATUS", length = 25)
-	private String status;
-
 	@Lob
 	@Column(name = "PROP_VALUE_BLOB")
 	private byte[] prop_value_blob;
 
 	@ManyToOne
 	@JoinColumn(name = "PARENT_ID")
-	private AppPropsEntity parent;
-
-	@ManyToOne
-	@JoinColumn(name = "TENANT_ID") // This is the join column
-	private TenantEntity tenant;
+	private PropEntity parent;
 
 	@Column(name = "CREATED_AT")
 	private Timestamp createdAt;
@@ -61,94 +54,103 @@ public class AppPropsEntity {
 	@Column(name = "UPDATED_BY")
 	private String updatedBy;
 
-	public AppPropsEntity() {
+	@ManyToOne
+	@JoinColumn(name = "VERSION_ID", nullable = false) // This is the join column
+	private PropVersionEntity version;
+
+	@ManyToOne
+	@JoinColumn(name = "CHILD_PROP_VERSION_ID") // This is the join column
+	private PropVersionEntity childPropVersion;
+
+	public PropEntity() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static AppPropsEntity of(String prop_key, String prop_value, String status, byte[] prop_value_blob,
-			AppPropsEntity parent, TenantEntity tenant, Timestamp createdAt, String createdBy) {
-		return new AppPropsEntity(prop_key, prop_value, status, prop_value_blob, parent, tenant, createdAt, createdBy);
+	public PropEntity of(String prop_key, String prop_value, byte[] prop_value_blob, PropEntity parent,
+			Timestamp createdAt, String createdBy, PropVersionEntity version) {
+		return new PropEntity(prop_key, prop_value, prop_value_blob, parent, createdAt, createdBy, version);
 	}
 
-	public AppPropsEntity(String prop_key, String prop_value, String status, byte[] prop_value_blob,
-			AppPropsEntity parent, TenantEntity tenant, Timestamp createdAt, String createdBy) {
+	public PropEntity(String prop_key, String prop_value, byte[] prop_value_blob, PropEntity parent,
+			Timestamp createdAt, String createdBy, PropVersionEntity version) {
 		super();
 		this.prop_key = prop_key;
 		this.prop_value = prop_value;
-		this.status = status;
 		this.prop_value_blob = prop_value_blob;
 		this.parent = parent;
-		this.tenant = tenant;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
+		this.version = version;
 	}
 
+	/**
+	 * @return the id
+	 */
 	public Long getId() {
 		return id;
 	}
 
+	/**
+	 * @param id the id to set
+	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+	/**
+	 * @return the prop_key
+	 */
 	public String getProp_key() {
 		return prop_key;
 	}
 
+	/**
+	 * @param prop_key the prop_key to set
+	 */
 	public void setProp_key(String prop_key) {
 		this.prop_key = prop_key;
 	}
 
+	/**
+	 * @return the prop_value
+	 */
 	public String getProp_value() {
 		return prop_value;
 	}
 
+	/**
+	 * @param prop_value the prop_value to set
+	 */
 	public void setProp_value(String prop_value) {
 		this.prop_value = prop_value;
 	}
 
+	/**
+	 * @return the prop_value_blob
+	 */
 	public byte[] getProp_value_blob() {
 		return prop_value_blob;
 	}
 
+	/**
+	 * @param prop_value_blob the prop_value_blob to set
+	 */
 	public void setProp_value_blob(byte[] prop_value_blob) {
 		this.prop_value_blob = prop_value_blob;
 	}
 
-	public AppPropsEntity getParent() {
+	/**
+	 * @return the parent
+	 */
+	public PropEntity getParent() {
 		return parent;
 	}
 
-	public void setParent(AppPropsEntity parent) {
+	/**
+	 * @param parent the parent to set
+	 */
+	public void setParent(PropEntity parent) {
 		this.parent = parent;
-	}
-
-	/**
-	 * @return the tenant
-	 */
-	public TenantEntity getTenant() {
-		return tenant;
-	}
-
-	/**
-	 * @param tenant the tenant to set
-	 */
-	public void setTenant(TenantEntity tenant) {
-		this.tenant = tenant;
-	}
-
-	/**
-	 * @return the status
-	 */
-	public String getStatus() {
-		return status;
-	}
-
-	/**
-	 * @param status the status to set
-	 */
-	public void setStatus(String status) {
-		this.status = status;
 	}
 
 	/**
@@ -205,6 +207,34 @@ public class AppPropsEntity {
 	 */
 	public void setUpdatedBy(String updatedBy) {
 		this.updatedBy = updatedBy;
+	}
+
+	/**
+	 * @return the version
+	 */
+	public PropVersionEntity getVersion() {
+		return version;
+	}
+
+	/**
+	 * @param version the version to set
+	 */
+	public void setVersion(PropVersionEntity version) {
+		this.version = version;
+	}
+
+	/**
+	 * @return the childPropVersion
+	 */
+	public PropVersionEntity getChildPropVersion() {
+		return childPropVersion;
+	}
+
+	/**
+	 * @param childPropVersion the childPropVersion to set
+	 */
+	public void setChildPropVersion(PropVersionEntity childPropVersion) {
+		this.childPropVersion = childPropVersion;
 	}
 
 }

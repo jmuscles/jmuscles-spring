@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils;
 
 import com.jmuscles.props.JmusclesConfig;
 import com.jmuscles.props.converter.JmusclesConfigUtil;
-import com.jmuscles.props.jpa.AppPropsReadRepository;
+import com.jmuscles.props.jpa.entity.repository.AppPropsReadRepository;
 import com.jmuscles.props.util.Constants;
 
 /**

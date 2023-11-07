@@ -23,9 +23,9 @@ import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.datasource.jasypt.JasyptUtil;
 import com.jmuscles.datasource.operator.DataSourceOperatorRegistry;
 import com.jmuscles.datasource.properties.DatabaseProperties;
-import com.jmuscles.props.jpa.AppPropsReadRepository;
-import com.jmuscles.props.jpa.AppPropsRepositorySetup;
-import com.jmuscles.props.jpa.AppPropsWriteRepository;
+import com.jmuscles.props.jpa.entity.repository.AppPropsReadRepository;
+import com.jmuscles.props.jpa.entity.repository.AppPropsRepositorySetup;
+import com.jmuscles.props.jpa.entity.repository.AppPropsWriteRepository;
 import com.jmuscles.props.service.ReadPropsFromDBService;
 import com.jmuscles.props.util.SpringBeanUtil;
 

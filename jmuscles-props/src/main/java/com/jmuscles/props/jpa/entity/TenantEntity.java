@@ -2,7 +2,7 @@
  * @author manish goel
  *
  */
-package com.jmuscles.props.jpa;
+package com.jmuscles.props.jpa.entity;
 
 import java.sql.Timestamp;
 
@@ -29,9 +29,6 @@ public class TenantEntity {
 
 	@Column(name = "NAME", unique = true, nullable = false, length = 100)
 	private String name;
-
-	@Column(name = "STATUS", length = 25)
-	private String status;
 
 	@Column(name = "CREATED_AT")
 	private Timestamp createdAt;
@@ -71,20 +68,6 @@ public class TenantEntity {
 	 */
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	/**
-	 * @return the status
-	 */
-	public String getStatus() {
-		return status;
-	}
-
-	/**
-	 * @param status the status to set
-	 */
-	public void setStatus(String status) {
-		this.status = status;
 	}
 
 	/**
