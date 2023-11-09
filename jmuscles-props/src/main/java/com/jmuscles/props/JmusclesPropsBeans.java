@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.jmuscles.props;
 
 import org.slf4j.Logger;
@@ -24,8 +21,8 @@ import com.jmuscles.datasource.jasypt.JasyptUtil;
 import com.jmuscles.datasource.operator.DataSourceOperatorRegistry;
 import com.jmuscles.datasource.properties.DatabaseProperties;
 import com.jmuscles.props.jpa.entity.repository.AppPropsReadRepository;
-import com.jmuscles.props.jpa.entity.repository.AppPropsRepositorySetup;
 import com.jmuscles.props.jpa.entity.repository.AppPropsWriteRepository;
+import com.jmuscles.props.jpa.entity.repository.RepositorySetup;
 import com.jmuscles.props.service.ReadPropsFromDBService;
 import com.jmuscles.props.util.SpringBeanUtil;
 
@@ -72,22 +69,22 @@ public class JmusclesPropsBeans implements BeanFactoryAware, EnvironmentAware {
 	}
 
 	@Bean("appPropsRepositorySetup")
-	public AppPropsRepositorySetup appPropsRepositorySetup(
+	public RepositorySetup appPropsRepositorySetup(
 			@Qualifier("dataSourceProvider") DataSourceProvider dataSourceProvider,
 			@Qualifier("appPropsDBConfig") AppPropsDBConfig appPropsDBConfig) {
-		return new AppPropsRepositorySetup(environment.getProperty("spring.application.name"), dataSourceProvider,
+		return new RepositorySetup(environment.getProperty("spring.application.name"), dataSourceProvider,
 				appPropsDBConfig);
 	}
 
 	@Bean("appPropsReadRepository")
 	public AppPropsReadRepository appPropsReadRepository(
-			@Qualifier("appPropsRepositorySetup") AppPropsRepositorySetup appPropsRepositorySetup) {
+			@Qualifier("appPropsRepositorySetup") RepositorySetup appPropsRepositorySetup) {
 		return new AppPropsReadRepository(appPropsRepositorySetup);
 	}
 
 	@Bean("appPropsWriteRepository")
 	public AppPropsWriteRepository appPropsWriteRepository(
-			@Qualifier("appPropsRepositorySetup") AppPropsRepositorySetup appPropsRepositorySetup,
+			@Qualifier("appPropsRepositorySetup") RepositorySetup appPropsRepositorySetup,
 			@Qualifier("appPropsReadRepository") AppPropsReadRepository appPropsReadRepository) {
 		return new AppPropsWriteRepository(appPropsRepositorySetup, appPropsReadRepository);
 	}

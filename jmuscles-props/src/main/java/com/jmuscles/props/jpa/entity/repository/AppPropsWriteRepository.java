@@ -24,10 +24,10 @@ import com.jmuscles.props.util.Constants;
 public class AppPropsWriteRepository {
 	private static final Logger logger = LoggerFactory.getLogger(AppPropsWriteRepository.class);
 
-	private AppPropsRepositorySetup dbCommunicator;
+	private RepositorySetup dbCommunicator;
 	private AppPropsReadRepository appPropsReadRepository;
 
-	public AppPropsWriteRepository(AppPropsRepositorySetup dbCommunicator,
+	public AppPropsWriteRepository(RepositorySetup dbCommunicator,
 			AppPropsReadRepository appPropsReadRepository) {
 		this.dbCommunicator = dbCommunicator;
 		this.appPropsReadRepository = appPropsReadRepository;

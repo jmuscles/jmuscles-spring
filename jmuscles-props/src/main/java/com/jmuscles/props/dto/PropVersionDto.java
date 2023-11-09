@@ -1,59 +1,30 @@
-package com.jmuscles.props.jpa.entity;
+package com.jmuscles.props.dto;
 
 import java.sql.Timestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import com.jmuscles.props.jpa.entity.PropVersionEntity;
 
-@Entity
-@Table(name = "PROP_VERSION")
-public class PropVersionEntity {
+public class PropVersionDto {
 
-	@Column(name = "MAJOR_VERSION", nullable = false) // This is the join column
 	private Integer majorVersion;
-
-	@Column(name = "MINOR_VERSION", nullable = false) // This is the join column
 	private Integer minorVersion;
-
-	@Column(name = "NAME")
 	private String name;
-
-	@Column(name = "DESCRIPTION")
 	private String description;
-
-	@Column(name = "CREATED_AT")
 	private Timestamp createdAt;
-
-	@Column(name = "CREATED_BY")
 	private String createdBy;
-
-	@Column(name = "UPDATED_AT")
 	private Timestamp updatedAt;
-
-	@Column(name = "UPDATED_BY")
 	private String updatedBy;
-
-	@Column(name = "PROP_FULL_KEY", length = 500)
 	private String prop_full_key;
+	private PropDto parent_prop;
+	private TenantDto tenant;
 
-	@ManyToOne
-	@JoinColumn(name = "PARENT_PROP_ID")
-	private PropEntity parent_prop;
-
-	@ManyToOne
-	@JoinColumn(name = "TENANT_ID", nullable = false) // This is the join column
-	private TenantEntity tenant;
-
-	public PropVersionEntity() {
+	public PropVersionDto() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PropVersionEntity(Integer majorVersion, Integer minorVersion, String name, String description,
+	public PropVersionDto(Integer majorVersion, Integer minorVersion, String name, String description,
 			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy, String prop_full_key,
-			PropEntity parent_prop, TenantEntity tenant) {
+			PropDto parent_prop, TenantDto tenant) {
 		super();
 		this.majorVersion = majorVersion;
 		this.minorVersion = minorVersion;
@@ -68,18 +39,28 @@ public class PropVersionEntity {
 		this.tenant = tenant;
 	}
 
-	public static PropVersionEntity of(Integer majorVersion, Integer minorVersion, String name, String description,
+	public PropVersionEntity getPropVersionEntity() {
+		return PropVersionEntity.of(majorVersion, minorVersion, name, description, createdAt, createdBy, updatedAt,
+				updatedBy, prop_full_key, parent_prop != null ? parent_prop.getPropEntity() : null,
+				tenant != null ? tenant.getTenantEntity() : null);
+	}
+
+	public static PropVersionDto of(Integer majorVersion, Integer minorVersion, String name, String description,
 			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy, String prop_full_key,
-			PropEntity parent_prop, TenantEntity tenant) {
-		return new PropVersionEntity(majorVersion, minorVersion, name, description, createdAt, createdBy, updatedAt,
+			PropDto parent_prop, TenantDto tenant) {
+		return new PropVersionDto(majorVersion, minorVersion, name, description, createdAt, createdBy, updatedAt,
 				updatedBy, prop_full_key, parent_prop, tenant);
 	}
 
-	public void changeCreateUpdate(Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
-		this.createdAt = createdAt;
-		this.createdBy = createdBy;
-		this.updatedAt = updatedAt;
-		this.updatedBy = updatedBy;
+	public static PropVersionDto of(PropVersionEntity propVersionEntity) {
+		if (propVersionEntity != null) {
+			return new PropVersionDto(propVersionEntity.getMajorVersion(), propVersionEntity.getMinorVersion(),
+					propVersionEntity.getName(), propVersionEntity.getDescription(), propVersionEntity.getCreatedAt(),
+					propVersionEntity.getCreatedBy(), propVersionEntity.getUpdatedAt(),
+					propVersionEntity.getUpdatedBy(), propVersionEntity.getProp_full_key(),
+					PropDto.of(propVersionEntity.getParent_prop()), TenantDto.of(propVersionEntity.getTenant()));
+		}
+		return null;
 	}
 
 	/**
@@ -211,28 +192,28 @@ public class PropVersionEntity {
 	/**
 	 * @return the parent_prop
 	 */
-	public PropEntity getParent_prop() {
+	public PropDto getParent_prop() {
 		return parent_prop;
 	}
 
 	/**
 	 * @param parent_prop the parent_prop to set
 	 */
-	public void setParent_prop(PropEntity parent_prop) {
+	public void setParent_prop(PropDto parent_prop) {
 		this.parent_prop = parent_prop;
 	}
 
 	/**
 	 * @return the tenant
 	 */
-	public TenantEntity getTenant() {
+	public TenantDto getTenant() {
 		return tenant;
 	}
 
 	/**
 	 * @param tenant the tenant to set
 	 */
-	public void setTenant(TenantEntity tenant) {
+	public void setTenant(TenantDto tenant) {
 		this.tenant = tenant;
 	}
 

@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class ConverterUtil {
 		localPackages.add("com.jmuscles.processing.config.properties");
 		localPackages.add("com.jmuscles.rest.producer.config.properties");
 	}
-	
+
 	public static List<Type> getNestedValueTypes(Field field) {
 		List<Type> valueTypes = new ArrayList<>();
 		Type valueType = field.getGenericType();
@@ -165,6 +166,25 @@ public class ConverterUtil {
 		return value; // Return value as is if no conversion was performed
 	}
 
+	public static Map<String, Object> fixKeysAndValues(Map<Object, Object> map, Map<String, Object> newMap) {
+		if (newMap == null) {
+			newMap = new HashMap<String, Object>();
+		}
+		for (Map.Entry<Object, Object> entry : map.entrySet()) {
+			Object value = entry.getValue();
+			if (value != null) {
+				if (value instanceof Map) {
+					// Recursively process nested maps
+					value = fixKeysAndValues((Map) value, null);
+				} else if (value instanceof List) {
+					value = listToString((List<?>) value);
+				}
+			}
+			newMap.put(String.valueOf(entry.getKey()), value);
+		}
+		return newMap;
+	}
+
 	// MapToObject
 	public static Object stringToList(String string, Class<?> type) {
 		try {
@@ -177,7 +197,7 @@ public class ConverterUtil {
 	}
 
 	// ObjectToMap
-	public static String listToString(List list) {
+	public static String listToString(List<?> list) {
 		try {
 			return objectMapper.writeValueAsString(list);
 		} catch (JsonProcessingException e) {

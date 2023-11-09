@@ -1,78 +1,35 @@
-package com.jmuscles.props.jpa.entity;
+/**
+ * 
+ */
+package com.jmuscles.props.dto;
 
 import java.sql.Timestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import com.jmuscles.props.jpa.entity.PropEntity;
 
-import com.jmuscles.props.util.Constants;
+public class PropDto {
 
-@Entity
-@Table(name = "PROPERTIES")
-public class PropEntity {
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "PROP_SEQ")
-	@SequenceGenerator(sequenceName = "PROP_SEQ", name = "PROP_SEQ", allocationSize = 1)
-	@Column(unique = true, nullable = false, name = "ID")
 	private Long id;
-
-	@Column(name = "PROP_KEY", length = 250)
 	private String prop_key;
-
-	@Column(name = "PROP_VALUE", length = Constants.PROP_VALUE_LENGTH)
 	private String prop_value;
-
-	@Lob
-	@Column(name = "PROP_VALUE_BLOB")
 	private byte[] prop_value_blob;
-
-	@ManyToOne
-	@JoinColumn(name = "PARENT_ID")
-	private PropEntity parent;
-
-	@Column(name = "MAJOR_VERSION", nullable = false) // This is the join column
+	private PropDto parent;
 	private Integer majorVersion;
-
-	@Column(name = "MINOR_VERSION", nullable = false) // This is the join column
 	private Integer minorVersion;
-
-	@Column(name = "CHILDREN_MINOR_VERSION") // This is the join column
 	private Long childrenMinorVersion;
-
-	@ManyToOne
-	@JoinColumn(name = "TENANT_ID", nullable = false) // This is the join column
-	private TenantEntity tenant;
-
-	@Column(name = "PROP_FULL_KEY", length = 500)
+	private TenantDto tenant;
 	private String prop_full_key;
-
-	@Column(name = "CREATED_AT")
 	private Timestamp createdAt;
-
-	@Column(name = "CREATED_BY")
 	private String createdBy;
-
-	@Column(name = "UPDATED_AT")
 	private Timestamp updatedAt;
-
-	@Column(name = "UPDATED_BY")
 	private String updatedBy;
 
-	public PropEntity() {
+	public PropDto() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PropEntity(Long id, String prop_key, String prop_value, byte[] prop_value_blob, PropEntity parent,
-			Integer majorVersion, Integer minorVersion, Long childrenMinorVersion, TenantEntity tenant,
+	public PropDto(Long id, String prop_key, String prop_value, byte[] prop_value_blob, PropDto parent,
+			Integer majorVersion, Integer minorVersion, Long childrenMinorVersion, TenantDto tenant,
 			String prop_full_key, Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
 		super();
 		this.id = id;
@@ -91,12 +48,29 @@ public class PropEntity {
 		this.updatedBy = updatedBy;
 	}
 
-	public static PropEntity of(Long id, String prop_key, String prop_value, byte[] prop_value_blob, PropEntity parent,
-			Integer majorVersion, Integer minorVersion, Long childrenMinorVersion, TenantEntity tenant,
+	public static PropDto of(Long id, String prop_key, String prop_value, byte[] prop_value_blob, PropDto parent,
+			Integer majorVersion, Integer minorVersion, Long childrenMinorVersion, TenantDto tenant,
 			String prop_full_key, Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
-		return new PropEntity(id, prop_key, prop_value, prop_value_blob, parent, majorVersion, minorVersion,
+		return new PropDto(id, prop_key, prop_value, prop_value_blob, parent, majorVersion, minorVersion,
 				childrenMinorVersion, tenant, prop_full_key, createdAt, createdBy, updatedAt, updatedBy);
 
+	}
+
+	public static PropDto of(PropEntity propEntity) {
+		if (propEntity != null) {
+			return of(propEntity.getId(), propEntity.getProp_key(), propEntity.getProp_value(),
+					propEntity.getProp_value_blob(), of(propEntity.getParent()), propEntity.getMajorVersion(),
+					propEntity.getMinorVersion(), propEntity.getChildrenMinorVersion(),
+					TenantDto.of(propEntity.getTenant()), propEntity.getProp_full_key(), propEntity.getCreatedAt(),
+					propEntity.getCreatedBy(), propEntity.getUpdatedAt(), propEntity.getUpdatedBy());
+		}
+		return null;
+	}
+
+	public PropEntity getPropEntity() {
+		return PropEntity.of(id, prop_key, prop_value, prop_value_blob, parent != null ? parent.getPropEntity() : null,
+				majorVersion, minorVersion, childrenMinorVersion, tenant != null ? tenant.getTenantEntity() : null,
+				prop_full_key, createdAt, createdBy, updatedAt, updatedBy);
 	}
 
 	/**
@@ -158,14 +132,14 @@ public class PropEntity {
 	/**
 	 * @return the parent
 	 */
-	public PropEntity getParent() {
+	public PropDto getParent() {
 		return parent;
 	}
 
 	/**
 	 * @param parent the parent to set
 	 */
-	public void setParent(PropEntity parent) {
+	public void setParent(PropDto parent) {
 		this.parent = parent;
 	}
 
@@ -214,14 +188,14 @@ public class PropEntity {
 	/**
 	 * @return the tenant
 	 */
-	public TenantEntity getTenant() {
+	public TenantDto getTenant() {
 		return tenant;
 	}
 
 	/**
 	 * @param tenant the tenant to set
 	 */
-	public void setTenant(TenantEntity tenant) {
+	public void setTenant(TenantDto tenant) {
 		this.tenant = tenant;
 	}
 

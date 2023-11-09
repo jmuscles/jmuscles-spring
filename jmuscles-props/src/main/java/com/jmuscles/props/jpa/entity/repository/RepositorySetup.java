@@ -34,11 +34,11 @@ import com.jmuscles.props.util.Constants;
  * @author manish goel
  *
  */
-public class AppPropsRepositorySetup {
+public class RepositorySetup {
 
-	private static final Logger logger = LoggerFactory.getLogger(AppPropsRepositorySetup.class);
+	private static final Logger logger = LoggerFactory.getLogger(RepositorySetup.class);
 
-	public static final String PACKAGES_TO_SCAN = "com.jmuscles.props.jpa";
+	public static final String PACKAGES_TO_SCAN = "com.jmuscles.props.jpa.entity";
 	public static final String PERSISTENCE_UNIT_NAME = "appPropsResourceUnit";
 
 	private EntityManagerFactory emf;
@@ -46,7 +46,7 @@ public class AppPropsRepositorySetup {
 	private DataSourceProvider dataSourceProvider;
 	private AppPropsDBConfig appPropsDBConfig;
 
-	public AppPropsRepositorySetup(String applicationName, DataSourceProvider dataSourceProvider,
+	public RepositorySetup(String applicationName, DataSourceProvider dataSourceProvider,
 			AppPropsDBConfig appPropsDBConfig) {
 		super();
 		this.applicationName = applicationName;
@@ -66,22 +66,17 @@ public class AppPropsRepositorySetup {
 		return dynamicSelect(em, parameters, "TenantEntity");
 	}
 
-	public List<PropVersionEntity> selectAppPropsVersion(EntityManager em, Map<String, Object> parameters) {
-		if ((parameters != null && (parameters.get("tenant") != null || parameters.get("tenant.id") != null))
-				&& (parameters.get("parentAppProp") != null || parameters.get("parentAppProp.id") != null)) {
-			return dynamicSelect(em, parameters, "AppPropsVersionEntity");
-		} else {
-			return null;
-		}
+	public List<PropVersionEntity> selectPropVersion(EntityManager em, Map<String, Object> parameters) {
+		return dynamicSelect(em, parameters, "PropVersionEntity");
 	}
 
 	boolean isAppPropsValid(Map<String, Object> parameters) {
 		return (parameters != null && (parameters.get("version") != null || parameters.get("version.id") != null));
 	}
 
-	public List<PropEntity> selectAppProps(EntityManager em, Map<String, Object> parameters) {
+	public List<PropEntity> selectProperties(EntityManager em, Map<String, Object> parameters) {
 		if (isAppPropsValid(parameters)) {
-			return dynamicSelect(em, parameters, "AppPropsEntity");
+			return dynamicSelect(em, parameters, "PropEntity");
 		} else {
 			return null;
 		}

@@ -2,76 +2,54 @@
  * @author manish goel
  *
  */
-package com.jmuscles.props.jpa.entity;
+package com.jmuscles.props.dto;
 
 import java.sql.Timestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import com.jmuscles.props.jpa.entity.TenantEntity;
 
-/**
- * 
- */
-@Entity
-@Table(name = "TENANT")
-public class TenantEntity {
+public class TenantDto {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "TENANT_SEQ")
-	@SequenceGenerator(sequenceName = "TENANT_SEQ", name = "TENANT_SEQ", allocationSize = 1)
-	@Column(unique = true, nullable = false, name = "ID")
 	private Long id;
-
-	@Column(name = "NAME", unique = true, nullable = false, length = 100)
 	private String name;
-
-	@Column(name = "DESC", length = 250)
 	private String desc;
-
-	@Column(name = "CREATED_AT")
 	private Timestamp createdAt;
-
-	@Column(name = "CREATED_BY")
 	private String createdBy;
-
-	@Column(name = "UPDATED_AT")
 	private Timestamp updatedAt;
-
-	@Column(name = "UPDATED_BY")
 	private String updatedBy;
 
-	public TenantEntity() {
+	public TenantDto() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static TenantEntity of(Long id) {
-		TenantEntity tenantEntity = new TenantEntity();
-		tenantEntity.setId(id);
-		return tenantEntity;
-	}
-
-	public static TenantEntity of(String name, String desc, Timestamp createdAt, String createdBy) {
-		return new TenantEntity(name, desc, createdAt, createdBy);
-	}
-
-	public void changeCreateUpdate(Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
+	public TenantDto(Long id, String name, String desc, Timestamp createdAt, String createdBy, Timestamp updatedAt,
+			String updatedBy) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.desc = desc;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
 		this.updatedAt = updatedAt;
 		this.updatedBy = updatedBy;
 	}
 
-	public TenantEntity(String name, String desc, Timestamp createdAt, String createdBy) {
-		super();
-		this.name = name;
-		this.desc = desc;
-		this.createdAt = createdAt;
-		this.createdBy = createdBy;
+	public TenantEntity getTenantEntity() {
+		return TenantEntity.of(name, desc, createdAt, createdBy);
+	}
+
+	public static TenantDto of(TenantEntity tenantEntity) {
+		if (tenantEntity != null) {
+			return new TenantDto(tenantEntity.getId(), tenantEntity.getName(), tenantEntity.getDesc(),
+					tenantEntity.getCreatedAt(), tenantEntity.getCreatedBy(), tenantEntity.getUpdatedAt(),
+					tenantEntity.getUpdatedBy());
+		}
+		return null;
+	}
+
+	public static TenantDto of(Long id, String name, String desc, Timestamp createdAt, String createdBy,
+			Timestamp updatedAt, String updatedBy) {
+		return new TenantDto(id, name, desc, createdAt, createdBy, updatedAt, updatedBy);
 	}
 
 	/**

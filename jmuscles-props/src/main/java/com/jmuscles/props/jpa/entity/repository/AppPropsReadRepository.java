@@ -1,7 +1,3 @@
-/**
- * @author manish goel
- *
- */
 package com.jmuscles.props.jpa.entity.repository;
 
 import java.io.IOException;
@@ -19,13 +15,14 @@ import com.jmuscles.props.jpa.entity.PropEntity;
 import com.jmuscles.props.util.Constants;
 
 /**
- * 
+ * @author manish goel
  */
+
 public class AppPropsReadRepository {
 
-	private AppPropsRepositorySetup dbCommunicator;
+	private RepositorySetup dbCommunicator;
 
-	public AppPropsReadRepository(AppPropsRepositorySetup dbCommunicator) {
+	public AppPropsReadRepository(RepositorySetup dbCommunicator) {
 		this.dbCommunicator = dbCommunicator;
 	}
 
@@ -58,8 +55,8 @@ public class AppPropsReadRepository {
 		return currentEntity;
 	}
 
-	private PropEntity findChildByKey(EntityManager entityManager, PropEntity parent, String prop_key,
-			String status, Long tenantId, Long versionId) {
+	private PropEntity findChildByKey(EntityManager entityManager, PropEntity parent, String prop_key, String status,
+			Long tenantId, Long versionId) {
 		Map<String, Object> params = new HashMap<>();
 		params.put("prop_key", prop_key);
 		params.put("status", status);
@@ -68,12 +65,11 @@ public class AppPropsReadRepository {
 		} else {
 			params.put("parent", parent);
 		}
-		List<PropEntity> result = dbCommunicator.selectAppProps(entityManager, params);
+		List<PropEntity> result = dbCommunicator.selectProperties(entityManager, params);
 		return result.isEmpty() ? null : result.get(0);
 	}
 
-	private List<PropEntity> findImmediateChildren(EntityManager entityManager, String status,
-			PropEntity parent) {
+	private List<PropEntity> findImmediateChildren(EntityManager entityManager, String status, PropEntity parent) {
 		Map<String, Object> params = new HashMap<>();
 		if (parent == null) {
 			params.put("parent", Constants.VALUE_FOR_IS_NULL_CHECK);
@@ -81,15 +77,14 @@ public class AppPropsReadRepository {
 			params.put("parent", parent);
 		}
 		params.put("status", status);
-		return dbCommunicator.selectAppProps(entityManager, params);
+		return dbCommunicator.selectProperties(entityManager, params);
 	}
 
-	public List<PropEntity> findEntireDescendants(EntityManager entityManager, PropEntity parent,
-			String status) {
+	public List<PropEntity> findEntireDescendants(EntityManager entityManager, PropEntity parent, String status) {
 		Map<String, Object> params = new HashMap<>();
 		params.put("parent", parent);
 		params.put("status", status);
-		List<PropEntity> children = dbCommunicator.selectAppProps(entityManager, params);
+		List<PropEntity> children = dbCommunicator.selectProperties(entityManager, params);
 		// Create a separate list to collect the grandchildren
 		List<PropEntity> allGrandchildren = new ArrayList<>();
 		for (PropEntity child : children) {

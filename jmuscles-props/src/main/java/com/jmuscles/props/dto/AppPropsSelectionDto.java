@@ -1,43 +1,26 @@
+package com.jmuscles.props.dto;
+
+import com.jmuscles.props.jpa.entity.AppPropsSelectionEntity;
+
 /**
  * @author manish goel
  *
  */
-package com.jmuscles.props.jpa.entity;
+public class AppPropsSelectionDto {
 
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
-/**
- * 
- */
-public class AppPropsSelectionEntity {
-
-	@Column(nullable = false, name = "APP_NAME")
 	private String appName;
-
-	@Column(name = "STATUS")
 	private String status;
-
-	@Column(name = "MAJOR_VERSION", nullable = false) // This is the join column
 	private Integer majorVersion;
-
-	@Column(name = "MINOR_VERSION", nullable = false) // This is the join column
 	private Integer minorVersion;
-
-	@Column(name = "PROP_FULL_KEY_LIST", length = 1000)
 	private String prop_full_key_list;
+	private TenantDto tenant;
 
-	@ManyToOne
-	@JoinColumn(name = "TENANT_ID", nullable = false) // This is the join column
-	private TenantEntity tenant;
-
-	public AppPropsSelectionEntity() {
+	public AppPropsSelectionDto() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public AppPropsSelectionEntity(String appName, String status, Integer majorVersion, Integer minorVersion,
-			String prop_full_key_list, TenantEntity tenant) {
+	public AppPropsSelectionDto(String appName, String status, Integer majorVersion, Integer minorVersion,
+			String prop_full_key_list, TenantDto tenant) {
 		super();
 		this.appName = appName;
 		this.status = status;
@@ -47,9 +30,19 @@ public class AppPropsSelectionEntity {
 		this.tenant = tenant;
 	}
 
-	public static AppPropsSelectionEntity of(String appName, String status, Integer majorVersion, Integer minorVersion,
-			String prop_full_key_list, TenantEntity tenant) {
-		return new AppPropsSelectionEntity(appName, status, majorVersion, minorVersion, prop_full_key_list, tenant);
+	public static AppPropsSelectionDto of(String appName, String status, Integer majorVersion, Integer minorVersion,
+			String prop_full_key_list, TenantDto tenant) {
+		return new AppPropsSelectionDto(appName, status, majorVersion, minorVersion, prop_full_key_list, tenant);
+	}
+
+	public static AppPropsSelectionDto of(AppPropsSelectionEntity entity) {
+		return new AppPropsSelectionDto(entity.getAppName(), entity.getStatus(), entity.getMajorVersion(),
+				entity.getMinorVersion(), entity.getProp_full_key_list(), TenantDto.of(entity.getTenant()));
+	}
+
+	public AppPropsSelectionEntity getAppPropsSelectionEntity() {
+		return AppPropsSelectionEntity.of(appName, status, majorVersion, minorVersion, prop_full_key_list,
+				tenant != null ? tenant.getTenantEntity() : null);
 	}
 
 	/**
@@ -125,14 +118,14 @@ public class AppPropsSelectionEntity {
 	/**
 	 * @return the tenant
 	 */
-	public TenantEntity getTenant() {
+	public TenantDto getTenant() {
 		return tenant;
 	}
 
 	/**
 	 * @param tenant the tenant to set
 	 */
-	public void setTenant(TenantEntity tenant) {
+	public void setTenant(TenantDto tenant) {
 		this.tenant = tenant;
 	}
 
