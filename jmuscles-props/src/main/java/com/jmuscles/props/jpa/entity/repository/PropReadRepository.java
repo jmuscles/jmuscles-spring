@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jmuscles.props.jpa.entity.PropEntity;
@@ -18,16 +19,16 @@ import com.jmuscles.props.util.Constants;
  * @author manish goel
  */
 
-public class AppPropsReadRepository {
+public class PropReadRepository {
 
-	private RepositorySetup dbCommunicator;
+	private RepositorySetup repositorySetup;
 
-	public AppPropsReadRepository(RepositorySetup dbCommunicator) {
-		this.dbCommunicator = dbCommunicator;
+	public PropReadRepository(RepositorySetup repositorySetup) {
+		this.repositorySetup = repositorySetup;
 	}
 
 	public void executeInTransaction(Consumer<EntityManager> action) {
-		dbCommunicator.executeInTransaction(action);
+		repositorySetup.executeInTransaction(action);
 	}
 
 	// TODO delete this
@@ -40,6 +41,32 @@ public class AppPropsReadRepository {
 			}
 		});
 		return map.get("currentEntity");
+	}
+
+	public PropEntity findByKeyPath(EntityManager entityManager, String fullKeyPath, Long tenantId, Long majorVersion,
+			Long minorVersion) {
+		StringBuffer jpql = new StringBuffer(" SELECT p FROM PropEntity p WHERE p.tenant.id = :tenantId");
+		jpql.append(" AND p.prop_full_key <= :fullKeyPath");
+		if (majorVersion != null) {
+			jpql.append(" AND p.majorVersion <= :majorVersion");
+		}
+		if (minorVersion != null) {
+			jpql.append(" AND p.minorVersion <= :minorVersion");
+		}
+		jpql.append(" ORDER BY p.majorVersion DESC, p.minorVersion DESC");
+		Query query = entityManager.createQuery(jpql.toString(), PropEntity.class);
+		query.setParameter("tenantId", tenantId);
+		query.setParameter("fullKeyPath", fullKeyPath);
+		if (majorVersion != null) {
+			query.setParameter("majorVersion", majorVersion);
+		}
+		if (minorVersion != null) {
+			query.setParameter("minorVersion", minorVersion);
+		}
+		query.setMaxResults(1);
+
+		List<PropEntity> resultList = query.getResultList();
+		return resultList.isEmpty() ? null : resultList.get(0);
 	}
 
 	public PropEntity findByKeyPath(EntityManager entityManager, List<String> keyPath, String status, Long tenantId,
@@ -65,7 +92,7 @@ public class AppPropsReadRepository {
 		} else {
 			params.put("parent", parent);
 		}
-		List<PropEntity> result = dbCommunicator.selectProperties(entityManager, params);
+		List<PropEntity> result = repositorySetup.selectProperties(entityManager, params);
 		return result.isEmpty() ? null : result.get(0);
 	}
 
@@ -77,14 +104,14 @@ public class AppPropsReadRepository {
 			params.put("parent", parent);
 		}
 		params.put("status", status);
-		return dbCommunicator.selectProperties(entityManager, params);
+		return repositorySetup.selectProperties(entityManager, params);
 	}
 
 	public List<PropEntity> findEntireDescendants(EntityManager entityManager, PropEntity parent, String status) {
 		Map<String, Object> params = new HashMap<>();
 		params.put("parent", parent);
 		params.put("status", status);
-		List<PropEntity> children = dbCommunicator.selectProperties(entityManager, params);
+		List<PropEntity> children = repositorySetup.selectProperties(entityManager, params);
 		// Create a separate list to collect the grandchildren
 		List<PropEntity> allGrandchildren = new ArrayList<>();
 		for (PropEntity child : children) {

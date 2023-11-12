@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils;
 
 import com.jmuscles.props.JmusclesConfig;
 import com.jmuscles.props.converter.JmusclesConfigUtil;
-import com.jmuscles.props.jpa.entity.repository.AppPropsReadRepository;
+import com.jmuscles.props.jpa.entity.repository.PropReadRepository;
 import com.jmuscles.props.util.Constants;
 
 /**
@@ -21,10 +21,10 @@ import com.jmuscles.props.util.Constants;
 public class ReadPropsFromDBService {
 	private static final Logger logger = LoggerFactory.getLogger(ReadPropsFromDBService.class);
 
-	private AppPropsReadRepository appPropsReadRepository;
+	private PropReadRepository appPropsReadRepository;
 	private JmusclesConfig jmusclesConfig;
 
-	public ReadPropsFromDBService(AppPropsReadRepository appPropsReadRepository) {
+	public ReadPropsFromDBService(PropReadRepository appPropsReadRepository) {
 		this.appPropsReadRepository = appPropsReadRepository;
 	}
 

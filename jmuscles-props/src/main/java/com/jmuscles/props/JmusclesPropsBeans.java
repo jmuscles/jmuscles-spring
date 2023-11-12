@@ -20,8 +20,8 @@ import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.datasource.jasypt.JasyptUtil;
 import com.jmuscles.datasource.operator.DataSourceOperatorRegistry;
 import com.jmuscles.datasource.properties.DatabaseProperties;
-import com.jmuscles.props.jpa.entity.repository.AppPropsReadRepository;
-import com.jmuscles.props.jpa.entity.repository.AppPropsWriteRepository;
+import com.jmuscles.props.jpa.entity.repository.PropReadRepository;
+import com.jmuscles.props.jpa.entity.repository.PropWriteRepository;
 import com.jmuscles.props.jpa.entity.repository.RepositorySetup;
 import com.jmuscles.props.service.ReadPropsFromDBService;
 import com.jmuscles.props.util.SpringBeanUtil;
@@ -77,21 +77,21 @@ public class JmusclesPropsBeans implements BeanFactoryAware, EnvironmentAware {
 	}
 
 	@Bean("appPropsReadRepository")
-	public AppPropsReadRepository appPropsReadRepository(
+	public PropReadRepository appPropsReadRepository(
 			@Qualifier("appPropsRepositorySetup") RepositorySetup appPropsRepositorySetup) {
-		return new AppPropsReadRepository(appPropsRepositorySetup);
+		return new PropReadRepository(appPropsRepositorySetup);
 	}
 
 	@Bean("appPropsWriteRepository")
-	public AppPropsWriteRepository appPropsWriteRepository(
+	public PropWriteRepository appPropsWriteRepository(
 			@Qualifier("appPropsRepositorySetup") RepositorySetup appPropsRepositorySetup,
-			@Qualifier("appPropsReadRepository") AppPropsReadRepository appPropsReadRepository) {
-		return new AppPropsWriteRepository(appPropsRepositorySetup, appPropsReadRepository);
+			@Qualifier("appPropsReadRepository") PropReadRepository appPropsReadRepository) {
+		return new PropWriteRepository(appPropsRepositorySetup, appPropsReadRepository);
 	}
 
 	@Bean("readPropsFromDBService")
 	public ReadPropsFromDBService readPropsFromDBService(
-			@Qualifier("appPropsReadRepository") AppPropsReadRepository appPropsReadRepository) {
+			@Qualifier("appPropsReadRepository") PropReadRepository appPropsReadRepository) {
 		return new ReadPropsFromDBService(appPropsReadRepository);
 	}
 

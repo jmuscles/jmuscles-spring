@@ -3,26 +3,42 @@ package com.jmuscles.props.jpa.entity;
 import java.sql.Timestamp;
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+
+@NamedQueries({
+		@NamedQuery(name = "PropVersionEntity.findMaxMajorVersionByTenant", query = "SELECT MAX(p2.propVersionKey.majorVersion)"
+				+ " FROM PropVersionEntity p2 " + " WHERE p2.propVersionKey.tenantId = :tenantId "
+				+ " AND p2.propVersionKey.minorVersion = 0"),
+
+		@NamedQuery(name = "PropVersionEntity.findMaxMinorVersionByTenantAndMajorVersion", query = "SELECT MAX(p2.propVersionKey.minorVersion) "
+				+ " FROM PropVersionEntity p2 " + " WHERE p2.propVersionKey.tenantId = :tenantId"
+				+ " AND p2.propVersionKey.majorVersion = :majorVersion") })
 
 @Entity
 @Table(name = "PROP_VERSION")
 public class PropVersionEntity {
 
-	@Column(name = "MAJOR_VERSION", nullable = false) // This is the join column
-	private Integer majorVersion;
-
-	@Column(name = "MINOR_VERSION", nullable = false) // This is the join column
-	private Integer minorVersion;
+	@EmbeddedId
+	private PropVersionKey propVersionKey;
 
 	@Column(name = "NAME")
 	private String name;
 
 	@Column(name = "DESCRIPTION")
 	private String description;
+
+	@Column(name = "PROP_FULL_KEY", length = 500)
+	private String prop_full_key;
+
+	@ManyToOne
+	@JoinColumn(name = "PARENT_PROP_ID")
+	private PropEntity parent_prop;
 
 	@Column(name = "CREATED_AT")
 	private Timestamp createdAt;
@@ -36,46 +52,32 @@ public class PropVersionEntity {
 	@Column(name = "UPDATED_BY")
 	private String updatedBy;
 
-	@Column(name = "PROP_FULL_KEY", length = 500)
-	private String prop_full_key;
-
-	@ManyToOne
-	@JoinColumn(name = "PARENT_PROP_ID")
-	private PropEntity parent_prop;
-
-	@ManyToOne
-	@JoinColumn(name = "TENANT_ID", nullable = false) // This is the join column
-	private TenantEntity tenant;
-
 	public PropVersionEntity() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PropVersionEntity(Integer majorVersion, Integer minorVersion, String name, String description,
-			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy, String prop_full_key,
-			PropEntity parent_prop, TenantEntity tenant) {
+	public PropVersionEntity(PropVersionKey propVersionKey, String name, String description, String prop_full_key,
+			PropEntity parent_prop, Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
 		super();
-		this.majorVersion = majorVersion;
-		this.minorVersion = minorVersion;
+		this.propVersionKey = propVersionKey;
 		this.name = name;
 		this.description = description;
-		this.createdAt = createdAt;
-		this.createdBy = createdBy;
-		this.updatedAt = updatedAt;
-		this.updatedBy = updatedBy;
 		this.prop_full_key = prop_full_key;
 		this.parent_prop = parent_prop;
-		this.tenant = tenant;
+		this.createdAt = createdAt;
+		this.createdBy = createdBy;
+		this.updatedAt = updatedAt;
+		this.updatedBy = updatedBy;
 	}
 
-	public static PropVersionEntity of(Integer majorVersion, Integer minorVersion, String name, String description,
-			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy, String prop_full_key,
-			PropEntity parent_prop, TenantEntity tenant) {
-		return new PropVersionEntity(majorVersion, minorVersion, name, description, createdAt, createdBy, updatedAt,
-				updatedBy, prop_full_key, parent_prop, tenant);
+	public static PropVersionEntity of(PropVersionKey propVersionKey, String name, String description,
+			String prop_full_key, PropEntity parent_prop, Timestamp createdAt, String createdBy, Timestamp updatedAt,
+			String updatedBy) {
+		return new PropVersionEntity(propVersionKey, name, description, prop_full_key, parent_prop, createdAt,
+				createdBy, updatedAt, updatedBy);
 	}
 
-	public void changeCreateUpdate(Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
+	public void resetCreateUpdate(Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
 		this.updatedAt = updatedAt;
@@ -83,31 +85,17 @@ public class PropVersionEntity {
 	}
 
 	/**
-	 * @return the majorVersion
+	 * @return the propVersionKey
 	 */
-	public Integer getMajorVersion() {
-		return majorVersion;
+	public PropVersionKey getPropVersionKey() {
+		return propVersionKey;
 	}
 
 	/**
-	 * @param majorVersion the majorVersion to set
+	 * @param propVersionKey the propVersionKey to set
 	 */
-	public void setMajorVersion(Integer majorVersion) {
-		this.majorVersion = majorVersion;
-	}
-
-	/**
-	 * @return the minorVersion
-	 */
-	public Integer getMinorVersion() {
-		return minorVersion;
-	}
-
-	/**
-	 * @param minorVersion the minorVersion to set
-	 */
-	public void setMinorVersion(Integer minorVersion) {
-		this.minorVersion = minorVersion;
+	public void setPropVersionKey(PropVersionKey propVersionKey) {
+		this.propVersionKey = propVersionKey;
 	}
 
 	/**
@@ -136,6 +124,34 @@ public class PropVersionEntity {
 	 */
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	/**
+	 * @return the prop_full_key
+	 */
+	public String getProp_full_key() {
+		return prop_full_key;
+	}
+
+	/**
+	 * @param prop_full_key the prop_full_key to set
+	 */
+	public void setProp_full_key(String prop_full_key) {
+		this.prop_full_key = prop_full_key;
+	}
+
+	/**
+	 * @return the parent_prop
+	 */
+	public PropEntity getParent_prop() {
+		return parent_prop;
+	}
+
+	/**
+	 * @param parent_prop the parent_prop to set
+	 */
+	public void setParent_prop(PropEntity parent_prop) {
+		this.parent_prop = parent_prop;
 	}
 
 	/**
@@ -192,48 +208,6 @@ public class PropVersionEntity {
 	 */
 	public void setUpdatedBy(String updatedBy) {
 		this.updatedBy = updatedBy;
-	}
-
-	/**
-	 * @return the prop_full_key
-	 */
-	public String getProp_full_key() {
-		return prop_full_key;
-	}
-
-	/**
-	 * @param prop_full_key the prop_full_key to set
-	 */
-	public void setProp_full_key(String prop_full_key) {
-		this.prop_full_key = prop_full_key;
-	}
-
-	/**
-	 * @return the parent_prop
-	 */
-	public PropEntity getParent_prop() {
-		return parent_prop;
-	}
-
-	/**
-	 * @param parent_prop the parent_prop to set
-	 */
-	public void setParent_prop(PropEntity parent_prop) {
-		this.parent_prop = parent_prop;
-	}
-
-	/**
-	 * @return the tenant
-	 */
-	public TenantEntity getTenant() {
-		return tenant;
-	}
-
-	/**
-	 * @param tenant the tenant to set
-	 */
-	public void setTenant(TenantEntity tenant) {
-		this.tenant = tenant;
 	}
 
 }

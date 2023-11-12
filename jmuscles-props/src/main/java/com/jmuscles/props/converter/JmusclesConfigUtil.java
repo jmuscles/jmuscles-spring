@@ -5,12 +5,15 @@
 package com.jmuscles.props.converter;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import com.jmuscles.props.JmusclesConfig;
 
@@ -54,6 +57,22 @@ public class JmusclesConfigUtil {
 		map.put("jmuscles", objectToMap);
 
 		return map;
+	}
+
+	public static Map<String, Object> jmusclesConfigToMap(JmusclesConfig jmusclesConfig, String requestPath) {
+		List<String> paths = null;
+		if (StringUtils.hasText(requestPath)) {
+			paths = new ArrayList<>(Arrays.asList(requestPath.split("\\.")));
+		}
+		return ObjectToMapConverter.objectToMap(getObjectByPath(jmusclesConfig, paths));
+	}
+
+	public static Object getObjectByPath(JmusclesConfig jmusclesConfig, String requestPath) {
+		List<String> paths = null;
+		if (StringUtils.hasText(requestPath)) {
+			paths = new ArrayList<>(Arrays.asList(requestPath.split("\\.")));
+		}
+		return getObjectByPath(jmusclesConfig, paths);
 	}
 
 	public static Object getObjectByPath(JmusclesConfig jmusclesConfig, List<String> paths) {

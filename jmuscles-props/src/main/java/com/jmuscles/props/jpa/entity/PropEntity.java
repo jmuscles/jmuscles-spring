@@ -40,10 +40,10 @@ public class PropEntity {
 	private PropEntity parent;
 
 	@Column(name = "MAJOR_VERSION", nullable = false) // This is the join column
-	private Integer majorVersion;
+	private Long majorVersion;
 
 	@Column(name = "MINOR_VERSION", nullable = false) // This is the join column
-	private Integer minorVersion;
+	private Long minorVersion;
 
 	@Column(name = "CHILDREN_MINOR_VERSION") // This is the join column
 	private Long childrenMinorVersion;
@@ -72,8 +72,8 @@ public class PropEntity {
 	}
 
 	public PropEntity(Long id, String prop_key, String prop_value, byte[] prop_value_blob, PropEntity parent,
-			Integer majorVersion, Integer minorVersion, Long childrenMinorVersion, TenantEntity tenant,
-			String prop_full_key, Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
+			Long majorVersion, Long minorVersion, Long childrenMinorVersion, TenantEntity tenant, String prop_full_key,
+			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
 		super();
 		this.id = id;
 		this.prop_key = prop_key;
@@ -92,8 +92,8 @@ public class PropEntity {
 	}
 
 	public static PropEntity of(Long id, String prop_key, String prop_value, byte[] prop_value_blob, PropEntity parent,
-			Integer majorVersion, Integer minorVersion, Long childrenMinorVersion, TenantEntity tenant,
-			String prop_full_key, Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
+			Long majorVersion, Long minorVersion, Long childrenMinorVersion, TenantEntity tenant, String prop_full_key,
+			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
 		return new PropEntity(id, prop_key, prop_value, prop_value_blob, parent, majorVersion, minorVersion,
 				childrenMinorVersion, tenant, prop_full_key, createdAt, createdBy, updatedAt, updatedBy);
 
@@ -172,28 +172,28 @@ public class PropEntity {
 	/**
 	 * @return the majorVersion
 	 */
-	public Integer getMajorVersion() {
+	public Long getMajorVersion() {
 		return majorVersion;
 	}
 
 	/**
 	 * @param majorVersion the majorVersion to set
 	 */
-	public void setMajorVersion(Integer majorVersion) {
+	public void setMajorVersion(Long majorVersion) {
 		this.majorVersion = majorVersion;
 	}
 
 	/**
 	 * @return the minorVersion
 	 */
-	public Integer getMinorVersion() {
+	public Long getMinorVersion() {
 		return minorVersion;
 	}
 
 	/**
 	 * @param minorVersion the minorVersion to set
 	 */
-	public void setMinorVersion(Integer minorVersion) {
+	public void setMinorVersion(Long minorVersion) {
 		this.minorVersion = minorVersion;
 	}
 

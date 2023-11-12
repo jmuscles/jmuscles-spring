@@ -14,8 +14,8 @@ public class PropDto {
 	private String prop_value;
 	private byte[] prop_value_blob;
 	private PropDto parent;
-	private Integer majorVersion;
-	private Integer minorVersion;
+	private Long majorVersion;
+	private Long minorVersion;
 	private Long childrenMinorVersion;
 	private TenantDto tenant;
 	private String prop_full_key;
@@ -29,8 +29,8 @@ public class PropDto {
 	}
 
 	public PropDto(Long id, String prop_key, String prop_value, byte[] prop_value_blob, PropDto parent,
-			Integer majorVersion, Integer minorVersion, Long childrenMinorVersion, TenantDto tenant,
-			String prop_full_key, Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
+			Long majorVersion, Long minorVersion, Long childrenMinorVersion, TenantDto tenant, String prop_full_key,
+			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
 		super();
 		this.id = id;
 		this.prop_key = prop_key;
@@ -49,8 +49,8 @@ public class PropDto {
 	}
 
 	public static PropDto of(Long id, String prop_key, String prop_value, byte[] prop_value_blob, PropDto parent,
-			Integer majorVersion, Integer minorVersion, Long childrenMinorVersion, TenantDto tenant,
-			String prop_full_key, Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
+			Long majorVersion, Long minorVersion, Long childrenMinorVersion, TenantDto tenant, String prop_full_key,
+			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
 		return new PropDto(id, prop_key, prop_value, prop_value_blob, parent, majorVersion, minorVersion,
 				childrenMinorVersion, tenant, prop_full_key, createdAt, createdBy, updatedAt, updatedBy);
 
@@ -146,28 +146,28 @@ public class PropDto {
 	/**
 	 * @return the majorVersion
 	 */
-	public Integer getMajorVersion() {
+	public Long getMajorVersion() {
 		return majorVersion;
 	}
 
 	/**
 	 * @param majorVersion the majorVersion to set
 	 */
-	public void setMajorVersion(Integer majorVersion) {
+	public void setMajorVersion(Long majorVersion) {
 		this.majorVersion = majorVersion;
 	}
 
 	/**
 	 * @return the minorVersion
 	 */
-	public Integer getMinorVersion() {
+	public Long getMinorVersion() {
 		return minorVersion;
 	}
 
 	/**
 	 * @param minorVersion the minorVersion to set
 	 */
-	public void setMinorVersion(Integer minorVersion) {
+	public void setMinorVersion(Long minorVersion) {
 		this.minorVersion = minorVersion;
 	}
 

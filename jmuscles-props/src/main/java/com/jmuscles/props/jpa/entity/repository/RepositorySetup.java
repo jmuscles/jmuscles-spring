@@ -130,6 +130,23 @@ public class RepositorySetup {
 		return results;
 	}
 
+	public <T> List<T> runNamedQuery(EntityManager entityManager, String queryString, Map<String, Object> parameters,
+			Class<?> entityClass) {
+		Query query = null;
+		if (entityClass != null) {
+			query = entityManager.createNamedQuery(queryString, entityClass);
+		} else {
+			query = entityManager.createNamedQuery(queryString);
+		}
+		if (parameters != null) {
+			for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+				query.setParameter(entry.getKey(), entry.getValue());
+			}
+		}
+		List<T> results = query.getResultList();
+		return results;
+	}
+
 	public void executeInTransaction(Consumer<EntityManager> action) {
 		initialize();
 		if (this.emf == null) {

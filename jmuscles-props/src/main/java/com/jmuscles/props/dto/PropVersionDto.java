@@ -3,62 +3,66 @@ package com.jmuscles.props.dto;
 import java.sql.Timestamp;
 
 import com.jmuscles.props.jpa.entity.PropVersionEntity;
+import com.jmuscles.props.jpa.entity.PropVersionKey;
 
 public class PropVersionDto {
 
-	private Integer majorVersion;
-	private Integer minorVersion;
-	private String name;
-	private String description;
+	private Long majorVersion;
+	private Long minorVersion;
+	private Long tenantId;
+	private String name = "";
+	private String description = "";
+	private String prop_full_key;
+	private PropDto parent_prop;
 	private Timestamp createdAt;
 	private String createdBy;
 	private Timestamp updatedAt;
 	private String updatedBy;
-	private String prop_full_key;
-	private PropDto parent_prop;
-	private TenantDto tenant;
 
 	public PropVersionDto() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PropVersionDto(Integer majorVersion, Integer minorVersion, String name, String description,
-			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy, String prop_full_key,
-			PropDto parent_prop, TenantDto tenant) {
+	public PropVersionDto(Long majorVersion, Long minorVersion, Long tenantId, String name, String description,
+			String prop_full_key, PropDto parent_prop, Timestamp createdAt, String createdBy, Timestamp updatedAt,
+			String updatedBy) {
 		super();
 		this.majorVersion = majorVersion;
 		this.minorVersion = minorVersion;
+		this.tenantId = tenantId;
 		this.name = name;
 		this.description = description;
+		this.prop_full_key = prop_full_key;
+		this.parent_prop = parent_prop;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
 		this.updatedAt = updatedAt;
 		this.updatedBy = updatedBy;
-		this.prop_full_key = prop_full_key;
-		this.parent_prop = parent_prop;
-		this.tenant = tenant;
 	}
 
 	public PropVersionEntity getPropVersionEntity() {
-		return PropVersionEntity.of(majorVersion, minorVersion, name, description, createdAt, createdBy, updatedAt,
-				updatedBy, prop_full_key, parent_prop != null ? parent_prop.getPropEntity() : null,
-				tenant != null ? tenant.getTenantEntity() : null);
+		return PropVersionEntity.of(PropVersionKey.of(majorVersion, minorVersion, tenantId), name, description,
+				prop_full_key, (parent_prop != null) ? parent_prop.getPropEntity() : null, createdAt, createdBy,
+				updatedAt, updatedBy);
 	}
 
-	public static PropVersionDto of(Integer majorVersion, Integer minorVersion, String name, String description,
-			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy, String prop_full_key,
-			PropDto parent_prop, TenantDto tenant) {
-		return new PropVersionDto(majorVersion, minorVersion, name, description, createdAt, createdBy, updatedAt,
-				updatedBy, prop_full_key, parent_prop, tenant);
+	public static PropVersionDto of(Long majorVersion, Long minorVersion, Long tenantId, String name,
+			String description, String prop_full_key, PropDto parent_prop, Timestamp createdAt, String createdBy,
+			Timestamp updatedAt, String updatedBy) {
+		return new PropVersionDto(majorVersion, minorVersion, tenantId, name, description, prop_full_key, parent_prop,
+				createdAt, createdBy, updatedAt, updatedBy);
 	}
 
 	public static PropVersionDto of(PropVersionEntity propVersionEntity) {
 		if (propVersionEntity != null) {
-			return new PropVersionDto(propVersionEntity.getMajorVersion(), propVersionEntity.getMinorVersion(),
-					propVersionEntity.getName(), propVersionEntity.getDescription(), propVersionEntity.getCreatedAt(),
+			PropVersionKey localPropVersionKey = propVersionEntity.getPropVersionKey();
+			return new PropVersionDto(localPropVersionKey != null ? localPropVersionKey.getMajorVersion() : null,
+					localPropVersionKey != null ? localPropVersionKey.getMinorVersion() : null,
+					localPropVersionKey != null ? localPropVersionKey.getTenantId() : null, propVersionEntity.getName(),
+					propVersionEntity.getDescription(), propVersionEntity.getProp_full_key(),
+					PropDto.of(propVersionEntity.getParent_prop()), propVersionEntity.getCreatedAt(),
 					propVersionEntity.getCreatedBy(), propVersionEntity.getUpdatedAt(),
-					propVersionEntity.getUpdatedBy(), propVersionEntity.getProp_full_key(),
-					PropDto.of(propVersionEntity.getParent_prop()), TenantDto.of(propVersionEntity.getTenant()));
+					propVersionEntity.getUpdatedBy());
 		}
 		return null;
 	}
@@ -66,29 +70,43 @@ public class PropVersionDto {
 	/**
 	 * @return the majorVersion
 	 */
-	public Integer getMajorVersion() {
+	public Long getMajorVersion() {
 		return majorVersion;
 	}
 
 	/**
 	 * @param majorVersion the majorVersion to set
 	 */
-	public void setMajorVersion(Integer majorVersion) {
+	public void setMajorVersion(Long majorVersion) {
 		this.majorVersion = majorVersion;
 	}
 
 	/**
 	 * @return the minorVersion
 	 */
-	public Integer getMinorVersion() {
+	public Long getMinorVersion() {
 		return minorVersion;
 	}
 
 	/**
 	 * @param minorVersion the minorVersion to set
 	 */
-	public void setMinorVersion(Integer minorVersion) {
+	public void setMinorVersion(Long minorVersion) {
 		this.minorVersion = minorVersion;
+	}
+
+	/**
+	 * @return the tenantId
+	 */
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	/**
+	 * @param tenantId the tenantId to set
+	 */
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
 	}
 
 	/**
@@ -117,6 +135,34 @@ public class PropVersionDto {
 	 */
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	/**
+	 * @return the prop_full_key
+	 */
+	public String getProp_full_key() {
+		return prop_full_key;
+	}
+
+	/**
+	 * @param prop_full_key the prop_full_key to set
+	 */
+	public void setProp_full_key(String prop_full_key) {
+		this.prop_full_key = prop_full_key;
+	}
+
+	/**
+	 * @return the parent_prop
+	 */
+	public PropDto getParent_prop() {
+		return parent_prop;
+	}
+
+	/**
+	 * @param parent_prop the parent_prop to set
+	 */
+	public void setParent_prop(PropDto parent_prop) {
+		this.parent_prop = parent_prop;
 	}
 
 	/**
@@ -175,46 +221,24 @@ public class PropVersionDto {
 		this.updatedBy = updatedBy;
 	}
 
-	/**
-	 * @return the prop_full_key
+	/*
+	 * public void set(PropVersionEntity propVersionEntity) { if (propVersionEntity
+	 * != null) { set(propVersionEntity.getMajorVersion(),
+	 * propVersionEntity.getMinorVersion(), propVersionEntity.getName(),
+	 * propVersionEntity.getDescription(), propVersionEntity.getCreatedAt(),
+	 * propVersionEntity.getCreatedBy(), propVersionEntity.getUpdatedAt(),
+	 * propVersionEntity.getUpdatedBy(), propVersionEntity.getProp_full_key(),
+	 * PropDto.of(propVersionEntity.getParent_prop()),
+	 * TenantDto.of(propVersionEntity.getTenant())); } }
+	 * 
+	 * public void set(Integer majorVersion, Integer minorVersion, String name,
+	 * String description, Timestamp createdAt, String createdBy, Timestamp
+	 * updatedAt, String updatedBy, String prop_full_key, PropDto parent_prop,
+	 * TenantDto tenant) { this.majorVersion = majorVersion; this.minorVersion =
+	 * minorVersion; this.name = name; this.description = description;
+	 * this.createdAt = createdAt; this.createdBy = createdBy; this.updatedAt =
+	 * updatedAt; this.updatedBy = updatedBy; this.prop_full_key = prop_full_key;
+	 * this.parent_prop = parent_prop; this.tenant = tenant; }
 	 */
-	public String getProp_full_key() {
-		return prop_full_key;
-	}
-
-	/**
-	 * @param prop_full_key the prop_full_key to set
-	 */
-	public void setProp_full_key(String prop_full_key) {
-		this.prop_full_key = prop_full_key;
-	}
-
-	/**
-	 * @return the parent_prop
-	 */
-	public PropDto getParent_prop() {
-		return parent_prop;
-	}
-
-	/**
-	 * @param parent_prop the parent_prop to set
-	 */
-	public void setParent_prop(PropDto parent_prop) {
-		this.parent_prop = parent_prop;
-	}
-
-	/**
-	 * @return the tenant
-	 */
-	public TenantDto getTenant() {
-		return tenant;
-	}
-
-	/**
-	 * @param tenant the tenant to set
-	 */
-	public void setTenant(TenantDto tenant) {
-		this.tenant = tenant;
-	}
 
 }
