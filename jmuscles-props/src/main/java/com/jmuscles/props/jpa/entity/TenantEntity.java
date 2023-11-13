@@ -1,7 +1,3 @@
-/**
- * @author manish goel
- *
- */
 package com.jmuscles.props.jpa.entity;
 
 import java.sql.Timestamp;
@@ -15,7 +11,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 /**
- * 
+ * @author manish goel
+ *
  */
 @Entity
 @Table(name = "TENANT")
@@ -49,14 +46,21 @@ public class TenantEntity {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static TenantEntity of(Long id) {
-		TenantEntity tenantEntity = new TenantEntity();
-		tenantEntity.setId(id);
-		return tenantEntity;
+	public TenantEntity(Long id, String name, String desc, Timestamp createdAt, String createdBy, Timestamp updatedAt,
+			String updatedBy) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.desc = desc;
+		this.createdAt = createdAt;
+		this.createdBy = createdBy;
+		this.updatedAt = updatedAt;
+		this.updatedBy = updatedBy;
 	}
 
-	public static TenantEntity of(String name, String desc, Timestamp createdAt, String createdBy) {
-		return new TenantEntity(name, desc, createdAt, createdBy);
+	public static TenantEntity of(Long id, String name, String desc, Timestamp createdAt, String createdBy,
+			Timestamp updatedAt, String updatedBy) {
+		return new TenantEntity(id, name, desc, createdAt, createdBy, updatedAt, updatedBy);
 	}
 
 	public void changeCreateUpdate(Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
@@ -64,14 +68,6 @@ public class TenantEntity {
 		this.createdBy = createdBy;
 		this.updatedAt = updatedAt;
 		this.updatedBy = updatedBy;
-	}
-
-	public TenantEntity(String name, String desc, Timestamp createdAt, String createdBy) {
-		super();
-		this.name = name;
-		this.desc = desc;
-		this.createdAt = createdAt;
-		this.createdBy = createdBy;
 	}
 
 	/**

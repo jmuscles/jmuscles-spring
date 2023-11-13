@@ -35,7 +35,7 @@ public class TenantDto {
 	}
 
 	public TenantEntity getTenantEntity() {
-		return TenantEntity.of(name, desc, createdAt, createdBy);
+		return TenantEntity.of(id, name, desc, createdAt, createdBy, updatedAt, updatedBy);
 	}
 
 	public static TenantDto of(TenantEntity tenantEntity) {

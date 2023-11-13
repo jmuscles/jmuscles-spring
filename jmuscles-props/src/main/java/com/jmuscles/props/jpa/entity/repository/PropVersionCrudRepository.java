@@ -1,6 +1,5 @@
 package com.jmuscles.props.jpa.entity.repository;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.jmuscles.props.dto.PropVersionDto;
 import com.jmuscles.props.jpa.entity.PropVersionEntity;
+import com.jmuscles.props.jpa.entity.PropVersionKey;
 import com.jmuscles.props.util.Util;
-
 
 /**
  * @author manish goel
@@ -47,11 +46,12 @@ public class PropVersionCrudRepository {
 		return propVersionEntities != null ? propVersionEntities.get(0) : null;
 	}
 
-	public void createWithNewMajorVersion(EntityManager entityManager, PropVersionEntity propVersionEntity) {
-		Long majorVersion = findMaxMajorVersion(entityManager, propVersionEntity.getPropVersionKey().getTenantId());
-		propVersionEntity.getPropVersionKey().setMajorVersion(majorVersion);
-		propVersionEntity.getPropVersionKey().setMinorVersion(0L);
-
+	public PropVersionEntity createWithNewMajorVersion(EntityManager entityManager,
+			PropVersionEntity propVersionEntity) {
+		PropVersionKey propVersionKey = propVersionEntity.getPropVersionKey();
+		Long majorVersion = findMaxMajorVersion(entityManager, propVersionKey.getTenantId());
+		propVersionKey.setMajorVersion(majorVersion);
+		propVersionKey.setMinorVersion(0L);
 		for (int currentAttempt = 1; currentAttempt <= MAX_ATTEMPT_TO_CREATE; currentAttempt++) {
 			propVersionEntity.getPropVersionKey().increaseMajorVersion();
 			try {
@@ -64,6 +64,7 @@ public class PropVersionCrudRepository {
 				continue;
 			}
 		}
+		return propVersionEntity;
 	}
 
 	private Long findMaxMinorVersion(EntityManager entityManager, Long tenantId, Long majorVersion) {
@@ -75,11 +76,12 @@ public class PropVersionCrudRepository {
 		return propVersionEntities != null ? propVersionEntities.get(0) : null;
 	}
 
-	public void createWithNewMinorVersion(EntityManager entityManager, PropVersionEntity propVersionEntity) {
-		Long minorVersion = findMaxMinorVersion(entityManager, propVersionEntity.getPropVersionKey().getTenantId(),
-				propVersionEntity.getPropVersionKey().getMajorVersion());
-		propVersionEntity.getPropVersionKey().setMinorVersion(minorVersion);
-
+	public PropVersionEntity createWithNewMinorVersion(EntityManager entityManager,
+			PropVersionEntity propVersionEntity) {
+		PropVersionKey propVersionKey = propVersionEntity.getPropVersionKey();
+		Long minorVersion = findMaxMinorVersion(entityManager, propVersionKey.getTenantId(),
+				propVersionKey.getMajorVersion());
+		propVersionKey.setMinorVersion(minorVersion);
 		for (int currentAttempt = 1; currentAttempt <= MAX_ATTEMPT_TO_CREATE; currentAttempt++) {
 			propVersionEntity.getPropVersionKey().increaseMinorVersion();
 			try {
@@ -92,6 +94,7 @@ public class PropVersionCrudRepository {
 				continue;
 			}
 		}
+		return propVersionEntity;
 	}
 
 	public PropVersionEntity createPropVersion(PropVersionDto propVersionDto) {
