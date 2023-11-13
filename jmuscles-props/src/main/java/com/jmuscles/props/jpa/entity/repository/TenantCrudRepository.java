@@ -55,7 +55,7 @@ public class TenantCrudRepository {
 	}
 
 	public List<TenantEntity> getTenants(Map<String, Object> parameters) {
-		return dbRepository.dynamicSelect(parameters, "TenantEntity");
+		return dbRepository.dynamicSelect(parameters, "TenantEntity", null);
 	}
 
 }

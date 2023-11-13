@@ -26,7 +26,6 @@ import org.springframework.util.StringUtils;
 import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.props.AppPropsDBConfig;
 import com.jmuscles.props.jpa.entity.PropEntity;
-import com.jmuscles.props.jpa.entity.PropVersionEntity;
 import com.jmuscles.props.jpa.entity.TenantEntity;
 import com.jmuscles.props.util.Constants;
 
@@ -63,32 +62,31 @@ public class RepositorySetup {
 	}
 
 	public List<TenantEntity> selectTenant(EntityManager em, Map<String, Object> parameters) {
-		return dynamicSelect(em, parameters, "TenantEntity");
-	}
-
-	public List<PropVersionEntity> selectPropVersion(EntityManager em, Map<String, Object> parameters) {
-		return dynamicSelect(em, parameters, "PropVersionEntity");
+		return dynamicSelect(em, parameters, "TenantEntity", null);
 	}
 
 	boolean isAppPropsValid(Map<String, Object> parameters) {
 		return (parameters != null && (parameters.get("version") != null || parameters.get("version.id") != null));
 	}
 
-	public List<PropEntity> selectProperties(EntityManager em, Map<String, Object> parameters) {
+	public List<PropEntity> selectProperties(EntityManager em, Map<String, Object> parameters, String orderByClause) {
 		if (isAppPropsValid(parameters)) {
-			return dynamicSelect(em, parameters, "PropEntity");
+			return dynamicSelect(em, parameters, "PropEntity", orderByClause);
 		} else {
 			return null;
 		}
 	}
 
-	public <T> List<T> dynamicSelect(EntityManager em, Map<String, Object> parameters, String entityName) {
-		StringBuilder jpql = new StringBuilder("SELECT a FROM " + entityName + " a WHERE a.id IS NOT NULL");
+	public <T> List<T> dynamicSelect(EntityManager em, Map<String, Object> parameters, String entityName,
+			String orderByClause) {
+		StringBuilder jpql = new StringBuilder("SELECT a FROM " + entityName + " a");
 		Map<String, Object> queryParameters = new HashMap<>();
-		if (parameters != null) {
+		if (parameters != null && !parameters.isEmpty()) {
+			jpql.append(" WHERE 1=1"); // Add a dummy condition to start the WHERE clause
 			for (Map.Entry<String, Object> entry : parameters.entrySet()) {
 				String paramName = entry.getKey();
 				Object paramValue = entry.getValue();
+
 				if (paramValue != null) {
 					if (paramValue instanceof String && Constants.VALUE_FOR_IS_NULL_CHECK.equals(paramValue)) {
 						jpql.append(" AND a.").append(paramName).append(" IS NULL");
@@ -99,6 +97,10 @@ public class RepositorySetup {
 				}
 			}
 		}
+		if (orderByClause != null && !orderByClause.isEmpty()) {
+			jpql.append(" ORDER BY ").append(orderByClause);
+		}
+
 		Query query = em.createQuery(jpql.toString());
 		for (Map.Entry<String, Object> entry : queryParameters.entrySet()) {
 			query.setParameter(entry.getKey(), entry.getValue());
@@ -107,9 +109,9 @@ public class RepositorySetup {
 		return results;
 	}
 
-	public <T> List<T> dynamicSelect(Map<String, Object> parameters, String entityName) {
+	public <T> List<T> dynamicSelect(Map<String, Object> parameters, String entityName, String orderByClause) {
 		List<T> result = new ArrayList<>();
-		executeInTransaction(em -> result.addAll(dynamicSelect(em, parameters, entityName)));
+		executeInTransaction(em -> result.addAll(dynamicSelect(em, parameters, entityName, orderByClause)));
 		return result;
 	}
 

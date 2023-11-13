@@ -1,7 +1,6 @@
 package com.jmuscles.props.jpa.entity.repository;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,9 +10,11 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jmuscles.props.jpa.entity.PropEntity;
-import com.jmuscles.props.util.Constants;
+import com.jmuscles.props.jpa.entity.PropVersionEntity;
 
 /**
  * @author manish goel
@@ -22,25 +23,15 @@ import com.jmuscles.props.util.Constants;
 public class PropReadRepository {
 
 	private RepositorySetup repositorySetup;
+	private PropVersionCrudRepository propVersionCrudRepository;
 
-	public PropReadRepository(RepositorySetup repositorySetup) {
+	public PropReadRepository(RepositorySetup repositorySetup, PropVersionCrudRepository propVersionCrudRepository) {
 		this.repositorySetup = repositorySetup;
+		this.propVersionCrudRepository = propVersionCrudRepository;
 	}
 
 	public void executeInTransaction(Consumer<EntityManager> action) {
 		repositorySetup.executeInTransaction(action);
-	}
-
-	// TODO delete this
-	public PropEntity findByKeyPath(List<String> keyPath, String status, Long tenantId, Long versionId) {
-		Map<String, PropEntity> map = new HashMap<>();
-		executeInTransaction(em -> {
-			PropEntity currentEntity = findByKeyPath(em, keyPath, status, tenantId, versionId);
-			if (currentEntity != null) {
-				map.put("currentEntity", currentEntity);
-			}
-		});
-		return map.get("currentEntity");
 	}
 
 	public PropEntity findByKeyPath(EntityManager entityManager, String fullKeyPath, Long tenantId, Long majorVersion,
@@ -69,96 +60,76 @@ public class PropReadRepository {
 		return resultList.isEmpty() ? null : resultList.get(0);
 	}
 
-	public PropEntity findByKeyPath(EntityManager entityManager, List<String> keyPath, String status, Long tenantId,
-			Long versionId) {
-		PropEntity currentEntity = null;
-		for (String key : keyPath) {
-			currentEntity = findChildByKey(entityManager, currentEntity, key, status, tenantId, versionId);
-			if (currentEntity == null) {
-				// Entity with the given key doesn't exist, so break the loop
-				break;
-			}
-		}
-		return currentEntity;
+	public List<PropEntity> findImmediateChildren(EntityManager entityManager, Long parentPropId, Long tenantId,
+			Long majorVersion, Long minorVersion) {
+		StringBuffer jpqlBuffer = new StringBuffer();
+		jpqlBuffer.append("SELECT p FROM PropEntity p ");
+		jpqlBuffer.append("WHERE p.tenant.id = :tenantId ");
+		jpqlBuffer.append("AND p.majorVersion = :majorVersion ");
+		jpqlBuffer.append("AND p.parent.id = :parentPropId ");
+		jpqlBuffer.append("AND p.minorVersion <= :minorVersion ");
+		jpqlBuffer.append("ORDER BY p.prop_key, p.minorVersion DESC");
+
+		Query query = entityManager.createQuery(jpqlBuffer.toString(), PropEntity.class);
+		query.setParameter("tenantId", tenantId);
+		query.setParameter("majorVersion", majorVersion);
+		query.setParameter("parentPropId", parentPropId);
+		query.setParameter("minorVersion", minorVersion);
+
+		List<PropEntity> resultList = query.getResultList();
+
+		Map<String, PropEntity> latestByPropKey = resultList.stream()
+				.collect(Collectors.toMap(PropEntity::getProp_key, propEntity -> propEntity, (e1, e2) -> e1));
+
+		return latestByPropKey.values().stream().collect(Collectors.toList());
 	}
 
-	private PropEntity findChildByKey(EntityManager entityManager, PropEntity parent, String prop_key, String status,
-			Long tenantId, Long versionId) {
-		Map<String, Object> params = new HashMap<>();
-		params.put("prop_key", prop_key);
-		params.put("status", status);
-		if (parent == null) {
-			params.put("parent", Constants.VALUE_FOR_IS_NULL_CHECK);
-		} else {
-			params.put("parent", parent);
-		}
-		List<PropEntity> result = repositorySetup.selectProperties(entityManager, params);
-		return result.isEmpty() ? null : result.get(0);
-	}
-
-	private List<PropEntity> findImmediateChildren(EntityManager entityManager, String status, PropEntity parent) {
-		Map<String, Object> params = new HashMap<>();
-		if (parent == null) {
-			params.put("parent", Constants.VALUE_FOR_IS_NULL_CHECK);
-		} else {
-			params.put("parent", parent);
-		}
-		params.put("status", status);
-		return repositorySetup.selectProperties(entityManager, params);
-	}
-
-	public List<PropEntity> findEntireDescendants(EntityManager entityManager, PropEntity parent, String status) {
-		Map<String, Object> params = new HashMap<>();
-		params.put("parent", parent);
-		params.put("status", status);
-		List<PropEntity> children = repositorySetup.selectProperties(entityManager, params);
-		// Create a separate list to collect the grandchildren
-		List<PropEntity> allGrandchildren = new ArrayList<>();
-		for (PropEntity child : children) {
-			// Recursively select children of children
-			List<PropEntity> grandchildren = findEntireDescendants(entityManager, child, status);
-			allGrandchildren.addAll(grandchildren);
-		}
-		// Add the grandchildren to the children list after the loop
-		children.addAll(allGrandchildren);
-		return children;
-	}
-
-	public Map<String, Object> readDataFromDatabase(List<String> paths, String status, Long tenantId, Long versionId) {
-		List<PropEntity> topLevelProperties = new ArrayList<PropEntity>();
+	public Map<String, Object> readDataFromDatabase(String requestPath, Long tenantId, Long majorVersion,
+			Long minorVersion) {
 		Map<String, Object> returnMap = new HashMap<>();
-		executeInTransaction(entityManager -> {
-			if (paths == null) {
-				topLevelProperties.addAll(findImmediateChildren(entityManager, status, null));
-			} else {
-				PropEntity appPropsEntity = findByKeyPath(entityManager, paths, status, tenantId, versionId);
-				if (appPropsEntity != null) {
-					topLevelProperties.add(appPropsEntity);
-				}
-			}
-			if (topLevelProperties != null && !topLevelProperties.isEmpty()) {
-				returnMap.putAll(topLevelProperties.stream().collect(Collectors.toMap(entity -> entity.getProp_key(),
-						entity -> buildNestedMap(entityManager, entity, status))));
-			}
-
-		});
-
+		this.executeInTransaction(entityManager -> readDataFromDatabase(entityManager, requestPath, tenantId,
+				majorVersion, minorVersion));
 		return returnMap.size() != 0 ? returnMap : null;
 	}
 
-	private Object buildNestedMap(EntityManager entityManager, PropEntity appPropsEntity, String status) {
-		Map<String, Object> nestedMap = new HashMap<>();
-		List<PropEntity> children = findImmediateChildren(entityManager, status, appPropsEntity);
-		for (PropEntity child : children) {
-			nestedMap.put(child.getProp_key(), buildNestedMap(entityManager, child, status));
+	public Map<String, Object> readDataFromDatabase(EntityManager entityManager, String requestPath, Long tenantId,
+			Long majorVersion, Long minorVersion) {
+		if (majorVersion == null || minorVersion == null) {
+			List<PropVersionEntity> versions = this.propVersionCrudRepository.getPropVersions(entityManager, tenantId,
+					majorVersion, minorVersion, null, null, null);
+			if (versions != null) {
+				PropVersionEntity version = versions.get(0);
+				majorVersion = version.getPropVersionKey().getMajorVersion();
+				minorVersion = version.getPropVersionKey().getMinorVersion();
+			}
 		}
-		if (appPropsEntity.getProp_value() != null) {
+
+		Map<String, Object> returnMap = new HashMap<>();
+		PropEntity parent = findByKeyPath(entityManager, StringUtils.hasText(requestPath) ? requestPath : "jmsucles",
+				tenantId, majorVersion, minorVersion);
+		if (parent != null) {
+			returnMap.put(parent.getProp_key(),
+					readDataFromDatabase(entityManager, parent, tenantId, majorVersion, minorVersion));
+		}
+		return returnMap.size() != 0 ? returnMap : null;
+	}
+
+	public Object readDataFromDatabase(EntityManager entityManager, PropEntity propsEntity, Long tenantId,
+			Long majorVersion, Long minorVersion) {
+		Map<String, Object> nestedMap = new HashMap<>();
+		List<PropEntity> children = findImmediateChildren(entityManager, propsEntity.getId(), tenantId, majorVersion,
+				minorVersion);
+		for (PropEntity child : children) {
+			nestedMap.put(child.getProp_key(),
+					readDataFromDatabase(entityManager, propsEntity, tenantId, majorVersion, minorVersion));
+		}
+		if (propsEntity.getProp_value() != null) {
 			// Check if the value is a JSON string representing a map and parse it
 			try {
-				return new ObjectMapper().readValue(appPropsEntity.getProp_value(), Map.class);
+				return new ObjectMapper().readValue(propsEntity.getProp_value(), Map.class);
 			} catch (IOException e) {
 				// Value is not a valid JSON, return it as a string
-				return appPropsEntity.getProp_value();
+				return propsEntity.getProp_value();
 			}
 		}
 		return nestedMap;

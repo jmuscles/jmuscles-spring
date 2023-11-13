@@ -1,9 +1,7 @@
-/**
- * @author manish goel
- *
- */
 package com.jmuscles.props.jpa.entity.repository;
 
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +17,10 @@ import com.jmuscles.props.dto.PropVersionDto;
 import com.jmuscles.props.jpa.entity.PropVersionEntity;
 import com.jmuscles.props.util.Util;
 
+
 /**
- * 
+ * @author manish goel
+ *
  */
 public class PropVersionCrudRepository {
 
@@ -39,20 +39,11 @@ public class PropVersionCrudRepository {
 		this.repositorySetup.executeInTransaction(action);
 	}
 
-	public Long findMaxMajorVersion(EntityManager entityManager, Long tenantId) {
+	private Long findMaxMajorVersion(EntityManager entityManager, Long tenantId) {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("tenantId", tenantId);
 		List<Long> propVersionEntities = repositorySetup.runNamedQuery(entityManager,
 				"PropVersionEntity.findMaxMajorVersionByTenant", parameters, Long.class);
-		return propVersionEntities != null ? propVersionEntities.get(0) : null;
-	}
-
-	public Long findMaxMinorVersion(EntityManager entityManager, Long tenantId, Long majorVersion) {
-		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("tenantId", tenantId);
-		parameters.put("majorVersion", majorVersion);
-		List<Long> propVersionEntities = repositorySetup.runNamedQuery(entityManager,
-				"PropVersionEntity.findMaxMinorVersionByTenantAndMajorVersion", parameters, Long.class);
 		return propVersionEntities != null ? propVersionEntities.get(0) : null;
 	}
 
@@ -73,6 +64,15 @@ public class PropVersionCrudRepository {
 				continue;
 			}
 		}
+	}
+
+	private Long findMaxMinorVersion(EntityManager entityManager, Long tenantId, Long majorVersion) {
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("tenantId", tenantId);
+		parameters.put("majorVersion", majorVersion);
+		List<Long> propVersionEntities = repositorySetup.runNamedQuery(entityManager,
+				"PropVersionEntity.findMaxMinorVersionByTenantAndMajorVersion", parameters, Long.class);
+		return propVersionEntities != null ? propVersionEntities.get(0) : null;
 	}
 
 	public void createWithNewMinorVersion(EntityManager entityManager, PropVersionEntity propVersionEntity) {
@@ -115,6 +115,19 @@ public class PropVersionCrudRepository {
 
 	public List<PropVersionEntity> getPropVersions(Long tenantId, Long majorVersion, Long minorVersion, String name,
 			String propFullKey, Long parentPropId) {
+		List<PropVersionEntity> entities = new ArrayList<>();
+		executeInTransaction(entityManager -> {
+			List<PropVersionEntity> localEntities = getPropVersions(tenantId, majorVersion, minorVersion, name,
+					propFullKey, parentPropId);
+			if (localEntities != null && localEntities.size() > 0) {
+				entities.addAll(localEntities);
+			}
+		});
+		return entities.size() > 0 ? entities : null;
+	}
+
+	public List<PropVersionEntity> getPropVersions(EntityManager entityManager, Long tenantId, Long majorVersion,
+			Long minorVersion, String name, String propFullKey, Long parentPropId) {
 		Map<String, Object> parameters = new HashMap<>();
 		if (tenantId != null) {
 			parameters.put("propVersionKey.tenantId", tenantId);
@@ -122,20 +135,20 @@ public class PropVersionCrudRepository {
 		if (majorVersion != null) {
 			parameters.put("propVersionKey.majorVersion", majorVersion);
 		}
-		if (majorVersion != null) {
+		if (minorVersion != null) {
 			parameters.put("propVersionKey.minorVersion", minorVersion);
 		}
 		if (name != null) {
 			parameters.put("name", name);
 		}
-		if (name != null) {
+		if (propFullKey != null) {
 			parameters.put("prop_full_key", propFullKey);
 		}
 		if (parentPropId != null) {
 			parameters.put("parent_prop.id", parentPropId);
 		}
 
-		return this.getPropVersions(parameters);
+		return this.getPropVersions(entityManager, parameters);
 	}
 
 	public List<PropVersionDto> getPropVersionDtos(Long tenantId, Long majorVersion, Long minorVersion, String name,
@@ -148,8 +161,9 @@ public class PropVersionCrudRepository {
 
 	}
 
-	public List<PropVersionEntity> getPropVersions(Map<String, Object> parameters) {
-		return this.repositorySetup.dynamicSelect(parameters, "PropVersionEntity");
+	public List<PropVersionEntity> getPropVersions(EntityManager entityManager, Map<String, Object> parameters) {
+		return this.repositorySetup.dynamicSelect(entityManager, parameters, "PropVersionEntity",
+				"a.propVersionKey.tenantId DESC, a.propVersionKey.majorVersion DESC, a.propVersionKey.minorVersion DESC");
 	}
 
 }
