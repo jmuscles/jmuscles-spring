@@ -1,10 +1,5 @@
 package com.jmuscles.props.jpa.entity.repository;
 
-/**
- * @author manish goel
- *
- */
-
 import java.sql.Timestamp;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -27,7 +22,8 @@ import com.jmuscles.props.util.Constants;
 import com.jmuscles.props.util.Util;
 
 /**
- * 
+ * @author manish goel
+ *
  */
 public class PropWriteRepository {
 	private static final Logger logger = LoggerFactory.getLogger(PropWriteRepository.class);
@@ -51,8 +47,8 @@ public class PropWriteRepository {
 
 	public void create(RequestTo requestTo) {
 		Map<String, Object> jmusclesMap = JmusclesConfigUtil.jmusclesConfigToMap(requestTo.getJmusclesConfig());
-		TenantEntity tenantEntity = requestTo.getTenantDto().getTenantEntity();
-		PropVersionEntity propVersionEntity = requestTo.getPropVersionDto().getPropVersionEntity();
+		TenantEntity tenantEntity = requestTo.getTenantDto().toTenantEntity();
+		PropVersionEntity propVersionEntity = requestTo.getPropVersionDto().toPropVersionEntity();
 		executeInTransaction(entityManager -> create(entityManager, jmusclesMap, tenantEntity, propVersionEntity,
 				Util.currentTimeStamp(), this.applicationName));
 	}
@@ -86,13 +82,14 @@ public class PropWriteRepository {
 				propVersionDto.getDescription(), requestPath, parentProp, createdAt, createdBy, null, null);
 
 		this.propVersionCrudRepository.createWithNewMinorVersion(entityManager, propVersionEntity);
-		
-		this.update(entityManager, parentProp, propVersionEntity.getPropVersionKey().getMinorVersion(), createdAt,
-				createdBy);
+
+		// this.update(entityManager, parentProp,
+		// propVersionEntity.getPropVersionKey().getMinorVersion(), createdAt,
+		// createdBy);
 
 		this.savePropertiesToDatabase(entityManager, jmusclesMap, parentProp, requestPath,
 				propVersionEntity.getPropVersionKey().getMajorVersion(),
-				propVersionEntity.getPropVersionKey().getMinorVersion(), tenantDto.getTenantEntity(), createdAt,
+				propVersionEntity.getPropVersionKey().getMinorVersion(), tenantDto.toTenantEntity(), createdAt,
 				createdBy);
 	}
 

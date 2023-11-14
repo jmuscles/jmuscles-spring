@@ -27,7 +27,7 @@ public class TenantEntity {
 	@Column(name = "NAME", unique = true, nullable = false, length = 100)
 	private String name;
 
-	@Column(name = "DESC", length = 250)
+	@Column(name = "DESCRIPTION", length = 250)
 	private String desc;
 
 	@Column(name = "CREATED_AT")

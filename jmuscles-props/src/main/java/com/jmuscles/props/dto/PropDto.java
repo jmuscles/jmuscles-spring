@@ -67,9 +67,9 @@ public class PropDto {
 		return null;
 	}
 
-	public PropEntity getPropEntity() {
-		return PropEntity.of(id, prop_key, prop_value, prop_value_blob, parent != null ? parent.getPropEntity() : null,
-				majorVersion, minorVersion, childrenMinorVersion, tenant != null ? tenant.getTenantEntity() : null,
+	public PropEntity toPropEntity() {
+		return PropEntity.of(id, prop_key, prop_value, prop_value_blob, parent != null ? parent.toPropEntity() : null,
+				majorVersion, minorVersion, childrenMinorVersion, tenant != null ? tenant.toTenantEntity() : null,
 				prop_full_key, createdAt, createdBy, updatedAt, updatedBy);
 	}
 

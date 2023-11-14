@@ -21,8 +21,10 @@ import com.jmuscles.datasource.jasypt.JasyptUtil;
 import com.jmuscles.datasource.operator.DataSourceOperatorRegistry;
 import com.jmuscles.datasource.properties.DatabaseProperties;
 import com.jmuscles.props.jpa.entity.repository.PropReadRepository;
+import com.jmuscles.props.jpa.entity.repository.PropVersionCrudRepository;
 import com.jmuscles.props.jpa.entity.repository.PropWriteRepository;
 import com.jmuscles.props.jpa.entity.repository.RepositorySetup;
+import com.jmuscles.props.jpa.entity.repository.TenantCrudRepository;
 import com.jmuscles.props.service.ReadPropsFromDBService;
 import com.jmuscles.props.util.SpringBeanUtil;
 
@@ -68,31 +70,48 @@ public class JmusclesPropsBeans implements BeanFactoryAware, EnvironmentAware {
 		return new AppPropsDBConfig();
 	}
 
-	@Bean("appPropsRepositorySetup")
-	public RepositorySetup appPropsRepositorySetup(
+	@Bean("repositorySetup")
+	public RepositorySetup repositorySetup(
 			@Qualifier("dataSourceProvider") DataSourceProvider dataSourceProvider,
 			@Qualifier("appPropsDBConfig") AppPropsDBConfig appPropsDBConfig) {
 		return new RepositorySetup(environment.getProperty("spring.application.name"), dataSourceProvider,
 				appPropsDBConfig);
 	}
 
-	@Bean("appPropsReadRepository")
-	public PropReadRepository appPropsReadRepository(
-			@Qualifier("appPropsRepositorySetup") RepositorySetup appPropsRepositorySetup) {
-		return new PropReadRepository(appPropsRepositorySetup);
+	@Bean("tenantCrudRepository")
+	public TenantCrudRepository tenantCrudRepository(
+			@Qualifier("repositorySetup") RepositorySetup repositorySetup) {
+		return new TenantCrudRepository(environment.getProperty("spring.application.name"), repositorySetup);
 	}
 
-	@Bean("appPropsWriteRepository")
-	public PropWriteRepository appPropsWriteRepository(
-			@Qualifier("appPropsRepositorySetup") RepositorySetup appPropsRepositorySetup,
-			@Qualifier("appPropsReadRepository") PropReadRepository appPropsReadRepository) {
-		return new PropWriteRepository(appPropsRepositorySetup, appPropsReadRepository);
+	@Bean("propVersionCrudRepository")
+	public PropVersionCrudRepository propVersionCrudRepository(
+			@Qualifier("repositorySetup") RepositorySetup repositorySetup) {
+		return new PropVersionCrudRepository(environment.getProperty("spring.application.name"),
+				repositorySetup);
+	}
+
+	@Bean("propReadRepository")
+	public PropReadRepository propReadRepository(
+			@Qualifier("repositorySetup") RepositorySetup repositorySetup,
+			@Qualifier("propVersionCrudRepository") PropVersionCrudRepository propVersionCrudRepository) {
+		return new PropReadRepository(repositorySetup, propVersionCrudRepository);
+	}
+
+	@Bean("propWriteRepository")
+	public PropWriteRepository propWriteRepository(
+			@Qualifier("repositorySetup") RepositorySetup repositorySetup,
+			@Qualifier("propVersionCrudRepository") PropVersionCrudRepository propVersionCrudRepository,
+			@Qualifier("propReadRepository") PropReadRepository propReadRepository) {
+		return new PropWriteRepository(environment.getProperty("spring.application.name"), repositorySetup,
+				propVersionCrudRepository, propReadRepository);
+
 	}
 
 	@Bean("readPropsFromDBService")
 	public ReadPropsFromDBService readPropsFromDBService(
-			@Qualifier("appPropsReadRepository") PropReadRepository appPropsReadRepository) {
-		return new ReadPropsFromDBService(appPropsReadRepository);
+			@Qualifier("propReadRepository") PropReadRepository propReadRepository) {
+		return new ReadPropsFromDBService(propReadRepository);
 	}
 
 	@Bean("jmusclesConfigProps")

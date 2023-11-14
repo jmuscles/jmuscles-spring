@@ -13,7 +13,6 @@ import org.springframework.util.StringUtils;
 import com.jmuscles.props.JmusclesConfig;
 import com.jmuscles.props.converter.JmusclesConfigUtil;
 import com.jmuscles.props.jpa.entity.repository.PropReadRepository;
-import com.jmuscles.props.util.Constants;
 
 /**
  * @author manish goel
@@ -21,15 +20,15 @@ import com.jmuscles.props.util.Constants;
 public class ReadPropsFromDBService {
 	private static final Logger logger = LoggerFactory.getLogger(ReadPropsFromDBService.class);
 
-	private PropReadRepository appPropsReadRepository;
+	private PropReadRepository propReadRepository;
 	private JmusclesConfig jmusclesConfig;
 
-	public ReadPropsFromDBService(PropReadRepository appPropsReadRepository) {
-		this.appPropsReadRepository = appPropsReadRepository;
+	public ReadPropsFromDBService(PropReadRepository propReadRepository) {
+		this.propReadRepository = propReadRepository;
 	}
 
 	public JmusclesConfig getLatestProperties() {
-		return (JmusclesConfig) getProperties(null);
+		return (JmusclesConfig) getProperties(null, 1L, null, null);
 	}
 
 	public void initialize() {
@@ -54,15 +53,15 @@ public class ReadPropsFromDBService {
 		return jmusclesConfig;
 	}
 
-	public Object getProperties(String requestPath) {
+	public Object getProperties(String requestPath, Long tenantId, Long majorVersion, Long minorVersion) {
 		Object returnObject = null;
-		List<String> paths = null;
-		if (StringUtils.hasText(requestPath)) {
-			paths = new ArrayList<>(Arrays.asList(requestPath.split("\\.")));
-		}
-		Map<String, Object> map = readDataFromDatabase(paths);
+		Map<String, Object> map = readDataFromDatabase(requestPath, tenantId, majorVersion, minorVersion);
 		if (map != null) {
 			try {
+				List<String> paths = null;
+				if (StringUtils.hasText(requestPath)) {
+					paths = new ArrayList<>(Arrays.asList(requestPath.split("\\.")));
+				}
 				returnObject = JmusclesConfigUtil.mapToJmusclesConfig(map, paths);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -72,16 +71,9 @@ public class ReadPropsFromDBService {
 		return returnObject;
 	}
 
-	public Map<String, Object> readDataFromDatabase(String requestPath) {
-		List<String> paths = null;
-		if (StringUtils.hasText(requestPath)) {
-			paths = Arrays.asList(requestPath.split("\\."));
-		}
-		return readDataFromDatabase(paths);
-	}
-
-	public Map<String, Object> readDataFromDatabase(List<String> paths) {
-		return appPropsReadRepository.readDataFromDatabase(paths, Constants.STATUS_ACTIVE);
+	public Map<String, Object> readDataFromDatabase(String requestPath, Long tenantId, Long majorVersion,
+			Long minorVersion) {
+		return propReadRepository.readDataFromDatabase(requestPath, tenantId, majorVersion, minorVersion);
 	}
 
 }

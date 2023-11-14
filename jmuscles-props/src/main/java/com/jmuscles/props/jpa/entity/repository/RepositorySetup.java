@@ -3,7 +3,6 @@
  */
 package com.jmuscles.props.jpa.entity.repository;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +24,6 @@ import org.springframework.util.StringUtils;
 
 import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.props.AppPropsDBConfig;
-import com.jmuscles.props.jpa.entity.PropEntity;
-import com.jmuscles.props.jpa.entity.TenantEntity;
 import com.jmuscles.props.util.Constants;
 
 /**
@@ -61,22 +58,6 @@ public class RepositorySetup {
 		setupEntityManagerFactory();
 	}
 
-	public List<TenantEntity> selectTenant(EntityManager em, Map<String, Object> parameters) {
-		return dynamicSelect(em, parameters, "TenantEntity", null);
-	}
-
-	boolean isAppPropsValid(Map<String, Object> parameters) {
-		return (parameters != null && (parameters.get("version") != null || parameters.get("version.id") != null));
-	}
-
-	public List<PropEntity> selectProperties(EntityManager em, Map<String, Object> parameters, String orderByClause) {
-		if (isAppPropsValid(parameters)) {
-			return dynamicSelect(em, parameters, "PropEntity", orderByClause);
-		} else {
-			return null;
-		}
-	}
-
 	public <T> List<T> dynamicSelect(EntityManager em, Map<String, Object> parameters, String entityName,
 			String orderByClause) {
 		StringBuilder jpql = new StringBuilder("SELECT a FROM " + entityName + " a");
@@ -104,29 +85,6 @@ public class RepositorySetup {
 		Query query = em.createQuery(jpql.toString());
 		for (Map.Entry<String, Object> entry : queryParameters.entrySet()) {
 			query.setParameter(entry.getKey(), entry.getValue());
-		}
-		List<T> results = query.getResultList();
-		return results;
-	}
-
-	public <T> List<T> dynamicSelect(Map<String, Object> parameters, String entityName, String orderByClause) {
-		List<T> result = new ArrayList<>();
-		executeInTransaction(em -> result.addAll(dynamicSelect(em, parameters, entityName, orderByClause)));
-		return result;
-	}
-
-	public <T> List<T> runSelectQuery(String queryString, Map<String, Object> parameters) {
-		List<T> result = new ArrayList<>();
-		executeInTransaction(em -> result.addAll(runSelectQuery(queryString, parameters)));
-		return result;
-	}
-
-	public <T> List<T> runSelectQuery(EntityManager em, String queryString, Map<String, Object> parameters) {
-		Query query = em.createQuery(queryString);
-		if (parameters != null) {
-			for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-				query.setParameter(entry.getKey(), entry.getValue());
-			}
 		}
 		List<T> results = query.getResultList();
 		return results;
