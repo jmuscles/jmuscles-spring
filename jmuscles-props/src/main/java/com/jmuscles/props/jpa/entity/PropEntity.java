@@ -7,9 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -35,9 +33,8 @@ public class PropEntity {
 	@Column(name = "PROP_VALUE_BLOB")
 	private byte[] prop_value_blob;
 
-	@ManyToOne
-	@JoinColumn(name = "PARENT_ID")
-	private PropEntity parent;
+	@Column(name = "PARENT_ID")
+	private Long parentId;
 
 	@Column(name = "MAJOR_VERSION", nullable = false) // This is the join column
 	private Long majorVersion;
@@ -45,14 +42,10 @@ public class PropEntity {
 	@Column(name = "MINOR_VERSION", nullable = false) // This is the join column
 	private Long minorVersion;
 
-	@Column(name = "CHILDREN_MINOR_VERSION") // This is the join column
-	private Long childrenMinorVersion;
+	@Column(name = "TENANT_ID", nullable = false) // This is the join column
+	private Long tenantId;
 
-	@ManyToOne
-	@JoinColumn(name = "TENANT_ID", nullable = false) // This is the join column
-	private TenantEntity tenant;
-
-	@Column(name = "PROP_FULL_KEY", length = 500)
+	@Column(name = "PROP_FULL_KEY", length = 1000)
 	private String prop_full_key;
 
 	@Column(name = "CREATED_AT")
@@ -61,42 +54,32 @@ public class PropEntity {
 	@Column(name = "CREATED_BY")
 	private String createdBy;
 
-	@Column(name = "UPDATED_AT")
-	private Timestamp updatedAt;
-
-	@Column(name = "UPDATED_BY")
-	private String updatedBy;
-
 	public PropEntity() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PropEntity(Long id, String prop_key, String prop_value, byte[] prop_value_blob, PropEntity parent,
-			Long majorVersion, Long minorVersion, Long childrenMinorVersion, TenantEntity tenant, String prop_full_key,
-			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
+	public PropEntity(Long id, String prop_key, String prop_value, byte[] prop_value_blob, Long parentId,
+			Long majorVersion, Long minorVersion, Long tenantId, String prop_full_key, Timestamp createdAt,
+			String createdBy) {
 		super();
 		this.id = id;
 		this.prop_key = prop_key;
 		this.prop_value = prop_value;
 		this.prop_value_blob = prop_value_blob;
-		this.parent = parent;
+		this.parentId = parentId;
 		this.majorVersion = majorVersion;
 		this.minorVersion = minorVersion;
-		this.childrenMinorVersion = childrenMinorVersion;
-		this.tenant = tenant;
+		this.tenantId = tenantId;
 		this.prop_full_key = prop_full_key;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
-		this.updatedAt = updatedAt;
-		this.updatedBy = updatedBy;
 	}
 
-	public static PropEntity of(Long id, String prop_key, String prop_value, byte[] prop_value_blob, PropEntity parent,
-			Long majorVersion, Long minorVersion, Long childrenMinorVersion, TenantEntity tenant, String prop_full_key,
-			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
-		return new PropEntity(id, prop_key, prop_value, prop_value_blob, parent, majorVersion, minorVersion,
-				childrenMinorVersion, tenant, prop_full_key, createdAt, createdBy, updatedAt, updatedBy);
-
+	public static PropEntity of(Long id, String prop_key, String prop_value, byte[] prop_value_blob, Long parentId,
+			Long majorVersion, Long minorVersion, Long tenantId, String prop_full_key, Timestamp createdAt,
+			String createdBy) {
+		return new PropEntity(id, prop_key, prop_value, prop_value_blob, parentId, majorVersion, minorVersion, tenantId,
+				prop_full_key, createdAt, createdBy);
 	}
 
 	/**
@@ -156,17 +139,17 @@ public class PropEntity {
 	}
 
 	/**
-	 * @return the parent
+	 * @return the parentId
 	 */
-	public PropEntity getParent() {
-		return parent;
+	public Long getParentId() {
+		return parentId;
 	}
 
 	/**
-	 * @param parent the parent to set
+	 * @param parentId the parentId to set
 	 */
-	public void setParent(PropEntity parent) {
-		this.parent = parent;
+	public void setParentId(Long parentId) {
+		this.parentId = parentId;
 	}
 
 	/**
@@ -198,31 +181,17 @@ public class PropEntity {
 	}
 
 	/**
-	 * @return the childrenMinorVersion
+	 * @return the tenantId
 	 */
-	public Long getChildrenMinorVersion() {
-		return childrenMinorVersion;
+	public Long getTenantId() {
+		return tenantId;
 	}
 
 	/**
-	 * @param childrenMinorVersion the childrenMinorVersion to set
+	 * @param tenantId the tenantId to set
 	 */
-	public void setChildrenMinorVersion(Long childrenMinorVersion) {
-		this.childrenMinorVersion = childrenMinorVersion;
-	}
-
-	/**
-	 * @return the tenant
-	 */
-	public TenantEntity getTenant() {
-		return tenant;
-	}
-
-	/**
-	 * @param tenant the tenant to set
-	 */
-	public void setTenant(TenantEntity tenant) {
-		this.tenant = tenant;
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
 	}
 
 	/**
@@ -265,34 +234,6 @@ public class PropEntity {
 	 */
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
-	}
-
-	/**
-	 * @return the updatedAt
-	 */
-	public Timestamp getUpdatedAt() {
-		return updatedAt;
-	}
-
-	/**
-	 * @param updatedAt the updatedAt to set
-	 */
-	public void setUpdatedAt(Timestamp updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	/**
-	 * @return the updatedBy
-	 */
-	public String getUpdatedBy() {
-		return updatedBy;
-	}
-
-	/**
-	 * @param updatedBy the updatedBy to set
-	 */
-	public void setUpdatedBy(String updatedBy) {
-		this.updatedBy = updatedBy;
 	}
 
 }

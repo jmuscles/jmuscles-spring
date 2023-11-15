@@ -13,26 +13,36 @@ import com.jmuscles.props.JmusclesConfig;
 public class RequestTo {
 
 	private String requestPath;
-	private JmusclesConfig jmusclesConfig;
-	private PropVersionDto propVersionDto;
-	private TenantDto tenantDto;
+	private String versionTag;
+	private String versionDescription;
+	private Long majorVersion;
+	private Long minorVersion;
+	private Long tenantId;
+	private String tenantName;
+
+	private JmusclesConfig jmuscles;
 
 	public RequestTo() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public RequestTo(String requestPath, JmusclesConfig jmusclesConfig, PropVersionDto propVersionDto,
-			TenantDto tenantDto) {
+	public RequestTo(String requestPath, String versionTag, String versionDescription, Long majorVersion,
+			Long minorVersion, Long tenantId, String tenantName, JmusclesConfig jmuscles) {
 		super();
 		this.requestPath = requestPath;
-		this.jmusclesConfig = jmusclesConfig;
-		this.propVersionDto = propVersionDto;
-		this.tenantDto = tenantDto;
+		this.versionTag = versionTag;
+		this.versionDescription = versionDescription;
+		this.majorVersion = majorVersion;
+		this.minorVersion = minorVersion;
+		this.tenantId = tenantId;
+		this.tenantName = tenantName;
+		this.jmuscles = jmuscles;
 	}
 
-	public static RequestTo of(String requestPath, JmusclesConfig jmusclesConfig, PropVersionDto propVersionDto,
-			TenantDto tenantDto) {
-		return new RequestTo(requestPath, jmusclesConfig, propVersionDto, tenantDto);
+	public static RequestTo of(String requestPath, String versionTag, String versionDescription, Long majorVersion,
+			Long minorVersion, Long tenantId, String tenantName, JmusclesConfig jmuscles) {
+		return new RequestTo(requestPath, versionTag, versionDescription, majorVersion, minorVersion, tenantId,
+				tenantName, jmuscles);
 	}
 
 	/**
@@ -50,45 +60,101 @@ public class RequestTo {
 	}
 
 	/**
-	 * @return the jmusclesConfig
+	 * @return the versionTag
 	 */
-	public JmusclesConfig getJmusclesConfig() {
-		return jmusclesConfig;
+	public String getVersionTag() {
+		return versionTag;
 	}
 
 	/**
-	 * @param jmusclesConfig the jmusclesConfig to set
+	 * @param versionTag the versionTag to set
 	 */
-	public void setJmusclesConfig(JmusclesConfig jmusclesConfig) {
-		this.jmusclesConfig = jmusclesConfig;
+	public void setVersionTag(String versionTag) {
+		this.versionTag = versionTag;
 	}
 
 	/**
-	 * @return the propVersionDto
+	 * @return the versionDescription
 	 */
-	public PropVersionDto getPropVersionDto() {
-		return propVersionDto;
+	public String getVersionDescription() {
+		return versionDescription;
 	}
 
 	/**
-	 * @param propVersionDto the propVersionDto to set
+	 * @param versionDescription the versionDescription to set
 	 */
-	public void setPropVersionDto(PropVersionDto propVersionDto) {
-		this.propVersionDto = propVersionDto;
+	public void setVersionDescription(String versionDescription) {
+		this.versionDescription = versionDescription;
 	}
 
 	/**
-	 * @return the tenantDto
+	 * @return the majorVersion
 	 */
-	public TenantDto getTenantDto() {
-		return tenantDto;
+	public Long getMajorVersion() {
+		return majorVersion;
 	}
 
 	/**
-	 * @param tenantDto the tenantDto to set
+	 * @param majorVersion the majorVersion to set
 	 */
-	public void setTenantDto(TenantDto tenantDto) {
-		this.tenantDto = tenantDto;
+	public void setMajorVersion(Long majorVersion) {
+		this.majorVersion = majorVersion;
+	}
+
+	/**
+	 * @return the minorVersion
+	 */
+	public Long getMinorVersion() {
+		return minorVersion;
+	}
+
+	/**
+	 * @param minorVersion the minorVersion to set
+	 */
+	public void setMinorVersion(Long minorVersion) {
+		this.minorVersion = minorVersion;
+	}
+
+	/**
+	 * @return the tenantId
+	 */
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	/**
+	 * @param tenantId the tenantId to set
+	 */
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
+
+	/**
+	 * @return the tenantName
+	 */
+	public String getTenantName() {
+		return tenantName;
+	}
+
+	/**
+	 * @param tenantName the tenantName to set
+	 */
+	public void setTenantName(String tenantName) {
+		this.tenantName = tenantName;
+	}
+
+	/**
+	 * @return the jmuscles
+	 */
+	public JmusclesConfig getJmuscles() {
+		return jmuscles;
+	}
+
+	/**
+	 * @param jmuscles the jmuscles to set
+	 */
+	public void setJmuscles(JmusclesConfig jmuscles) {
+		this.jmuscles = jmuscles;
 	}
 
 }

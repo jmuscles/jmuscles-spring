@@ -13,64 +13,56 @@ public class PropDto {
 	private String prop_key;
 	private String prop_value;
 	private byte[] prop_value_blob;
-	private PropDto parent;
+	private Long parentId;
 	private Long majorVersion;
 	private Long minorVersion;
-	private Long childrenMinorVersion;
-	private TenantDto tenant;
+	private Long tenantId;
 	private String prop_full_key;
 	private Timestamp createdAt;
 	private String createdBy;
-	private Timestamp updatedAt;
-	private String updatedBy;
 
 	public PropDto() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PropDto(Long id, String prop_key, String prop_value, byte[] prop_value_blob, PropDto parent,
-			Long majorVersion, Long minorVersion, Long childrenMinorVersion, TenantDto tenant, String prop_full_key,
-			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
+	public PropDto(Long id, String prop_key, String prop_value, byte[] prop_value_blob, Long parentId,
+			Long majorVersion, Long minorVersion, Long tenantId, String prop_full_key, Timestamp createdAt,
+			String createdBy) {
 		super();
 		this.id = id;
 		this.prop_key = prop_key;
 		this.prop_value = prop_value;
 		this.prop_value_blob = prop_value_blob;
-		this.parent = parent;
+		this.parentId = parentId;
 		this.majorVersion = majorVersion;
 		this.minorVersion = minorVersion;
-		this.childrenMinorVersion = childrenMinorVersion;
-		this.tenant = tenant;
+		this.tenantId = tenantId;
 		this.prop_full_key = prop_full_key;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
-		this.updatedAt = updatedAt;
-		this.updatedBy = updatedBy;
 	}
 
-	public static PropDto of(Long id, String prop_key, String prop_value, byte[] prop_value_blob, PropDto parent,
-			Long majorVersion, Long minorVersion, Long childrenMinorVersion, TenantDto tenant, String prop_full_key,
-			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
-		return new PropDto(id, prop_key, prop_value, prop_value_blob, parent, majorVersion, minorVersion,
-				childrenMinorVersion, tenant, prop_full_key, createdAt, createdBy, updatedAt, updatedBy);
+	public static PropDto of(Long id, String prop_key, String prop_value, byte[] prop_value_blob, Long parentId,
+			Long majorVersion, Long minorVersion, Long tenantId, String prop_full_key, Timestamp createdAt,
+			String createdBy) {
+		return new PropDto(id, prop_key, prop_value, prop_value_blob, parentId, majorVersion, minorVersion, tenantId,
+				prop_full_key, createdAt, createdBy);
 
 	}
 
 	public static PropDto of(PropEntity propEntity) {
 		if (propEntity != null) {
 			return of(propEntity.getId(), propEntity.getProp_key(), propEntity.getProp_value(),
-					propEntity.getProp_value_blob(), of(propEntity.getParent()), propEntity.getMajorVersion(),
-					propEntity.getMinorVersion(), propEntity.getChildrenMinorVersion(),
-					TenantDto.of(propEntity.getTenant()), propEntity.getProp_full_key(), propEntity.getCreatedAt(),
-					propEntity.getCreatedBy(), propEntity.getUpdatedAt(), propEntity.getUpdatedBy());
+					propEntity.getProp_value_blob(), propEntity.getParentId(), propEntity.getMajorVersion(),
+					propEntity.getMinorVersion(), propEntity.getTenantId(), propEntity.getProp_full_key(),
+					propEntity.getCreatedAt(), propEntity.getCreatedBy());
 		}
 		return null;
 	}
 
 	public PropEntity toPropEntity() {
-		return PropEntity.of(id, prop_key, prop_value, prop_value_blob, parent != null ? parent.toPropEntity() : null,
-				majorVersion, minorVersion, childrenMinorVersion, tenant != null ? tenant.toTenantEntity() : null,
-				prop_full_key, createdAt, createdBy, updatedAt, updatedBy);
+		return PropEntity.of(id, prop_key, prop_value, prop_value_blob, parentId, majorVersion, minorVersion, tenantId,
+				prop_full_key, createdAt, createdBy);
 	}
 
 	/**
@@ -130,17 +122,17 @@ public class PropDto {
 	}
 
 	/**
-	 * @return the parent
+	 * @return the parentId
 	 */
-	public PropDto getParent() {
-		return parent;
+	public Long getParentId() {
+		return parentId;
 	}
 
 	/**
-	 * @param parent the parent to set
+	 * @param parentId the parentId to set
 	 */
-	public void setParent(PropDto parent) {
-		this.parent = parent;
+	public void setParentId(Long parentId) {
+		this.parentId = parentId;
 	}
 
 	/**
@@ -172,31 +164,17 @@ public class PropDto {
 	}
 
 	/**
-	 * @return the childrenMinorVersion
+	 * @return the tenantId
 	 */
-	public Long getChildrenMinorVersion() {
-		return childrenMinorVersion;
+	public Long getTenantId() {
+		return tenantId;
 	}
 
 	/**
-	 * @param childrenMinorVersion the childrenMinorVersion to set
+	 * @param tenantId the tenantId to set
 	 */
-	public void setChildrenMinorVersion(Long childrenMinorVersion) {
-		this.childrenMinorVersion = childrenMinorVersion;
-	}
-
-	/**
-	 * @return the tenant
-	 */
-	public TenantDto getTenant() {
-		return tenant;
-	}
-
-	/**
-	 * @param tenant the tenant to set
-	 */
-	public void setTenant(TenantDto tenant) {
-		this.tenant = tenant;
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
 	}
 
 	/**
@@ -239,34 +217,6 @@ public class PropDto {
 	 */
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
-	}
-
-	/**
-	 * @return the updatedAt
-	 */
-	public Timestamp getUpdatedAt() {
-		return updatedAt;
-	}
-
-	/**
-	 * @param updatedAt the updatedAt to set
-	 */
-	public void setUpdatedAt(Timestamp updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	/**
-	 * @return the updatedBy
-	 */
-	public String getUpdatedBy() {
-		return updatedBy;
-	}
-
-	/**
-	 * @param updatedBy the updatedBy to set
-	 */
-	public void setUpdatedBy(String updatedBy) {
-		this.updatedBy = updatedBy;
 	}
 
 }

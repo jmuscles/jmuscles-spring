@@ -39,7 +39,7 @@ public class PropReadRepository {
 
 	public PropEntity findByKeyPath(EntityManager entityManager, String fullKeyPath, Long tenantId, Long majorVersion,
 			Long minorVersion) {
-		StringBuffer jpql = new StringBuffer(" SELECT p FROM PropEntity p WHERE p.tenant.id = :tenantId");
+		StringBuffer jpql = new StringBuffer(" SELECT p FROM PropEntity p WHERE p.tenantId = :tenantId");
 		jpql.append(" AND p.prop_full_key = :fullKeyPath");
 		if (majorVersion != null) {
 			jpql.append(" AND p.majorVersion <= :majorVersion");
@@ -68,9 +68,9 @@ public class PropReadRepository {
 		List<PropEntity> returnedResult = null;
 		StringBuffer jpqlBuffer = new StringBuffer();
 		jpqlBuffer.append("SELECT p FROM PropEntity p ");
-		jpqlBuffer.append("WHERE p.tenant.id = :tenantId ");
+		jpqlBuffer.append("WHERE p.tenantId = :tenantId ");
 		jpqlBuffer.append("AND p.majorVersion = :majorVersion ");
-		jpqlBuffer.append("AND p.parent.id = :parentPropId ");
+		jpqlBuffer.append("AND p.parentId = :parentPropId ");
 		jpqlBuffer.append("AND p.minorVersion <= :minorVersion ");
 		jpqlBuffer.append("ORDER BY p.prop_key, p.minorVersion DESC");
 

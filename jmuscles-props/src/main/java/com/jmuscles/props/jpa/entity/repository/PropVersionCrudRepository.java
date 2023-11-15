@@ -11,7 +11,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -19,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jmuscles.props.dto.PropVersionDto;
-import com.jmuscles.props.jpa.entity.PropEntity;
 import com.jmuscles.props.jpa.entity.PropVersionEntity;
 import com.jmuscles.props.jpa.entity.PropVersionKey;
 import com.jmuscles.props.util.Util;
@@ -165,8 +163,7 @@ public class PropVersionCrudRepository {
 			predicates.add(cb.equal(root.get("prop_full_key"), propFullKey));
 		}
 		if (parentPropId != null) {
-			Join<PropVersionEntity, PropEntity> parentJoin = root.join("parent_prop");
-			predicates.add(cb.equal(parentJoin.get("id"), parentPropId));
+			predicates.add(cb.equal(root.get("parentPropId"), parentPropId));
 		}
 		cq.where(predicates.toArray(new Predicate[0]));
 

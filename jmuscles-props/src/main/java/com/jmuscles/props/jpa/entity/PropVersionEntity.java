@@ -5,8 +5,6 @@ import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
@@ -36,9 +34,8 @@ public class PropVersionEntity {
 	@Column(name = "PROP_FULL_KEY", length = 500)
 	private String prop_full_key;
 
-	@ManyToOne
-	@JoinColumn(name = "PARENT_PROP_ID")
-	private PropEntity parent_prop;
+	@Column(name = "PARENT_PROP_ID")
+	private Long parentPropId;
 
 	@Column(name = "CREATED_AT")
 	private Timestamp createdAt;
@@ -46,42 +43,31 @@ public class PropVersionEntity {
 	@Column(name = "CREATED_BY")
 	private String createdBy;
 
-	@Column(name = "UPDATED_AT")
-	private Timestamp updatedAt;
-
-	@Column(name = "UPDATED_BY")
-	private String updatedBy;
-
 	public PropVersionEntity() {
 		// TODO Auto-generated constructor stub
 	}
 
 	public PropVersionEntity(PropVersionKey propVersionKey, String name, String description, String prop_full_key,
-			PropEntity parent_prop, Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
+			Long parentPropId, Timestamp createdAt, String createdBy) {
 		super();
 		this.propVersionKey = propVersionKey;
 		this.name = name;
 		this.description = description;
 		this.prop_full_key = prop_full_key;
-		this.parent_prop = parent_prop;
+		this.parentPropId = parentPropId;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
-		this.updatedAt = updatedAt;
-		this.updatedBy = updatedBy;
 	}
 
 	public static PropVersionEntity of(PropVersionKey propVersionKey, String name, String description,
-			String prop_full_key, PropEntity parent_prop, Timestamp createdAt, String createdBy, Timestamp updatedAt,
-			String updatedBy) {
-		return new PropVersionEntity(propVersionKey, name, description, prop_full_key, parent_prop, createdAt,
-				createdBy, updatedAt, updatedBy);
+			String prop_full_key, Long parentPropId, Timestamp createdAt, String createdBy) {
+		return new PropVersionEntity(propVersionKey, name, description, prop_full_key, parentPropId, createdAt,
+				createdBy);
 	}
 
-	public void resetCreateUpdate(Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
-		this.createdAt = createdAt;
-		this.createdBy = createdBy;
-		this.updatedAt = updatedAt;
-		this.updatedBy = updatedBy;
+	public void resetCreate(Timestamp createdAt2, String createdBy2) {
+		this.createdAt = createdAt2;
+		this.createdBy = createdBy2;
 	}
 
 	/**
@@ -141,17 +127,17 @@ public class PropVersionEntity {
 	}
 
 	/**
-	 * @return the parent_prop
+	 * @return the parentPropId
 	 */
-	public PropEntity getParent_prop() {
-		return parent_prop;
+	public Long getParentPropId() {
+		return parentPropId;
 	}
 
 	/**
-	 * @param parent_prop the parent_prop to set
+	 * @param parentPropId the parentPropId to set
 	 */
-	public void setParent_prop(PropEntity parent_prop) {
-		this.parent_prop = parent_prop;
+	public void setParentPropId(Long parentPropId) {
+		this.parentPropId = parentPropId;
 	}
 
 	/**
@@ -180,34 +166,6 @@ public class PropVersionEntity {
 	 */
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
-	}
-
-	/**
-	 * @return the updatedAt
-	 */
-	public Timestamp getUpdatedAt() {
-		return updatedAt;
-	}
-
-	/**
-	 * @param updatedAt the updatedAt to set
-	 */
-	public void setUpdatedAt(Timestamp updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	/**
-	 * @return the updatedBy
-	 */
-	public String getUpdatedBy() {
-		return updatedBy;
-	}
-
-	/**
-	 * @param updatedBy the updatedBy to set
-	 */
-	public void setUpdatedBy(String updatedBy) {
-		this.updatedBy = updatedBy;
 	}
 
 }

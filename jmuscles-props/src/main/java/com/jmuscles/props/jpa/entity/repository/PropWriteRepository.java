@@ -11,13 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.jmuscles.props.converter.JmusclesConfigUtil;
-import com.jmuscles.props.dto.PropVersionDto;
 import com.jmuscles.props.dto.RequestTo;
-import com.jmuscles.props.dto.TenantDto;
 import com.jmuscles.props.jpa.entity.PropEntity;
 import com.jmuscles.props.jpa.entity.PropVersionEntity;
 import com.jmuscles.props.jpa.entity.PropVersionKey;
-import com.jmuscles.props.jpa.entity.TenantEntity;
 import com.jmuscles.props.util.Constants;
 import com.jmuscles.props.util.Util;
 
@@ -46,38 +43,42 @@ public class PropWriteRepository {
 	}
 
 	public void create(RequestTo requestTo) {
-		Map<String, Object> jmusclesMap = JmusclesConfigUtil.jmusclesConfigToMap(requestTo.getJmusclesConfig());
-		TenantEntity tenantEntity = requestTo.getTenantDto().toTenantEntity();
-		PropVersionEntity propVersionEntity = requestTo.getPropVersionDto().toPropVersionEntity();
-		executeInTransaction(entityManager -> create(entityManager, jmusclesMap, tenantEntity, propVersionEntity,
-				Util.currentTimeStamp(), this.applicationName));
+		Map<String, Object> jmusclesMap = JmusclesConfigUtil.jmusclesConfigToMap(requestTo.getJmuscles());
+		executeInTransaction(entityManager -> create(entityManager, jmusclesMap, requestTo));
 	}
 
-	public void create(EntityManager entityManager, Map<String, Object> jmusclesMap, TenantEntity tenantEntity,
-			PropVersionEntity propVersionEntity, Timestamp createdAt, String createdBy) {
-		propVersionEntity.resetCreateUpdate(createdAt, createdBy, null, null);
+	public void create(EntityManager entityManager, Map<String, Object> jmusclesMap, RequestTo requestTo) {
+
+		Timestamp createdAt = Util.currentTimeStamp();
+		String createdBy = this.applicationName;
+
+		PropVersionEntity propVersionEntity = PropVersionEntity.of(
+				PropVersionKey.of(requestTo.getMajorVersion(), requestTo.getMinorVersion(), requestTo.getTenantId()),
+				requestTo.getVersionTag(), requestTo.getVersionDescription(), requestTo.getRequestPath(), null,
+				createdAt, createdBy);
+
 		this.propVersionCrudRepository.createWithNewMajorVersion(entityManager, propVersionEntity);
 		this.savePropertiesToDatabase(entityManager, jmusclesMap, null, null,
 				propVersionEntity.getPropVersionKey().getMajorVersion(),
-				propVersionEntity.getPropVersionKey().getMinorVersion(), tenantEntity, createdAt, createdBy);
+				propVersionEntity.getPropVersionKey().getMinorVersion(), requestTo.getTenantId(), createdAt, createdBy);
 	}
 
 	public void update(RequestTo requestTo) {
-		Object mapObject = JmusclesConfigUtil.jmusclesConfigToMap(requestTo.getJmusclesConfig(),
-				requestTo.getRequestPath());
-		executeInTransaction(
-				entityManager -> update(entityManager, requestTo.getRequestPath(), mapObject, requestTo.getTenantDto(),
-						requestTo.getPropVersionDto(), Util.currentTimeStamp(), this.applicationName));
+		Object mapObject = JmusclesConfigUtil.jmusclesConfigToMap(requestTo.getJmuscles(), requestTo.getRequestPath());
+		executeInTransaction(entityManager -> update(entityManager, requestTo.getRequestPath(), mapObject, requestTo));
 	}
 
-	public void update(EntityManager entityManager, String requestPath, Object mapObject, TenantDto tenantDto,
-			PropVersionDto propVersionDto, Timestamp createdAt, String createdBy) {
+	public void update(EntityManager entityManager, String requestPath, Object mapObject, RequestTo requestTo) {
+		Timestamp createdAt = Util.currentTimeStamp();
+		String createdBy = this.applicationName;
 
-		PropEntity parentProp = this.propReadRepository.findByKeyPath(entityManager, requestPath, tenantDto.getId(),
-				propVersionDto.getMajorVersion(), null);
+		PropEntity parentProp = this.propReadRepository.findByKeyPath(entityManager, requestPath,
+				requestTo.getTenantId(), requestTo.getMajorVersion(), null);
+
 		PropVersionEntity propVersionEntity = PropVersionEntity.of(
-				PropVersionKey.of(propVersionDto.getMajorVersion(), null, tenantDto.getId()), propVersionDto.getName(),
-				propVersionDto.getDescription(), requestPath, parentProp, createdAt, createdBy, null, null);
+				PropVersionKey.of(requestTo.getMajorVersion(), requestTo.getMinorVersion(), requestTo.getTenantId()),
+				requestTo.getVersionTag(), requestTo.getVersionDescription(), requestTo.getRequestPath(), null,
+				createdAt, createdBy);
 
 		this.propVersionCrudRepository.createWithNewMinorVersion(entityManager, propVersionEntity);
 
@@ -86,14 +87,13 @@ public class PropWriteRepository {
 
 		if (mapObject instanceof Map) {
 			this.savePropertiesToDatabase(entityManager, (Map<String, Object>) mapObject, parentProp, requestPath,
-					majorVersion, minorVersion, tenantDto.toTenantEntity(), createdAt, createdBy);
+					majorVersion, minorVersion, parentProp.getTenantId(), createdAt, createdBy);
 		} else {
 			saveEntity(entityManager,
 					PropEntity.of(null, parentProp.getProp_key(), mapObject != null ? mapObject.toString() : null, null,
-							parentProp.getParent(), majorVersion, minorVersion, null, tenantDto.toTenantEntity(),
-							parentProp.getProp_full_key(), createdAt, createdBy, null, null));
+							parentProp.getParentId(), majorVersion, minorVersion, parentProp.getTenantId(),
+							parentProp.getProp_full_key(), createdAt, createdBy));
 		}
-
 	}
 
 	public void saveEntity(EntityManager entityManager, PropEntity propEntity) {
@@ -119,7 +119,8 @@ public class PropWriteRepository {
 
 	@SuppressWarnings("unchecked")
 	public void savePropertiesToDatabase(EntityManager entityManager, Map<String, Object> properties, PropEntity parent,
-			String parentKey, Long majorVersion, Long minorVersion, TenantEntity tenant, Timestamp createdAt,
+			String parentKey, Long majorVersion,
+			Long minorVersion, Long tenantId, Timestamp createdAt,
 			String createdBy) {
 		for (Map.Entry<String, Object> entry : properties.entrySet()) {
 			String key = entry.getKey();
@@ -127,14 +128,14 @@ public class PropWriteRepository {
 					? entry.getValue().toString()
 					: null;
 			String localFullKey = buildFullKey(parentKey, key);
-			PropEntity propEntity = PropEntity.of(null, key, value, null, parent, majorVersion, minorVersion, null,
-					tenant, localFullKey, createdAt, createdBy, null, null);
+			PropEntity propEntity = PropEntity.of(null, key, value, null, parent != null ? parent.getId() : null,
+					majorVersion, minorVersion, tenantId, localFullKey, createdAt, createdBy);
 
 			saveEntity(entityManager, propEntity);
 
 			if (entry.getValue() instanceof Map) {
 				savePropertiesToDatabase(entityManager, (Map<String, Object>) entry.getValue(), propEntity,
-						localFullKey, majorVersion, minorVersion, tenant, createdAt, createdBy);
+						localFullKey, majorVersion, minorVersion, tenantId, createdAt, createdBy);
 			}
 		}
 	}
