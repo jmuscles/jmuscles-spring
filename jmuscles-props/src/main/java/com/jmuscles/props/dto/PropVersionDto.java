@@ -40,9 +40,9 @@ public class PropVersionDto {
 		this.updatedBy = updatedBy;
 	}
 
-	public PropVersionEntity getPropVersionEntity() {
+	public PropVersionEntity toPropVersionEntity() {
 		return PropVersionEntity.of(PropVersionKey.of(majorVersion, minorVersion, tenantId), name, description,
-				prop_full_key, (parent_prop != null) ? parent_prop.getPropEntity() : null, createdAt, createdBy,
+				prop_full_key, (parent_prop != null) ? parent_prop.toPropEntity() : null, createdAt, createdBy,
 				updatedAt, updatedBy);
 	}
 

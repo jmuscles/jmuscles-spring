@@ -62,7 +62,7 @@ public class ObjectToMapConverter {
 		map.put(String.valueOf(key), resolveValue(value));
 	}
 
-	private static Object resolveValue(Object value) {
+	public static Object resolveValue(Object value) {
 		Object returnValue = null;
 		try {
 			if (ConverterUtil.isPrimitive(value) || value instanceof String) {

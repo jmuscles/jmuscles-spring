@@ -1,10 +1,5 @@
 package com.jmuscles.props.jpa.entity.repository;
 
-/**
- * @author manish goel
- *
- */
-
 import java.sql.Timestamp;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -27,7 +22,8 @@ import com.jmuscles.props.util.Constants;
 import com.jmuscles.props.util.Util;
 
 /**
- * 
+ * @author manish goel
+ *
  */
 public class PropWriteRepository {
 	private static final Logger logger = LoggerFactory.getLogger(PropWriteRepository.class);
@@ -51,8 +47,8 @@ public class PropWriteRepository {
 
 	public void create(RequestTo requestTo) {
 		Map<String, Object> jmusclesMap = JmusclesConfigUtil.jmusclesConfigToMap(requestTo.getJmusclesConfig());
-		TenantEntity tenantEntity = requestTo.getTenantDto().getTenantEntity();
-		PropVersionEntity propVersionEntity = requestTo.getPropVersionDto().getPropVersionEntity();
+		TenantEntity tenantEntity = requestTo.getTenantDto().toTenantEntity();
+		PropVersionEntity propVersionEntity = requestTo.getPropVersionDto().toPropVersionEntity();
 		executeInTransaction(entityManager -> create(entityManager, jmusclesMap, tenantEntity, propVersionEntity,
 				Util.currentTimeStamp(), this.applicationName));
 	}
@@ -67,41 +63,58 @@ public class PropWriteRepository {
 	}
 
 	public void update(RequestTo requestTo) {
-		Map<String, Object> jmusclesMap = JmusclesConfigUtil.jmusclesConfigToMap(requestTo.getJmusclesConfig(),
+		Object mapObject = JmusclesConfigUtil.jmusclesConfigToMap(requestTo.getJmusclesConfig(),
 				requestTo.getRequestPath());
-
-		executeInTransaction(entityManager -> update(entityManager, requestTo.getRequestPath(), jmusclesMap,
-				requestTo.getTenantDto(), requestTo.getPropVersionDto(), Util.currentTimeStamp(),
-				this.applicationName));
+		executeInTransaction(
+				entityManager -> update(entityManager, requestTo.getRequestPath(), mapObject, requestTo.getTenantDto(),
+						requestTo.getPropVersionDto(), Util.currentTimeStamp(), this.applicationName));
 	}
 
-	public void update(EntityManager entityManager, String requestPath, Map<String, Object> jmusclesMap,
-			TenantDto tenantDto, PropVersionDto propVersionDto, Timestamp createdAt, String createdBy) {
+	public void update(EntityManager entityManager, String requestPath, Object mapObject, TenantDto tenantDto,
+			PropVersionDto propVersionDto, Timestamp createdAt, String createdBy) {
 
 		PropEntity parentProp = this.propReadRepository.findByKeyPath(entityManager, requestPath, tenantDto.getId(),
 				propVersionDto.getMajorVersion(), null);
-
 		PropVersionEntity propVersionEntity = PropVersionEntity.of(
 				PropVersionKey.of(propVersionDto.getMajorVersion(), null, tenantDto.getId()), propVersionDto.getName(),
 				propVersionDto.getDescription(), requestPath, parentProp, createdAt, createdBy, null, null);
 
 		this.propVersionCrudRepository.createWithNewMinorVersion(entityManager, propVersionEntity);
-		
-		this.update(entityManager, parentProp, propVersionEntity.getPropVersionKey().getMinorVersion(), createdAt,
-				createdBy);
 
-		this.savePropertiesToDatabase(entityManager, jmusclesMap, parentProp, requestPath,
-				propVersionEntity.getPropVersionKey().getMajorVersion(),
-				propVersionEntity.getPropVersionKey().getMinorVersion(), tenantDto.getTenantEntity(), createdAt,
-				createdBy);
+		Long majorVersion = propVersionEntity.getPropVersionKey().getMajorVersion();
+		Long minorVersion = propVersionEntity.getPropVersionKey().getMinorVersion();
+
+		if (mapObject instanceof Map) {
+			this.savePropertiesToDatabase(entityManager, (Map<String, Object>) mapObject, parentProp, requestPath,
+					majorVersion, minorVersion, tenantDto.toTenantEntity(), createdAt, createdBy);
+		} else {
+			saveEntity(entityManager,
+					PropEntity.of(null, parentProp.getProp_key(), mapObject != null ? mapObject.toString() : null, null,
+							parentProp.getParent(), majorVersion, minorVersion, null, tenantDto.toTenantEntity(),
+							parentProp.getProp_full_key(), createdAt, createdBy, null, null));
+		}
+
 	}
 
-	private void update(EntityManager entityManager, PropEntity propEntity, Long childrenMinorVersion,
-			Timestamp updatedAt, String updatedBy) {
-		propEntity.setChildrenMinorVersion(childrenMinorVersion);
-		propEntity.setUpdatedAt(updatedAt);
-		propEntity.setUpdatedBy(updatedBy);
-		entityManager.merge(propEntity);
+	public void saveEntity(EntityManager entityManager, PropEntity propEntity) {
+		try {
+			entityManager.persist(propEntity);
+		} catch (Exception ex1) {
+			String keyToLogError = propEntity.getProp_full_key();
+			if (propEntity.getProp_value() != null
+					&& propEntity.getProp_value().length() > Constants.PROP_VALUE_LENGTH) {
+				logger.info("First attempt falied and trying second attempt to save data for key: " + keyToLogError);
+				propEntity.setProp_value("BLOB");
+				propEntity.setProp_value_blob(propEntity.getProp_value().getBytes());
+				try {
+					entityManager.merge(propEntity);
+					return;
+				} catch (Exception ex2) {
+					logger.error("Second attempt failed to save data for key : " + keyToLogError, ex2);
+				}
+			}
+			logger.error("Data could not be saved for key: " + keyToLogError, ex1);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -116,24 +129,9 @@ public class PropWriteRepository {
 			String localFullKey = buildFullKey(parentKey, key);
 			PropEntity propEntity = PropEntity.of(null, key, value, null, parent, majorVersion, minorVersion, null,
 					tenant, localFullKey, createdAt, createdBy, null, null);
-			try {
-				entityManager.persist(propEntity);
-			} catch (Exception ex1) {
-				String keyToLogError = (parent != null ? parent.getProp_key() + "." : "") + key;
-				if (value != null && value.length() > Constants.PROP_VALUE_LENGTH) {
-					logger.info(
-							"First attempt falied and trying second attempt to save data for key: " + keyToLogError);
-					propEntity.setProp_value("BLOB");
-					propEntity.setProp_value_blob(value.getBytes());
-					try {
-						entityManager.merge(propEntity);
-						continue;
-					} catch (Exception ex2) {
-						logger.error("Second attempt failed to save data for key : " + keyToLogError, ex2);
-					}
-				}
-				logger.error("Data could not be saved for key: " + keyToLogError, ex1);
-			}
+
+			saveEntity(entityManager, propEntity);
+
 			if (entry.getValue() instanceof Map) {
 				savePropertiesToDatabase(entityManager, (Map<String, Object>) entry.getValue(), propEntity,
 						localFullKey, majorVersion, minorVersion, tenant, createdAt, createdBy);

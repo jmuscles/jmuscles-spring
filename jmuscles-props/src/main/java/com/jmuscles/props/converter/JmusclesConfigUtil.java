@@ -59,12 +59,12 @@ public class JmusclesConfigUtil {
 		return map;
 	}
 
-	public static Map<String, Object> jmusclesConfigToMap(JmusclesConfig jmusclesConfig, String requestPath) {
+	public static Object jmusclesConfigToMap(JmusclesConfig jmusclesConfig, String requestPath) {
 		List<String> paths = null;
 		if (StringUtils.hasText(requestPath)) {
 			paths = new ArrayList<>(Arrays.asList(requestPath.split("\\.")));
 		}
-		return ObjectToMapConverter.objectToMap(getObjectByPath(jmusclesConfig, paths));
+		return ObjectToMapConverter.resolveValue(getObjectByPath(jmusclesConfig, paths));
 	}
 
 	public static Object getObjectByPath(JmusclesConfig jmusclesConfig, String requestPath) {

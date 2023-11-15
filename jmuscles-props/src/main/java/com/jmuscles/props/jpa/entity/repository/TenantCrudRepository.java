@@ -4,6 +4,7 @@
  */
 package com.jmuscles.props.jpa.entity.repository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,14 +22,10 @@ import com.jmuscles.props.util.Util;
 public class TenantCrudRepository {
 
 	private String applicationName;
-
-	public TenantCrudRepository(String applicationName) {
-		this.applicationName = applicationName;
-	}
-
 	private RepositorySetup dbRepository;
 
-	public TenantCrudRepository(RepositorySetup dbRepository) {
+	public TenantCrudRepository(String applicationName, RepositorySetup dbRepository) {
+		this.applicationName = applicationName;
 		this.dbRepository = dbRepository;
 	}
 
@@ -37,9 +34,9 @@ public class TenantCrudRepository {
 	}
 
 	public TenantEntity createTenant(TenantDto tenant) {
-		TenantEntity tenantEntity = tenant.getTenantEntity();
+		TenantEntity tenantEntity = tenant.toTenantEntity();
 		tenantEntity.changeCreateUpdate(Util.currentTimeStamp(), applicationName, null, null);
-		executeInTransaction(em -> em.persist(tenant));
+		executeInTransaction(em -> em.persist(tenantEntity));
 		return tenantEntity;
 	}
 
@@ -55,7 +52,9 @@ public class TenantCrudRepository {
 	}
 
 	public List<TenantEntity> getTenants(Map<String, Object> parameters) {
-		return dbRepository.dynamicSelect(parameters, "TenantEntity");
+		List<TenantEntity> result = new ArrayList<>();
+		executeInTransaction(em -> result.addAll(dbRepository.dynamicSelect(em, parameters, "TenantEntity", null)));
+		return result;
 	}
 
 }

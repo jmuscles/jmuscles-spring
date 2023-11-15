@@ -40,9 +40,9 @@ public class AppPropsSelectionDto {
 				entity.getMinorVersion(), entity.getProp_full_key_list(), TenantDto.of(entity.getTenant()));
 	}
 
-	public AppPropsSelectionEntity getAppPropsSelectionEntity() {
+	public AppPropsSelectionEntity toAppPropsSelectionEntity() {
 		return AppPropsSelectionEntity.of(appName, status, majorVersion, minorVersion, prop_full_key_list,
-				tenant != null ? tenant.getTenantEntity() : null);
+				tenant != null ? tenant.toTenantEntity() : null);
 	}
 
 	/**

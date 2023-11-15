@@ -34,8 +34,8 @@ public class TenantDto {
 		this.updatedBy = updatedBy;
 	}
 
-	public TenantEntity getTenantEntity() {
-		return TenantEntity.of(name, desc, createdAt, createdBy);
+	public TenantEntity toTenantEntity() {
+		return TenantEntity.of(id, name, desc, createdAt, createdBy, updatedAt, updatedBy);
 	}
 
 	public static TenantDto of(TenantEntity tenantEntity) {
