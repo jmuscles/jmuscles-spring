@@ -1,7 +1,3 @@
-/**
- * @author manish goel
- *
- */
 package com.jmuscles.props;
 
 import org.slf4j.Logger;
@@ -16,7 +12,7 @@ import com.jmuscles.props.util.RefreshBean;
 import com.jmuscles.props.util.SpringBeanUtil;
 
 /**
- * 
+ * @author manish goel
  */
 public class RefreshBeanProps implements RefreshBean {
 
@@ -30,36 +26,28 @@ public class RefreshBeanProps implements RefreshBean {
 	}
 
 	public void handleRefreshEvent() {
-
 		logger.info("Refresh start...");
-
 		BeanFactory beanFactory = this.jmusclesPropsBeans.getBeanFactory();
-		
 		JmusclesConfig jmusclesConfig = (JmusclesConfig) SpringBeanUtil.getBean("jmusclesConfig", beanFactory);
-
 		DataSourceProvider dataSourceProvider = (DataSourceProvider) SpringBeanUtil.getBean("dataSourceProvider",
 				beanFactory);
 		DataSourceGenerator dsgConfigProps = dataSourceProvider.getDsgConfigProps();
 		DataSourceGenerator dsgDbProps = dataSourceProvider.getDsgDbProps();
-
 		if (dsgConfigProps != null) {
 			dsgConfigProps.refresh();
 		}
-
 		ReadPropsFromDBService readPropsFromDBService = (ReadPropsFromDBService) SpringBeanUtil
 				.getBean("readPropsFromDBService", beanFactory);
-		
 		if (this.jmusclesPropsBeans.isEnabledDbConfig()) {
-			readPropsFromDBService.refresh();
+			readPropsFromDBService.refresh(jmusclesConfig);
 			if (dsgDbProps == null) {
-				jmusclesPropsBeans.createDbPropsDsg(readPropsFromDBService.getJmusclesConfig().getDbProperties());
+				jmusclesPropsBeans.createDbPropsDsg(jmusclesConfig.getDbProperties());
 			} else {
 				dsgDbProps.refresh();
 			}
-			jmusclesConfig.replaceValues(readPropsFromDBService.getJmusclesConfig());
 		} else {
-			if (readPropsFromDBService.getJmusclesConfig() != null) {
-				readPropsFromDBService.getJmusclesConfig().clear();
+			if (jmusclesConfig != null) {
+				jmusclesConfig.clear();
 				if (dsgDbProps != null) {
 					dsgDbProps.refresh();
 				}
@@ -68,7 +56,6 @@ public class RefreshBeanProps implements RefreshBean {
 				jmusclesConfig.replaceValues(jmusclesConfigProps);
 			}
 		}
-
 		logger.info(" ...Refresh end");
 	}
 

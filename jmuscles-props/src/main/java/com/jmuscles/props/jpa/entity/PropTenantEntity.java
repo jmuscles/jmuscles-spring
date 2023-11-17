@@ -15,12 +15,12 @@ import javax.persistence.Table;
  *
  */
 @Entity
-@Table(name = "TENANT")
-public class TenantEntity {
+@Table(name = "PROP_TENANT")
+public class PropTenantEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "TENANT_SEQ")
-	@SequenceGenerator(sequenceName = "TENANT_SEQ", name = "TENANT_SEQ", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "PROP_TENANT_SEQ")
+	@SequenceGenerator(sequenceName = "PROP_TENANT_SEQ", name = "PROP_TENANT_SEQ", allocationSize = 1)
 	@Column(unique = true, nullable = false, name = "ID")
 	private Long id;
 
@@ -28,7 +28,7 @@ public class TenantEntity {
 	private String name;
 
 	@Column(name = "DESCRIPTION", length = 250)
-	private String desc;
+	private String description;
 
 	@Column(name = "CREATED_AT")
 	private Timestamp createdAt;
@@ -42,25 +42,25 @@ public class TenantEntity {
 	@Column(name = "UPDATED_BY")
 	private String updatedBy;
 
-	public TenantEntity() {
+	public PropTenantEntity() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public TenantEntity(Long id, String name, String desc, Timestamp createdAt, String createdBy, Timestamp updatedAt,
-			String updatedBy) {
+	public PropTenantEntity(Long id, String name, String description, Timestamp createdAt, String createdBy,
+			Timestamp updatedAt, String updatedBy) {
 		super();
 		this.id = id;
 		this.name = name;
-		this.desc = desc;
+		this.description = description;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
 		this.updatedAt = updatedAt;
 		this.updatedBy = updatedBy;
 	}
 
-	public static TenantEntity of(Long id, String name, String desc, Timestamp createdAt, String createdBy,
+	public static PropTenantEntity of(Long id, String name, String description, Timestamp createdAt, String createdBy,
 			Timestamp updatedAt, String updatedBy) {
-		return new TenantEntity(id, name, desc, createdAt, createdBy, updatedAt, updatedBy);
+		return new PropTenantEntity(id, name, description, createdAt, createdBy, updatedAt, updatedBy);
 	}
 
 	public void changeCreateUpdate(Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
@@ -99,17 +99,17 @@ public class TenantEntity {
 	}
 
 	/**
-	 * @return the desc
+	 * @return the description
 	 */
-	public String getDesc() {
-		return desc;
+	public String getDescription() {
+		return description;
 	}
 
 	/**
-	 * @param desc the desc to set
+	 * @param description the description to set
 	 */
-	public void setDesc(String desc) {
-		this.desc = desc;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	/**

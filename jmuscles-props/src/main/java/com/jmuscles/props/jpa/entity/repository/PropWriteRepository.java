@@ -87,12 +87,12 @@ public class PropWriteRepository {
 
 		if (mapObject instanceof Map) {
 			this.savePropertiesToDatabase(entityManager, (Map<String, Object>) mapObject, parentProp, requestPath,
-					majorVersion, minorVersion, parentProp.getTenantId(), createdAt, createdBy);
+					majorVersion, minorVersion, parentProp.getPropTenantId(), createdAt, createdBy);
 		} else {
 			saveEntity(entityManager,
-					PropEntity.of(null, parentProp.getProp_key(), mapObject != null ? mapObject.toString() : null, null,
-							parentProp.getParentId(), majorVersion, minorVersion, parentProp.getTenantId(),
-							parentProp.getProp_full_key(), createdAt, createdBy));
+					PropEntity.of(null, parentProp.getPropKey(), mapObject != null ? mapObject.toString() : null, null,
+							parentProp.getParentPropId(), majorVersion, minorVersion, parentProp.getPropTenantId(),
+							parentProp.getPropFullKey(), createdAt, createdBy));
 		}
 	}
 
@@ -100,12 +100,11 @@ public class PropWriteRepository {
 		try {
 			entityManager.persist(propEntity);
 		} catch (Exception ex1) {
-			String keyToLogError = propEntity.getProp_full_key();
-			if (propEntity.getProp_value() != null
-					&& propEntity.getProp_value().length() > Constants.PROP_VALUE_LENGTH) {
+			String keyToLogError = propEntity.getPropFullKey();
+			if (propEntity.getPropValue() != null && propEntity.getPropValue().length() > Constants.PROP_VALUE_LENGTH) {
 				logger.info("First attempt falied and trying second attempt to save data for key: " + keyToLogError);
-				propEntity.setProp_value("BLOB");
-				propEntity.setProp_value_blob(propEntity.getProp_value().getBytes());
+				propEntity.setPropValue("BLOB");
+				propEntity.setPropValueBlob(propEntity.getPropValue().getBytes());
 				try {
 					entityManager.merge(propEntity);
 					return;
@@ -119,8 +118,7 @@ public class PropWriteRepository {
 
 	@SuppressWarnings("unchecked")
 	public void savePropertiesToDatabase(EntityManager entityManager, Map<String, Object> properties, PropEntity parent,
-			String parentKey, Long majorVersion,
-			Long minorVersion, Long tenantId, Timestamp createdAt,
+			String parentKey, Long majorVersion, Long minorVersion, Long tenantId, Timestamp createdAt,
 			String createdBy) {
 		for (Map.Entry<String, Object> entry : properties.entrySet()) {
 			String key = entry.getKey();

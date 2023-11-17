@@ -2,13 +2,10 @@ package com.jmuscles.props;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Import;
@@ -37,14 +34,20 @@ import com.jmuscles.props.util.SpringBeanUtil;
  */
 @Import(DataSourceEssentialBeans.class)
 @DependsOn("dataSourceGenerator")
-public class JmusclesPropsBeans implements BeanFactoryAware, EnvironmentAware {
+public class JmusclesDbPropsBeans {
 
 	public static final String PROP_ENABLED_DB_CONFIG = "enabled-db-config";
 
-	private static final Logger logger = LoggerFactory.getLogger(JmusclesPropsBeans.class);
+	private static final Logger logger = LoggerFactory.getLogger(JmusclesDbPropsBeans.class);
 
 	private BeanFactory beanFactory;
 	private Environment environment;
+
+	public JmusclesDbPropsBeans(BeanFactory beanFactory, Environment environment) {
+		super();
+		this.beanFactory = beanFactory;
+		this.environment = environment;
+	}
 
 	/**
 	 * @return the enabledDbConfig
@@ -53,18 +56,8 @@ public class JmusclesPropsBeans implements BeanFactoryAware, EnvironmentAware {
 		return environment.getProperty(PROP_ENABLED_DB_CONFIG, Boolean.class, false);
 	}
 
-	@Override
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		this.beanFactory = beanFactory;
-	}
-
 	public BeanFactory getBeanFactory() {
 		return this.beanFactory;
-	}
-
-	@Override
-	public void setEnvironment(Environment environment) {
-		this.environment = environment;
 	}
 
 	@Bean("appPropsDBConfig")
@@ -154,11 +147,6 @@ public class JmusclesPropsBeans implements BeanFactoryAware, EnvironmentAware {
 				DataSourceProvider.DSG_DB_PROPS,
 				(DataSourceOperatorRegistry) SpringBeanUtil.getBean("dataSourceOperatorRegistry", this.beanFactory),
 				(DataSourceProvider) SpringBeanUtil.getBean("dataSourceProvider", this.beanFactory));
-	}
-
-	@Bean("refreshBeanProps")
-	public RefreshBeanProps refreshBeanProps() {
-		return new RefreshBeanProps(this, this.beanFactory, this.environment);
 	}
 
 }

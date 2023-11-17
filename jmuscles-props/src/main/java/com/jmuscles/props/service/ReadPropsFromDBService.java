@@ -10,8 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import com.jmuscles.props.AppPropsDBConfig;
 import com.jmuscles.props.JmusclesConfig;
 import com.jmuscles.props.converter.JmusclesConfigUtil;
+import com.jmuscles.props.jpa.entity.AppPropsProvisionEntity;
+import com.jmuscles.props.jpa.entity.repository.AppProvisionRepository;
 import com.jmuscles.props.jpa.entity.repository.PropReadRepository;
 
 /**
@@ -20,37 +23,48 @@ import com.jmuscles.props.jpa.entity.repository.PropReadRepository;
 public class ReadPropsFromDBService {
 	private static final Logger logger = LoggerFactory.getLogger(ReadPropsFromDBService.class);
 
+	private AppProvisionRepository appProvisionRepository;
 	private PropReadRepository propReadRepository;
-	private JmusclesConfig jmusclesConfig;
+	private AppPropsDBConfig appPropsDBConfig;
 
-	public ReadPropsFromDBService(PropReadRepository propReadRepository) {
+	public ReadPropsFromDBService(AppProvisionRepository appProvisionRepository, PropReadRepository propReadRepository,
+			AppPropsDBConfig appPropsDBConfig) {
+		super();
+		this.appProvisionRepository = appProvisionRepository;
 		this.propReadRepository = propReadRepository;
+		this.appPropsDBConfig = appPropsDBConfig;
 	}
 
 	public JmusclesConfig getLatestProperties() {
-		return (JmusclesConfig) getProperties(null, 1L, null, null);
+		AppPropsProvisionEntity entity = getAppPropsProvisionEntity(appPropsDBConfig);
+		if (entity != null) {
+			return (JmusclesConfig) getProperties(null, entity.getPropTenantId(), entity.getPropMajorVersion(),
+					entity.getPropMinorVersion());
+		}
+		return null;
 	}
 
-	public void initialize() {
-		this.jmusclesConfig = getLatestProperties();
+	private AppPropsProvisionEntity getAppPropsProvisionEntity(AppPropsDBConfig appPropsDBConfig) {
+		AppPropsProvisionEntity entity = null;
+		Map<String, String> propsSelectionKey = appPropsDBConfig.getPropsSelectionKeys();
+		if (propsSelectionKey != null) {
+			String appName = propsSelectionKey.get("appName");
+			String appGroupName = propsSelectionKey.get("appGroupName");
+			String env = propsSelectionKey.get("env");
+			entity = appProvisionRepository.get(appName, appGroupName, env);
+		}
+		return entity;
 	}
 
-	public void refresh() {
+	public void refresh(JmusclesConfig jmusclesConfig) {
 		logger.info("Refresh RestTemplateProvider start....");
 		JmusclesConfig latestProperties = getLatestProperties();
-		if (this.jmusclesConfig != null) {
+		if (jmusclesConfig != null) {
 			jmusclesConfig.replaceValues(latestProperties);
 		} else {
 			jmusclesConfig = latestProperties;
 		}
 		logger.info("....Refresh RestTemplateProvider end");
-	}
-
-	/**
-	 * @return the jmusclesConfig
-	 */
-	public JmusclesConfig getJmusclesConfig() {
-		return jmusclesConfig;
 	}
 
 	public Object getProperties(String requestPath, Long tenantId, Long majorVersion, Long minorVersion) {

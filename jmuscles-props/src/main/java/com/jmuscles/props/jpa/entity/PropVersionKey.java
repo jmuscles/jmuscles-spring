@@ -22,22 +22,22 @@ public class PropVersionKey implements Serializable {
 	@Column(name = "MINOR_VERSION", nullable = false)
 	private Long minorVersion;
 
-	@Column(name = "TENANT_ID", nullable = false)
-	private Long tenantId;
+	@Column(name = "PROP_TENANT_ID", nullable = false)
+	private Long propTenantId;
 
 	public PropVersionKey() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PropVersionKey(Long majorVersion, Long minorVersion, Long tenantId) {
+	public PropVersionKey(Long majorVersion, Long minorVersion, Long propTenantId) {
 		super();
 		this.majorVersion = majorVersion;
 		this.minorVersion = minorVersion;
-		this.tenantId = tenantId;
+		this.propTenantId = propTenantId;
 	}
 
-	public static PropVersionKey of(Long majorVersion, Long minorVersion, Long tenantId) {
-		return new PropVersionKey(majorVersion, minorVersion, tenantId);
+	public static PropVersionKey of(Long majorVersion, Long minorVersion, Long propTenantId) {
+		return new PropVersionKey(majorVersion, minorVersion, propTenantId);
 	}
 
 	public void increaseMajorVersion() {
@@ -56,12 +56,12 @@ public class PropVersionKey implements Serializable {
 			return false;
 		PropVersionKey that = (PropVersionKey) o;
 		return majorVersion.equals(that.majorVersion) && minorVersion.equals(that.minorVersion)
-				&& tenantId.equals(that.tenantId);
+				&& propTenantId.equals(that.propTenantId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(majorVersion, minorVersion, tenantId);
+		return Objects.hash(majorVersion, minorVersion, propTenantId);
 	}
 
 	/**
@@ -93,17 +93,17 @@ public class PropVersionKey implements Serializable {
 	}
 
 	/**
-	 * @return the tenantId
+	 * @return the propTenantId
 	 */
-	public Long getTenantId() {
-		return tenantId;
+	public Long getPropTenantId() {
+		return propTenantId;
 	}
 
 	/**
-	 * @param tenantId the tenantId to set
+	 * @param propTenantId the propTenantId to set
 	 */
-	public void setTenantId(Long tenantId) {
-		this.tenantId = tenantId;
+	public void setPropTenantId(Long propTenantId) {
+		this.propTenantId = propTenantId;
 	}
 
 }

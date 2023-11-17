@@ -11,11 +11,11 @@ import javax.persistence.Table;
 
 @NamedQueries({
 		@NamedQuery(name = "PropVersionEntity.findMaxMajorVersionByTenant", query = "SELECT MAX(p2.propVersionKey.majorVersion)"
-				+ " FROM PropVersionEntity p2 " + " WHERE p2.propVersionKey.tenantId = :tenantId "
+				+ " FROM PropVersionEntity p2 " + " WHERE p2.propVersionKey.propTenantId = :propTenantId "
 				+ " AND p2.propVersionKey.minorVersion = 0"),
 
 		@NamedQuery(name = "PropVersionEntity.findMaxMinorVersionByTenantAndMajorVersion", query = "SELECT MAX(p2.propVersionKey.minorVersion) "
-				+ " FROM PropVersionEntity p2 " + " WHERE p2.propVersionKey.tenantId = :tenantId"
+				+ " FROM PropVersionEntity p2 " + " WHERE p2.propVersionKey.propTenantId = :propTenantId"
 				+ " AND p2.propVersionKey.majorVersion = :majorVersion") })
 
 @Entity
@@ -32,7 +32,7 @@ public class PropVersionEntity {
 	private String description;
 
 	@Column(name = "PROP_FULL_KEY", length = 500)
-	private String prop_full_key;
+	private String propFullKey;
 
 	@Column(name = "PARENT_PROP_ID")
 	private Long parentPropId;
@@ -47,21 +47,21 @@ public class PropVersionEntity {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PropVersionEntity(PropVersionKey propVersionKey, String name, String description, String prop_full_key,
+	public PropVersionEntity(PropVersionKey propVersionKey, String name, String description, String propFullKey,
 			Long parentPropId, Timestamp createdAt, String createdBy) {
 		super();
 		this.propVersionKey = propVersionKey;
 		this.name = name;
 		this.description = description;
-		this.prop_full_key = prop_full_key;
+		this.propFullKey = propFullKey;
 		this.parentPropId = parentPropId;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
 	}
 
 	public static PropVersionEntity of(PropVersionKey propVersionKey, String name, String description,
-			String prop_full_key, Long parentPropId, Timestamp createdAt, String createdBy) {
-		return new PropVersionEntity(propVersionKey, name, description, prop_full_key, parentPropId, createdAt,
+			String propFullKey, Long parentPropId, Timestamp createdAt, String createdBy) {
+		return new PropVersionEntity(propVersionKey, name, description, propFullKey, parentPropId, createdAt,
 				createdBy);
 	}
 
@@ -113,17 +113,17 @@ public class PropVersionEntity {
 	}
 
 	/**
-	 * @return the prop_full_key
+	 * @return the propFullKey
 	 */
-	public String getProp_full_key() {
-		return prop_full_key;
+	public String getPropFullKey() {
+		return propFullKey;
 	}
 
 	/**
-	 * @param prop_full_key the prop_full_key to set
+	 * @param propFullKey the propFullKey to set
 	 */
-	public void setProp_full_key(String prop_full_key) {
-		this.prop_full_key = prop_full_key;
+	public void setPropFullKey(String propFullKey) {
+		this.propFullKey = propFullKey;
 	}
 
 	/**

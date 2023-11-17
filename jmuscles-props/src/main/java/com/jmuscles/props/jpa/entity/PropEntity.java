@@ -24,17 +24,17 @@ public class PropEntity {
 	private Long id;
 
 	@Column(name = "PROP_KEY", length = 250)
-	private String prop_key;
+	private String propKey;
 
 	@Column(name = "PROP_VALUE", length = Constants.PROP_VALUE_LENGTH)
-	private String prop_value;
+	private String propValue;
 
 	@Lob
 	@Column(name = "PROP_VALUE_BLOB")
-	private byte[] prop_value_blob;
+	private byte[] propValueBlob;
 
 	@Column(name = "PARENT_ID")
-	private Long parentId;
+	private Long parentPropId;
 
 	@Column(name = "MAJOR_VERSION", nullable = false) // This is the join column
 	private Long majorVersion;
@@ -43,10 +43,10 @@ public class PropEntity {
 	private Long minorVersion;
 
 	@Column(name = "TENANT_ID", nullable = false) // This is the join column
-	private Long tenantId;
+	private Long propTenantId;
 
 	@Column(name = "PROP_FULL_KEY", length = 1000)
-	private String prop_full_key;
+	private String propFullKey;
 
 	@Column(name = "CREATED_AT")
 	private Timestamp createdAt;
@@ -58,28 +58,28 @@ public class PropEntity {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PropEntity(Long id, String prop_key, String prop_value, byte[] prop_value_blob, Long parentId,
-			Long majorVersion, Long minorVersion, Long tenantId, String prop_full_key, Timestamp createdAt,
+	public PropEntity(Long id, String propKey, String propValue, byte[] propValueBlob, Long parentPropId,
+			Long majorVersion, Long minorVersion, Long propTenantId, String propFullKey, Timestamp createdAt,
 			String createdBy) {
 		super();
 		this.id = id;
-		this.prop_key = prop_key;
-		this.prop_value = prop_value;
-		this.prop_value_blob = prop_value_blob;
-		this.parentId = parentId;
+		this.propKey = propKey;
+		this.propValue = propValue;
+		this.propValueBlob = propValueBlob;
+		this.parentPropId = parentPropId;
 		this.majorVersion = majorVersion;
 		this.minorVersion = minorVersion;
-		this.tenantId = tenantId;
-		this.prop_full_key = prop_full_key;
+		this.propTenantId = propTenantId;
+		this.propFullKey = propFullKey;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
 	}
 
-	public static PropEntity of(Long id, String prop_key, String prop_value, byte[] prop_value_blob, Long parentId,
-			Long majorVersion, Long minorVersion, Long tenantId, String prop_full_key, Timestamp createdAt,
+	public static PropEntity of(Long id, String propKey, String propValue, byte[] propValueBlob, Long parentPropId,
+			Long majorVersion, Long minorVersion, Long propTenantId, String propFullKey, Timestamp createdAt,
 			String createdBy) {
-		return new PropEntity(id, prop_key, prop_value, prop_value_blob, parentId, majorVersion, minorVersion, tenantId,
-				prop_full_key, createdAt, createdBy);
+		return new PropEntity(id, propKey, propValue, propValueBlob, parentPropId, majorVersion, minorVersion,
+				propTenantId, propFullKey, createdAt, createdBy);
 	}
 
 	/**
@@ -97,59 +97,59 @@ public class PropEntity {
 	}
 
 	/**
-	 * @return the prop_key
+	 * @return the propKey
 	 */
-	public String getProp_key() {
-		return prop_key;
+	public String getPropKey() {
+		return propKey;
 	}
 
 	/**
-	 * @param prop_key the prop_key to set
+	 * @param propKey the propKey to set
 	 */
-	public void setProp_key(String prop_key) {
-		this.prop_key = prop_key;
+	public void setPropKey(String propKey) {
+		this.propKey = propKey;
 	}
 
 	/**
-	 * @return the prop_value
+	 * @return the propValue
 	 */
-	public String getProp_value() {
-		return prop_value;
+	public String getPropValue() {
+		return propValue;
 	}
 
 	/**
-	 * @param prop_value the prop_value to set
+	 * @param propValue the propValue to set
 	 */
-	public void setProp_value(String prop_value) {
-		this.prop_value = prop_value;
+	public void setPropValue(String propValue) {
+		this.propValue = propValue;
 	}
 
 	/**
-	 * @return the prop_value_blob
+	 * @return the propValueBlob
 	 */
-	public byte[] getProp_value_blob() {
-		return prop_value_blob;
+	public byte[] getPropValueBlob() {
+		return propValueBlob;
 	}
 
 	/**
-	 * @param prop_value_blob the prop_value_blob to set
+	 * @param propValueBlob the propValueBlob to set
 	 */
-	public void setProp_value_blob(byte[] prop_value_blob) {
-		this.prop_value_blob = prop_value_blob;
+	public void setPropValueBlob(byte[] propValueBlob) {
+		this.propValueBlob = propValueBlob;
 	}
 
 	/**
-	 * @return the parentId
+	 * @return the parentPropId
 	 */
-	public Long getParentId() {
-		return parentId;
+	public Long getParentPropId() {
+		return parentPropId;
 	}
 
 	/**
-	 * @param parentId the parentId to set
+	 * @param parentPropId the parentPropId to set
 	 */
-	public void setParentId(Long parentId) {
-		this.parentId = parentId;
+	public void setParentPropId(Long parentPropId) {
+		this.parentPropId = parentPropId;
 	}
 
 	/**
@@ -181,31 +181,31 @@ public class PropEntity {
 	}
 
 	/**
-	 * @return the tenantId
+	 * @return the propTenantId
 	 */
-	public Long getTenantId() {
-		return tenantId;
+	public Long getPropTenantId() {
+		return propTenantId;
 	}
 
 	/**
-	 * @param tenantId the tenantId to set
+	 * @param propTenantId the propTenantId to set
 	 */
-	public void setTenantId(Long tenantId) {
-		this.tenantId = tenantId;
+	public void setPropTenantId(Long propTenantId) {
+		this.propTenantId = propTenantId;
 	}
 
 	/**
-	 * @return the prop_full_key
+	 * @return the propFullKey
 	 */
-	public String getProp_full_key() {
-		return prop_full_key;
+	public String getPropFullKey() {
+		return propFullKey;
 	}
 
 	/**
-	 * @param prop_full_key the prop_full_key to set
+	 * @param propFullKey the propFullKey to set
 	 */
-	public void setProp_full_key(String prop_full_key) {
-		this.prop_full_key = prop_full_key;
+	public void setPropFullKey(String propFullKey) {
+		this.propFullKey = propFullKey;
 	}
 
 	/**

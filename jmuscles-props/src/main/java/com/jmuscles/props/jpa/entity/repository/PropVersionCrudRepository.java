@@ -43,12 +43,12 @@ public class PropVersionCrudRepository {
 		this.repositorySetup.executeInTransaction(action);
 	}
 
-	private Long findMaxMajorVersion(EntityManager entityManager, Long tenantId) {
-		if (tenantId == null) {
+	private Long findMaxMajorVersion(EntityManager entityManager, Long propTenantId) {
+		if (propTenantId == null) {
 			throw new RuntimeException("tenantId can not be null");
 		}
 		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("tenantId", tenantId);
+		parameters.put("propTenantId", propTenantId);
 		List<Long> propVersionEntities = repositorySetup.runNamedQuery(entityManager,
 				"PropVersionEntity.findMaxMajorVersionByTenant", parameters, Long.class);
 		return (propVersionEntities != null && propVersionEntities.get(0) != null) ? propVersionEntities.get(0) : 0L;
@@ -57,7 +57,7 @@ public class PropVersionCrudRepository {
 	public PropVersionEntity createWithNewMajorVersion(EntityManager entityManager,
 			PropVersionEntity propVersionEntity) {
 		PropVersionKey propVersionKey = propVersionEntity.getPropVersionKey();
-		Long majorVersion = findMaxMajorVersion(entityManager, propVersionKey.getTenantId());
+		Long majorVersion = findMaxMajorVersion(entityManager, propVersionKey.getPropTenantId());
 		propVersionKey.setMajorVersion(majorVersion);
 		propVersionKey.setMinorVersion(0L);
 		for (int currentAttempt = 1; currentAttempt <= MAX_ATTEMPT_TO_CREATE; currentAttempt++) {
@@ -75,12 +75,12 @@ public class PropVersionCrudRepository {
 		return propVersionEntity;
 	}
 
-	private Long findMaxMinorVersion(EntityManager entityManager, Long tenantId, Long majorVersion) {
-		if (tenantId == null || majorVersion == null) {
-			throw new RuntimeException("tenantId/majorVersion can not be null");
+	private Long findMaxMinorVersion(EntityManager entityManager, Long propTenantId, Long majorVersion) {
+		if (propTenantId == null || majorVersion == null) {
+			throw new RuntimeException("propTenantId/majorVersion can not be null");
 		}
 		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("tenantId", tenantId);
+		parameters.put("propTenantId", propTenantId);
 		parameters.put("majorVersion", majorVersion);
 		List<Long> propVersionEntities = repositorySetup.runNamedQuery(entityManager,
 				"PropVersionEntity.findMaxMinorVersionByTenantAndMajorVersion", parameters, Long.class);
@@ -90,7 +90,7 @@ public class PropVersionCrudRepository {
 	public PropVersionEntity createWithNewMinorVersion(EntityManager entityManager,
 			PropVersionEntity propVersionEntity) {
 		PropVersionKey propVersionKey = propVersionEntity.getPropVersionKey();
-		Long minorVersion = findMaxMinorVersion(entityManager, propVersionKey.getTenantId(),
+		Long minorVersion = findMaxMinorVersion(entityManager, propVersionKey.getPropTenantId(),
 				propVersionKey.getMajorVersion());
 		propVersionKey.setMinorVersion(minorVersion);
 		for (int currentAttempt = 1; currentAttempt <= MAX_ATTEMPT_TO_CREATE; currentAttempt++) {
@@ -140,15 +140,15 @@ public class PropVersionCrudRepository {
 		return entities.size() > 0 ? entities : null;
 	}
 
-	public List<PropVersionEntity> getPropVersions(EntityManager em, Long tenantId, Long majorVersion,
+	public List<PropVersionEntity> getPropVersions(EntityManager em, Long propTenantId, Long majorVersion,
 			Long minorVersion, String name, String propFullKey, Long parentPropId) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<PropVersionEntity> cq = cb.createQuery(PropVersionEntity.class);
 		Root<PropVersionEntity> root = cq.from(PropVersionEntity.class);
 
 		List<Predicate> predicates = new ArrayList<>();
-		if (tenantId != null) {
-			predicates.add(cb.equal(root.get("propVersionKey").get("tenantId"), tenantId));
+		if (propTenantId != null) {
+			predicates.add(cb.equal(root.get("propVersionKey").get("propTenantId"), propTenantId));
 		}
 		if (majorVersion != null) {
 			predicates.add(cb.equal(root.get("propVersionKey").get("majorVersion"), majorVersion));
@@ -160,7 +160,7 @@ public class PropVersionCrudRepository {
 			predicates.add(cb.equal(root.get("name"), name));
 		}
 		if (propFullKey != null) {
-			predicates.add(cb.equal(root.get("prop_full_key"), propFullKey));
+			predicates.add(cb.equal(root.get("propFullKey"), propFullKey));
 		}
 		if (parentPropId != null) {
 			predicates.add(cb.equal(root.get("parentPropId"), parentPropId));
@@ -168,17 +168,17 @@ public class PropVersionCrudRepository {
 		cq.where(predicates.toArray(new Predicate[0]));
 
 		// Order by clause
-		cq.orderBy(cb.desc(root.get("propVersionKey").get("tenantId")),
+		cq.orderBy(cb.desc(root.get("propVersionKey").get("propTenantId")),
 				cb.desc(root.get("propVersionKey").get("majorVersion")),
 				cb.desc(root.get("propVersionKey").get("minorVersion")));
 		TypedQuery<PropVersionEntity> query = em.createQuery(cq);
 		return query.getResultList();
 	}
 
-	public List<PropVersionDto> getPropVersionDtos(Long tenantId, Long majorVersion, Long minorVersion, String name,
+	public List<PropVersionDto> getPropVersionDtos(Long propTenantId, Long majorVersion, Long minorVersion, String name,
 			String propFullKey, Long parentPropId) {
-		List<PropVersionEntity> entities = this.getPropVersions(tenantId, majorVersion, minorVersion, name, propFullKey,
-				parentPropId);
+		List<PropVersionEntity> entities = this.getPropVersions(propTenantId, majorVersion, minorVersion, name,
+				propFullKey, parentPropId);
 		return entities != null
 				? entities.stream().map(entity -> PropVersionDto.of(entity)).collect(Collectors.toList())
 				: null;

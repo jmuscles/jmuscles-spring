@@ -1,55 +1,55 @@
-/**
- * @author manish goel
- *
- */
 package com.jmuscles.props.dto;
 
 import java.sql.Timestamp;
 
-import com.jmuscles.props.jpa.entity.TenantEntity;
+import com.jmuscles.props.jpa.entity.PropTenantEntity;
 
-public class TenantDto {
+/**
+ * @author manish goel
+ *
+ */
+public class PropTenantDto {
 
 	private Long id;
 	private String name;
-	private String desc;
+	private String description;
 	private Timestamp createdAt;
 	private String createdBy;
 	private Timestamp updatedAt;
 	private String updatedBy;
 
-	public TenantDto() {
+	public PropTenantDto() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public TenantDto(Long id, String name, String desc, Timestamp createdAt, String createdBy, Timestamp updatedAt,
-			String updatedBy) {
+	public PropTenantDto(Long id, String name, String description, Timestamp createdAt, String createdBy,
+			Timestamp updatedAt, String updatedBy) {
 		super();
 		this.id = id;
 		this.name = name;
-		this.desc = desc;
+		this.description = description;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
 		this.updatedAt = updatedAt;
 		this.updatedBy = updatedBy;
 	}
 
-	public TenantEntity toTenantEntity() {
-		return TenantEntity.of(id, name, desc, createdAt, createdBy, updatedAt, updatedBy);
+	public PropTenantEntity toTenantEntity() {
+		return PropTenantEntity.of(id, name, description, createdAt, createdBy, updatedAt, updatedBy);
 	}
 
-	public static TenantDto of(TenantEntity tenantEntity) {
+	public static PropTenantDto of(PropTenantEntity tenantEntity) {
 		if (tenantEntity != null) {
-			return new TenantDto(tenantEntity.getId(), tenantEntity.getName(), tenantEntity.getDesc(),
+			return new PropTenantDto(tenantEntity.getId(), tenantEntity.getName(), tenantEntity.getDescription(),
 					tenantEntity.getCreatedAt(), tenantEntity.getCreatedBy(), tenantEntity.getUpdatedAt(),
 					tenantEntity.getUpdatedBy());
 		}
 		return null;
 	}
 
-	public static TenantDto of(Long id, String name, String desc, Timestamp createdAt, String createdBy,
+	public static PropTenantDto of(Long id, String name, String description, Timestamp createdAt, String createdBy,
 			Timestamp updatedAt, String updatedBy) {
-		return new TenantDto(id, name, desc, createdAt, createdBy, updatedAt, updatedBy);
+		return new PropTenantDto(id, name, description, createdAt, createdBy, updatedAt, updatedBy);
 	}
 
 	/**
@@ -81,17 +81,17 @@ public class TenantDto {
 	}
 
 	/**
-	 * @return the desc
+	 * @return the description
 	 */
-	public String getDesc() {
-		return desc;
+	public String getDescription() {
+		return description;
 	}
 
 	/**
-	 * @param desc the desc to set
+	 * @param description the description to set
 	 */
-	public void setDesc(String desc) {
-		this.desc = desc;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	/**
