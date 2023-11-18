@@ -5,15 +5,16 @@
 package com.jmuscles.props.jpa.entity.repository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.persistence.EntityManager;
 
+import org.springframework.util.StringUtils;
+
 import com.jmuscles.props.dto.PropTenantDto;
 import com.jmuscles.props.jpa.entity.PropTenantEntity;
+import com.jmuscles.props.util.Triplet;
 import com.jmuscles.props.util.Util;
 
 /**
@@ -36,22 +37,23 @@ public class TenantCrudRepository {
 	public PropTenantEntity createTenant(PropTenantDto tenant) {
 		PropTenantEntity tenantEntity = tenant.toTenantEntity();
 		tenantEntity.changeCreateUpdate(Util.currentTimeStamp(), applicationName, null, null);
+		tenantEntity.setId(null);
 		executeInTransaction(em -> em.persist(tenantEntity));
 		return tenantEntity;
 	}
 
 	public List<PropTenantEntity> getTenants(Long id, String name) {
-		Map<String, Object> parameters = new HashMap<>();
-		if (id != null) {
-			parameters.put("id", id);
+		List<Triplet<String, String, Object>> list = new ArrayList<>();
+		if (id != null && id > 0) {
+			list.add(Triplet.of("id", "id", id));
 		}
-		if (name != null) {
-			parameters.put("name", name);
+		if (StringUtils.hasText(name)) {
+			list.add(Triplet.of("name", "name", name));
 		}
-		return this.getTenants(parameters);
+		return this.getTenants(list);
 	}
 
-	public List<PropTenantEntity> getTenants(Map<String, Object> parameters) {
+	public List<PropTenantEntity> getTenants(List<Triplet<String, String, Object>> parameters) {
 		List<PropTenantEntity> result = new ArrayList<>();
 		executeInTransaction(em -> result
 				.addAll(dbRepository.dynamicSelect(em, parameters, PropTenantEntity.class.getSimpleName(), null)));

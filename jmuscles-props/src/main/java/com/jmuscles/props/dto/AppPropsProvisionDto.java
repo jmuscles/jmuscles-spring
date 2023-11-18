@@ -9,6 +9,7 @@ import com.jmuscles.props.jpa.entity.AppPropsProvisionEntity;
  */
 public class AppPropsProvisionDto {
 
+	private Long id;
 	private AppDto appDto;
 	private String env;
 	private String status;
@@ -26,9 +27,9 @@ public class AppPropsProvisionDto {
 		// TODO Auto-generated constructor stub
 	}
 
-	public AppPropsProvisionDto(AppDto appDto, String env, String status, Long propMajorVersion, Long propMinorVersion,
-			Long propTenantId, String propFullKeyList, String actuatorUrl, Timestamp createdAt, String createdBy,
-			Timestamp updatedAt, String updatedBy) {
+	public AppPropsProvisionDto(Long id, AppDto appDto, String env, String status, Long propMajorVersion,
+			Long propMinorVersion, Long propTenantId, String propFullKeyList, String actuatorUrl, Timestamp createdAt,
+			String createdBy, Timestamp updatedAt, String updatedBy) {
 		super();
 		this.appDto = appDto;
 		this.env = env;
@@ -44,16 +45,16 @@ public class AppPropsProvisionDto {
 		this.updatedBy = updatedBy;
 	}
 
-	public static AppPropsProvisionDto of(AppDto appDto, String env, String status, Long propMajorVersion,
+	public static AppPropsProvisionDto of(Long id, AppDto appDto, String env, String status, Long propMajorVersion,
 			Long propMinorVersion, Long propTenantId, String propFullKeyList, String actuatorUrl, Timestamp createdAt,
 			String createdBy, Timestamp updatedAt, String updatedBy) {
-		return new AppPropsProvisionDto(appDto, env, status, propMajorVersion, propMinorVersion, propTenantId,
+		return new AppPropsProvisionDto(id, appDto, env, status, propMajorVersion, propMinorVersion, propTenantId,
 				propFullKeyList, actuatorUrl, createdAt, createdBy, updatedAt, updatedBy);
 	}
 
 	public static AppPropsProvisionDto of(AppPropsProvisionEntity entity) {
 		if (entity != null) {
-			return of(AppDto.of(entity.getAppEntity()), entity.getEnv(), entity.getStatus(),
+			return of(entity.getId(), AppDto.of(entity.getAppEntity()), entity.getEnv(), entity.getStatus(),
 					entity.getPropMajorVersion(), entity.getPropMinorVersion(), entity.getPropTenantId(),
 					entity.getPropFullKeyList(), entity.getActuatorUrl(), entity.getCreatedAt(), entity.getCreatedBy(),
 					entity.getUpdatedAt(), entity.getUpdatedBy());
@@ -62,9 +63,23 @@ public class AppPropsProvisionDto {
 	}
 
 	public AppPropsProvisionEntity toEntity() {
-		return AppPropsProvisionEntity.of(appDto != null ? appDto.toEntity() : null, env, status, propMajorVersion,
+		return AppPropsProvisionEntity.of(id, appDto != null ? appDto.toEntity() : null, env, status, propMajorVersion,
 				propMinorVersion, propTenantId, propFullKeyList, actuatorUrl, createdAt, createdBy, updatedAt,
 				updatedBy);
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	/**

@@ -3,16 +3,23 @@
  */
 package com.jmuscles.props.jpa.entity.repository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
 
 import org.hibernate.jpa.HibernatePersistenceProvider;
@@ -24,7 +31,9 @@ import org.springframework.util.StringUtils;
 
 import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.props.AppPropsDBConfig;
+import com.jmuscles.props.exception.DuplicateEntryException;
 import com.jmuscles.props.util.Constants;
+import com.jmuscles.props.util.Triplet;
 
 /**
  * @author manish goel
@@ -58,7 +67,7 @@ public class RepositorySetup {
 		setupEntityManagerFactory();
 	}
 
-	public <T> List<T> dynamicSelect(EntityManager em, Map<String, Object> parameters, String entityName,
+	public <T> List<T> dynamicSelectdelete(EntityManager em, Map<String, Object> parameters, String entityName,
 			String orderByClause) {
 		StringBuilder jpql = new StringBuilder("SELECT a FROM " + entityName + " a");
 		Map<String, Object> queryParameters = new HashMap<>();
@@ -90,6 +99,33 @@ public class RepositorySetup {
 		return results;
 	}
 
+	public <T> List<T> dynamicSelect(EntityManager em, List<Triplet<String, String, Object>> parameters,
+			String entityName, String orderByClause) {
+		StringBuilder jpql = new StringBuilder("SELECT a FROM " + entityName + " a");
+		if (parameters != null && !parameters.isEmpty()) {
+			jpql.append(" WHERE 1=1"); // Add a dummy condition to start the WHERE clause
+			for (Triplet<String, String, Object> entry : parameters) {
+				String paramName = entry.getFirst();
+				Object paramValue = entry.getSecond();
+				if (paramValue instanceof String && Constants.VALUE_FOR_IS_NULL_CHECK.equals(paramValue)) {
+					jpql.append(" AND a.").append(paramName).append(" IS NULL");
+				} else {
+					jpql.append(" AND a.").append(paramName).append(" = :").append(paramValue);
+				}
+			}
+		}
+		if (orderByClause != null && !orderByClause.isEmpty()) {
+			jpql.append(" ORDER BY ").append(orderByClause);
+		}
+
+		Query query = em.createQuery(jpql.toString());
+		for (Triplet<String, String, Object> entry : parameters) {
+			query.setParameter(entry.getSecond(), entry.getThird());
+		}
+		List<T> results = query.getResultList();
+		return results;
+	}
+
 	public <T> List<T> runNamedQuery(EntityManager entityManager, String queryString, Map<String, Object> parameters,
 			Class<?> entityClass) {
 		Query query = null;
@@ -105,6 +141,59 @@ public class RepositorySetup {
 		}
 		List<T> results = query.getResultList();
 		return results;
+	}
+
+	public <T> void saveEntityWithDuplicateCheck(T entity, Map<String, Object> fieldsToBeChecked) {
+		executeInTransaction(entityManager -> {
+			if (!isDuplicateEntry(entityManager, entity.getClass(), fieldsToBeChecked)) {
+				entityManager.persist(entity);
+			} else {
+				String fields = fieldsToBeChecked.keySet().stream().collect(Collectors.joining(", "));
+				throw new DuplicateEntryException("Duplicate entry for :" + fields);
+			}
+		});
+	}
+
+	public <T> void saveEntityWithDuplicateCheck(EntityManager entityManager, T entity,
+			Map<String, Object> fieldsToBeChecked) {
+
+		if (!isDuplicateEntry(entityManager, entity.getClass(), fieldsToBeChecked)) {
+			entityManager.persist(entity);
+		} else {
+			String fields = fieldsToBeChecked.keySet().stream().collect(Collectors.joining(", "));
+			throw new DuplicateEntryException("Duplicate entry for :" + fields);
+		}
+
+	}
+
+	public <T> boolean isDuplicateEntry(EntityManager entityManager, Class<T> entityClass, Map<String, Object> fields) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Long> query = cb.createQuery(Long.class);
+		Root<T> root = query.from(entityClass);
+
+		query.select(cb.count(root));
+
+		List<Predicate> predicates = new ArrayList<>();
+		for (Map.Entry<String, Object> entry : fields.entrySet()) {
+			if (entry.getKey().contains(".")) {
+				// Handle navigation through associations
+				String[] parts = entry.getKey().split("\\.");
+				Path<?> path = root;
+				for (String part : parts) {
+					path = path.get(part);
+				}
+				predicates.add(cb.equal(path, entry.getValue()));
+			} else {
+				// Handle direct attributes
+				predicates.add(cb.equal(root.get(entry.getKey()), entry.getValue()));
+			}
+		}
+
+		query.where(predicates.toArray(new Predicate[0]));
+
+		Long count = entityManager.createQuery(query).getSingleResult();
+
+		return count > 0;
 	}
 
 	public void executeInTransaction(Consumer<EntityManager> action) {

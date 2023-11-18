@@ -150,7 +150,7 @@ public class PropVersionCrudRepository {
 		if (propTenantId != null) {
 			predicates.add(cb.equal(root.get("propVersionKey").get("propTenantId"), propTenantId));
 		}
-		if (majorVersion != null) {
+		if (majorVersion != null && majorVersion > 0) {
 			predicates.add(cb.equal(root.get("propVersionKey").get("majorVersion"), majorVersion));
 		}
 		if (minorVersion != null) {

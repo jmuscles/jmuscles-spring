@@ -36,24 +36,14 @@ public class ReadPropsFromDBService {
 	}
 
 	public JmusclesConfig getLatestProperties() {
-		AppPropsProvisionEntity entity = getAppPropsProvisionEntity(appPropsDBConfig);
-		if (entity != null) {
-			return (JmusclesConfig) getProperties(null, entity.getPropTenantId(), entity.getPropMajorVersion(),
-					entity.getPropMinorVersion());
-		}
-		return null;
-	}
-
-	private AppPropsProvisionEntity getAppPropsProvisionEntity(AppPropsDBConfig appPropsDBConfig) {
-		AppPropsProvisionEntity entity = null;
 		Map<String, String> propsSelectionKey = appPropsDBConfig.getPropsSelectionKeys();
 		if (propsSelectionKey != null) {
 			String appName = propsSelectionKey.get("appName");
 			String appGroupName = propsSelectionKey.get("appGroupName");
 			String env = propsSelectionKey.get("env");
-			entity = appProvisionRepository.get(appName, appGroupName, env);
+			return getJmusclesConfig(appGroupName, appName, env);
 		}
-		return entity;
+		return null;
 	}
 
 	public void refresh(JmusclesConfig jmusclesConfig) {
@@ -65,6 +55,17 @@ public class ReadPropsFromDBService {
 			jmusclesConfig = latestProperties;
 		}
 		logger.info("....Refresh RestTemplateProvider end");
+	}
+
+	public JmusclesConfig getJmusclesConfig(String appGroupName, String appName, String env) {
+		JmusclesConfig returnObject = null;
+		AppPropsProvisionEntity entity = appProvisionRepository.get(appName, appGroupName, env);
+		if (entity != null) {
+			returnObject = (JmusclesConfig) getProperties(null, entity.getPropTenantId(), entity.getPropMajorVersion(),
+					entity.getPropMinorVersion());
+		}
+
+		return returnObject;
 	}
 
 	public Object getProperties(String requestPath, Long tenantId, Long majorVersion, Long minorVersion) {

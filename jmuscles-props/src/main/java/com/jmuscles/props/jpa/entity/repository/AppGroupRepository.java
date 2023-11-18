@@ -12,7 +12,10 @@ import java.util.function.Consumer;
 
 import javax.persistence.EntityManager;
 
+import org.springframework.util.StringUtils;
+
 import com.jmuscles.props.jpa.entity.AppGroupEntity;
+import com.jmuscles.props.util.Triplet;
 import com.jmuscles.props.util.Util;
 
 /**
@@ -34,22 +37,26 @@ public class AppGroupRepository {
 
 	public AppGroupEntity createGroup(String name, String description) {
 		AppGroupEntity entity = AppGroupEntity.of(null, name, description, Util.currentTimeStamp(), applicationName);
-		executeInTransaction(em -> em.persist(entity));
+		Map<String, Object> fieldsToBeChecked = new HashMap<String, Object>();
+		fieldsToBeChecked.put("name", entity.getName());
+		this.dbRepository.saveEntityWithDuplicateCheck(entity, fieldsToBeChecked);
+
 		return entity;
 	}
 
 	public List<AppGroupEntity> getGroup(Long id, String name) {
-		Map<String, Object> parameters = new HashMap<>();
-		if (id != null) {
-			parameters.put("id", id);
+		List<Triplet<String, String, Object>> list = new ArrayList<>();
+		if (id != null && id > 0) {
+			list.add(Triplet.of("id", "id", id));
 		}
-		if (name != null) {
-			parameters.put("name", name);
+		if (StringUtils.hasText(name)) {
+			list.add(Triplet.of("name", "name", name));
 		}
-		return this.getGroup(parameters);
+
+		return this.getGroup(list);
 	}
 
-	public List<AppGroupEntity> getGroup(Map<String, Object> parameters) {
+	public List<AppGroupEntity> getGroup(List<Triplet<String, String, Object>> parameters) {
 		List<AppGroupEntity> result = new ArrayList<>();
 		executeInTransaction(em -> result
 				.addAll(dbRepository.dynamicSelect(em, parameters, AppGroupEntity.class.getSimpleName(), null)));

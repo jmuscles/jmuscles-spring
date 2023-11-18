@@ -58,7 +58,7 @@ public class PropReadRepository {
 		if (minorVersion != null) {
 			query.setParameter("minorVersion", minorVersion);
 		}
-		query.setMaxResults(1);
+		//query.setMaxResults(1);
 
 		List<PropEntity> resultList = query.getResultList();
 		return resultList.isEmpty() ? null : resultList.get(0);

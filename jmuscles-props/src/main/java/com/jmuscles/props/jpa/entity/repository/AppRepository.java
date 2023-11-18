@@ -1,7 +1,3 @@
-/**
- * @author manish goel
- *
- */
 package com.jmuscles.props.jpa.entity.repository;
 
 import java.util.ArrayList;
@@ -12,12 +8,16 @@ import java.util.function.Consumer;
 
 import javax.persistence.EntityManager;
 
+import org.springframework.util.StringUtils;
+
 import com.jmuscles.props.jpa.entity.AppEntity;
 import com.jmuscles.props.jpa.entity.AppGroupEntity;
+import com.jmuscles.props.util.Triplet;
 import com.jmuscles.props.util.Util;
 
 /**
- * 
+ * @author manish goel
+ *
  */
 public class AppRepository {
 
@@ -36,26 +36,30 @@ public class AppRepository {
 	public AppEntity create(String name, Long groupId, String description) {
 		AppEntity entity = AppEntity.of(null, name, description, AppGroupEntity.of(groupId, null, null, null, null),
 				Util.currentTimeStamp(), applicationName);
-		executeInTransaction(em -> em.persist(entity));
+		Map<String, Object> fieldsToBeChecked = new HashMap<String, Object>();
+		fieldsToBeChecked.put("name", entity.getName());
+		fieldsToBeChecked.put("appGroupEntity.id", entity.getAppGroupEntity().getId());
+		this.dbRepository.saveEntityWithDuplicateCheck(entity, fieldsToBeChecked);
+
 		return entity;
 	}
 
 	public List<AppEntity> get(Long id, String name, Long appGroupId) {
-		Map<String, Object> parameters = new HashMap<>();
-		if (id != null) {
-			parameters.put("id", id);
+		List<Triplet<String, String, Object>> list = new ArrayList<>();
+		if (id != null && id > 0) {
+			list.add(Triplet.of("id", "id", id));
 		}
-		if (name != null) {
-			parameters.put("name", name);
+		if (StringUtils.hasText(name)) {
+			list.add(Triplet.of("name", "name", name));
 		}
-		if (appGroupId != null) {
-			parameters.put("appGroupEntity.id", appGroupId);
+		if (appGroupId != null && appGroupId > 0) {
+			list.add(Triplet.of("appGroupEntity.id", "appGroupId", appGroupId));
 		}
 
-		return this.get(parameters);
+		return this.get(list);
 	}
 
-	public List<AppEntity> get(Map<String, Object> parameters) {
+	public List<AppEntity> get(List<Triplet<String, String, Object>> parameters) {
 		List<AppEntity> result = new ArrayList<>();
 		executeInTransaction(
 				em -> result.addAll(dbRepository.dynamicSelect(em, parameters, AppEntity.class.getSimpleName(), null)));

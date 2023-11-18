@@ -1,14 +1,8 @@
-/**
- * @author manish goel
- *
- */
 package com.jmuscles.props.jpa.entity.repository;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.persistence.EntityManager;
@@ -19,10 +13,12 @@ import com.jmuscles.props.dto.AppGroupDto;
 import com.jmuscles.props.dto.AppPropsProvisionDto;
 import com.jmuscles.props.jpa.entity.AppPropsProvisionEntity;
 import com.jmuscles.props.util.Constants;
+import com.jmuscles.props.util.Triplet;
 import com.jmuscles.props.util.Util;
 
 /**
- * 
+ * @author manish goel
+ *
  */
 public class AppProvisionRepository {
 
@@ -53,7 +49,7 @@ public class AppProvisionRepository {
 		return this.get(buildSelectParameters(dto, false));
 	}
 
-	public List<AppPropsProvisionEntity> get(Map<String, Object> parameters) {
+	public List<AppPropsProvisionEntity> get(List<Triplet<String, String, Object>> parameters) {
 		List<AppPropsProvisionEntity> result = new ArrayList<>();
 		executeInTransaction(em -> result.addAll(
 				dbRepository.dynamicSelect(em, parameters, AppPropsProvisionEntity.class.getSimpleName(), null)));
@@ -66,9 +62,9 @@ public class AppProvisionRepository {
 
 		// update to deactivate the existing appProps
 		dto.setStatus(Constants.STATUS_ACTIVE);
-		Map<String, Object> selectionCriteria = buildSelectParameters(dto, true);
-		Map<String, Object> updateFields = new HashMap<String, Object>();
-		updateFields.put("status", Constants.STATUS_INACTIVE);
+		List<Triplet<String, String, Object>> selectionCriteria = buildSelectParameters(dto, true);
+		List<Triplet<String, String, Object>> updateFields = new ArrayList<>();
+		updateFields.add(Triplet.of("status", "updateStatus", Constants.STATUS_INACTIVE));
 
 		AppPropsProvisionEntity entity = dto.toEntity();
 		entity.resetCreateUpdate(createdAt, createdBy, null, null);
@@ -80,24 +76,25 @@ public class AppProvisionRepository {
 		return entity;
 	}
 
-	public int update(EntityManager entityManager, Map<String, Object> selectionCriteria,
-			Map<String, Object> updatedFields, Timestamp updatedAt, String updatedBy) {
+	public int update(EntityManager entityManager, List<Triplet<String, String, Object>> selectionCriteria,
+			List<Triplet<String, String, Object>> updatedFields, Timestamp updatedAt, String updatedBy) {
 
 		StringBuilder jpql = new StringBuilder("UPDATE AppPropsProvisionEntity SET ");
 
-		updatedFields.put("updatedAt", updatedAt);
-		updatedFields.put("updatedBy", updatedBy);
+		updatedFields.add(Triplet.of("updatedAt", "updatedAtValue", updatedAt));
+		updatedFields.add(Triplet.of("updatedBy", "updatedByValue", updatedBy));
+
 		// Set the updated fields in the JPQL query
-		for (Map.Entry<String, Object> entry : updatedFields.entrySet()) {
-			jpql.append(entry.getKey()).append(" = :").append(entry.getKey()).append(", ");
+		for (Triplet<String, String, Object> entry : updatedFields) {
+			jpql.append(entry.getFirst()).append(" = :").append(entry.getSecond()).append(", ");
 		}
 		jpql.delete(jpql.length() - 2, jpql.length()); // Remove the trailing comma
 
 		jpql.append(" WHERE ");
 
 		// Set the selection criteria in the JPQL query
-		for (Map.Entry<String, Object> entry : selectionCriteria.entrySet()) {
-			jpql.append(entry.getKey()).append(" = :").append(entry.getKey()).append(" AND ");
+		for (Triplet<String, String, Object> entry : selectionCriteria) {
+			jpql.append(entry.getFirst()).append(" = :").append(entry.getSecond()).append(" AND ");
 		}
 		jpql.delete(jpql.length() - 5, jpql.length()); // Remove the trailing "AND"
 
@@ -105,13 +102,13 @@ public class AppProvisionRepository {
 		Query query = entityManager.createQuery(jpql.toString());
 
 		// Set parameters for the updated fields
-		for (Map.Entry<String, Object> entry : updatedFields.entrySet()) {
-			query.setParameter(entry.getKey(), entry.getValue());
+		for (Triplet<String, String, Object> entry : updatedFields) {
+			query.setParameter(entry.getSecond(), entry.getThird());
 		}
 
 		// Set parameters for the selection criteria
-		for (Map.Entry<String, Object> entry : selectionCriteria.entrySet()) {
-			query.setParameter(entry.getKey(), entry.getValue());
+		for (Triplet<String, String, Object> entry : selectionCriteria) {
+			query.setParameter(entry.getSecond(), entry.getThird());
 		}
 
 		// Execute the update query
@@ -119,55 +116,58 @@ public class AppProvisionRepository {
 		return rowsUpdated;
 	}
 
-	private Map<String, Object> buildSelectParameters(boolean isToUpdate, Long appId, String appName, Long appGroupId,
-			String appGroupName, String env, String status, Long propMajorVersion, Long propMinorVersion) {
+	private List<Triplet<String, String, Object>> buildSelectParameters(boolean isToUpdate, Long appId, String appName,
+			Long appGroupId, String appGroupName, String env, String status, Long propMajorVersion,
+			Long propMinorVersion) {
 
-		AppPropsProvisionDto dto = AppPropsProvisionDto.of(
+		AppPropsProvisionDto dto = AppPropsProvisionDto.of(null,
 				AppDto.of(appId, appName, null, AppGroupDto.of(appGroupId, appGroupName, null, null, null), null, null),
 				env, status, propMajorVersion, propMinorVersion, null, null, null, null, null, null, null);
 
 		return buildSelectParameters(dto, isToUpdate);
 	}
 
-	private Map<String, Object> buildSelectParameters(AppPropsProvisionDto dto, boolean isUpdate) {
-		Map<String, Object> parameters = new HashMap<>();
+	private List<Triplet<String, String, Object>> buildSelectParameters(AppPropsProvisionDto dto, boolean isUpdate) {
+		List<Triplet<String, String, Object>> list = new ArrayList<>();
 		if (dto.getAppDto() != null) {
 			AppDto appDto = dto.getAppDto();
 			if (appDto.getId() != null) {
-				parameters.put("appEntity.id", appDto.getId());
+				list.add(Triplet.of("appEntity.id", "appId", appDto.getId()));
 			}
 			if (appDto.getName() != null) {
-				parameters.put("appEntity.name", appDto.getName());
+				list.add(Triplet.of("appEntity.name", "appName", appDto.getName()));
 			}
 			AppGroupDto appGroupDto = appDto.getAppGroupDto();
 			if (appGroupDto != null) {
 				if (appGroupDto.getId() != null) {
-					parameters.put("appEntity.appGroupEntity.id", appGroupDto.getId());
+					list.add(Triplet.of("appEntity.appGroupEntity.id", "appGroupId", appGroupDto.getId()));
 				}
 				if (appGroupDto.getName() != null) {
-					parameters.put("appEntity.appGroupEntity.name", appGroupDto.getName());
+					list.add(Triplet.of("appEntity.appGroupEntity.name", "appGroupName", appGroupDto.getName()));
 				}
 			}
 		}
 		if (dto.getEnv() != null) {
-			parameters.put("env", dto.getEnv());
+			list.add(Triplet.of("env", "env", dto.getEnv()));
 		}
 		if (dto.getStatus() != null) {
-			parameters.put("status", dto.getStatus());
+			list.add(Triplet.of("status", "status", dto.getStatus()));
+
 		}
 		if (!isUpdate) {
 			if (dto.getPropMajorVersion() != null) {
-				parameters.put("propMajorVersion", dto.getPropMajorVersion());
+				list.add(Triplet.of("propMajorVersion", "propMajorVersion", dto.getPropMajorVersion()));
+
 			}
 			if (dto.getPropMinorVersion() != null) {
-				parameters.put("propMinorVersion", dto.getPropMinorVersion());
+				list.add(Triplet.of("propMinorVersion", "propMinorVersion", dto.getPropMinorVersion()));
+
 			}
 			if (dto.getPropTenantId() != null) {
-				parameters.put("propTenantId", dto.getPropTenantId());
+				list.add(Triplet.of("propTenantId", "propTenantId", dto.getPropTenantId()));
 			}
 		}
-
-		return parameters;
+		return list;
 	}
 
 }

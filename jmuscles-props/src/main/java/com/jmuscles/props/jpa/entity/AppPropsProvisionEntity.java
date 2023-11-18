@@ -4,8 +4,12 @@ import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 /**
@@ -14,6 +18,12 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "APP_PROPS_PROVISION")
 public class AppPropsProvisionEntity {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "APP_PROPS_PROVISION_SEQ")
+	@SequenceGenerator(sequenceName = "APP_PROPS_PROVISION_SEQ", name = "APP_PROPS_PROVISION_SEQ", allocationSize = 1)
+	@Column(unique = true, nullable = false, name = "ID")
+	private Long id;
 
 	@ManyToOne
 	@JoinColumn(nullable = false, name = "APP_ID")
@@ -56,10 +66,11 @@ public class AppPropsProvisionEntity {
 		// TODO Auto-generated constructor stub
 	}
 
-	public AppPropsProvisionEntity(AppEntity appEntity, String env, String status, Long propMajorVersion,
-			Long propMinorVersion, Long propTenantId, String propFullKeyList, String actuatorUrl,
-			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
+	public AppPropsProvisionEntity(Long id, AppEntity appEntity, String env, String status, Long propMajorVersion,
+			Long propMinorVersion, Long propTenantId, String propFullKeyList, String actuatorUrl, Timestamp createdAt,
+			String createdBy, Timestamp updatedAt, String updatedBy) {
 		super();
+		this.id = id;
 		this.appEntity = appEntity;
 		this.env = env;
 		this.status = status;
@@ -74,10 +85,10 @@ public class AppPropsProvisionEntity {
 		this.updatedBy = updatedBy;
 	}
 
-	public static AppPropsProvisionEntity of(AppEntity appEntity, String env, String status, Long propMajorVersion,
-			Long propMinorVersion, Long propTenantId, String propFullKeyList, String actuatorUrl,
+	public static AppPropsProvisionEntity of(Long id, AppEntity appEntity, String env, String status,
+			Long propMajorVersion, Long propMinorVersion, Long propTenantId, String propFullKeyList, String actuatorUrl,
 			Timestamp createdAt, String createdBy, Timestamp updatedAt, String updatedBy) {
-		return new AppPropsProvisionEntity(appEntity, env, status, propMajorVersion, propMinorVersion, propTenantId,
+		return new AppPropsProvisionEntity(id, appEntity, env, status, propMajorVersion, propMinorVersion, propTenantId,
 				propFullKeyList, actuatorUrl, createdAt, createdBy, updatedAt, updatedBy);
 	}
 
@@ -86,6 +97,20 @@ public class AppPropsProvisionEntity {
 		this.createdBy = createdBy;
 		this.updatedAt = updatedAt;
 		this.updatedBy = updatedBy;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	/**
