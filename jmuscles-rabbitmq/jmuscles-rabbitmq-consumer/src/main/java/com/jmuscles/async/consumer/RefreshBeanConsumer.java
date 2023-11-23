@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 
 import com.jmuscles.async.consumer.config.setup.RabbitmqSetupConfigurator;
-import com.jmuscles.datasource.builder.DataSourceRefresher;
 import com.jmuscles.props.util.RefreshBean;
 import com.jmuscles.props.util.SpringBeanUtil;
 

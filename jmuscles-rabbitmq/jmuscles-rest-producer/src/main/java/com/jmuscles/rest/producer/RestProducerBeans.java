@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 import com.jmuscles.async.producer.ProducerProcessingBeans;
-import com.jmuscles.props.JmusclesConfig;
+import com.jmuscles.props.config.JmusclesConfig;
 import com.jmuscles.rest.producer.config.properties.RestConfPropsForConfigKey;
 import com.jmuscles.rest.producer.helper.JmusclesProducerHelper;
 import com.jmuscles.rest.producer.helper.JmusclesRestControllerBean;

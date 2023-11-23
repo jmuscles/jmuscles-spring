@@ -33,9 +33,26 @@ public class RestTemplateProvider {
 	}
 
 	public void initialize() {
-		RestConfig restTemplateConfigProps = configProperties.getRestConfig();
-		initForSimpleClient(restTemplateConfigProps);
-		initForHttpComponentsClient(restTemplateConfigProps);
+		this.initialize(this.configProperties != null ? this.configProperties.getRestConfig() : null);
+	}
+
+	public void initialize(RestConfig restConfig) {
+		Integer connectionTimeOut = 10000;
+		Integer readtimeOutTimeOut = 10000;
+		if (restConfig != null) {
+			if (restConfig.getConnectionTimeout() != null) {
+				connectionTimeOut = restConfig.getConnectionTimeout();
+			}
+			if (restConfig.getReadTimeout() != null) {
+				readtimeOutTimeOut = restConfig.getReadTimeout();
+			}
+		}
+		this.initialize(connectionTimeOut, readtimeOutTimeOut);
+	}
+
+	public void initialize(Integer connectionTimeOut, Integer readtimeOutTimeOut) {
+		this.initForSimpleClient(connectionTimeOut, readtimeOutTimeOut);
+		this.initForHttpComponentsClient(connectionTimeOut, readtimeOutTimeOut);
 	}
 
 	public void refresh() {
@@ -44,17 +61,14 @@ public class RestTemplateProvider {
 		logger.info("....Refresh RestTemplateProvider end");
 	}
 
-	private void initForSimpleClient(RestConfig restTemplateConfigProps) {
+	private void initForSimpleClient(Integer connectionTimeOut, Integer readtimeOutTimeOut) {
 		logger.debug("initForSimpleClient() method start .... ");
 		RestTemplate restTemplate = new RestTemplate();
 
 		SimpleClientHttpRequestFactory httpRequestFactory = (SimpleClientHttpRequestFactory) restTemplate
 				.getRequestFactory();
-		httpRequestFactory.setConnectTimeout(
-				restTemplateConfigProps.getConnectionTimeout() != null ? restTemplateConfigProps.getConnectionTimeout()
-						: 10000);
-		httpRequestFactory.setReadTimeout(
-				restTemplateConfigProps.getReadTimeout() != null ? restTemplateConfigProps.getReadTimeout() : 10000);
+		httpRequestFactory.setConnectTimeout(connectionTimeOut);
+		httpRequestFactory.setReadTimeout(readtimeOutTimeOut);
 		restTemplate.setRequestFactory(httpRequestFactory);
 
 		restTemplateSimpleClient = restTemplate;
@@ -62,18 +76,15 @@ public class RestTemplateProvider {
 		logger.debug(".....initForSimpleClient() method end");
 	}
 
-	private void initForHttpComponentsClient(RestConfig restTemplateConfigProps) {
+	private void initForHttpComponentsClient(Integer connectionTimeOut, Integer readtimeOutTimeOut) {
 		logger.debug("initForHttpComponentsClient() method start .... ");
 		RestTemplate restTemplate = new RestTemplate();
 
 		HttpClient httpClient = HttpClientBuilder.create().build();
 		HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory(
 				httpClient);
-		httpRequestFactory.setConnectTimeout(
-				restTemplateConfigProps.getConnectionTimeout() != null ? restTemplateConfigProps.getConnectionTimeout()
-						: 10000);
-		httpRequestFactory.setReadTimeout(
-				restTemplateConfigProps.getReadTimeout() != null ? restTemplateConfigProps.getReadTimeout() : 10000);
+		httpRequestFactory.setConnectTimeout(connectionTimeOut);
+		httpRequestFactory.setReadTimeout(readtimeOutTimeOut);
 		restTemplate.setRequestFactory(httpRequestFactory);
 
 		restTemplateHttpComponentsClient = restTemplate;

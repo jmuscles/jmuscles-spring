@@ -31,7 +31,7 @@ import com.jmuscles.async.producer.producing.implementation.SyncProcessingProduc
 import com.jmuscles.datasource.DataSourceProvider;
 import com.jmuscles.processing.JmuscleProcessingBeans;
 import com.jmuscles.processing.executor.StandardExecutorRegistry;
-import com.jmuscles.props.JmusclesConfig;
+import com.jmuscles.props.config.JmusclesConfig;
 
 /**
  * @author manish goel

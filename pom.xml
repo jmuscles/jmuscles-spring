@@ -27,7 +27,7 @@
 		<jmuscles-post-fix>j8sb2713-0.2</jmuscles-post-fix>
 		<jmuscles-datasource.version>${jmuscles-post-fix}</jmuscles-datasource.version>
 		<jmuscles-props-schema.version>${jmuscles-post-fix}</jmuscles-props-schema.version>
-		<jmuscles-props.version>${jmuscles-post-fix}</jmuscles-props.version>
+		<jmuscles-db-props.version>${jmuscles-post-fix}</jmuscles-db-props.version>
 		<jmuscles-processing.version>${jmuscles-post-fix}</jmuscles-processing.version>
 		<jmuscles-rabbitmq-producer.version>${jmuscles-post-fix}</jmuscles-rabbitmq-producer.version>
 
@@ -55,7 +55,7 @@
 		<module>jmuscles-processing-schema</module>
 		<module>jmuscles-props-schema</module>
 		<module>jmuscles-datasource</module>
-		<module>jmuscles-props</module>
+		<module>jmuscles-db-props</module>
 		<module>jmuscles-processing</module>
 		<module>jmuscles-rabbitmq</module>
 	</modules>

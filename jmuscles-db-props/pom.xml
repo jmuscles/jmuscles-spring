@@ -9,15 +9,11 @@
 		<artifactId>jmuscles-spring</artifactId>
 		<version>1.0</version>
 	</parent>
-	<artifactId>jmuscles-processing</artifactId>
-	<!--
-		<artifactId>jmuscles-processing</artifactId>
-	-->
-	<version>${jmuscles-processing.version}</version>
-	<name>jmuscles-processing</name>
+	<artifactId>jmuscles-db-props</artifactId>
+	<version>${jmuscles-db-props.version}</version>
+	<name>jmuscles-db-props</name>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
-
 
 	<dependencyManagement>
 		<dependencies>
@@ -39,17 +35,6 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.jmuscles</groupId>
-			<artifactId>jmuscles-datasource</artifactId>
-			<version>${jmuscles-datasource.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.jmuscles</groupId>
-			<artifactId>jmuscles-processing-schema</artifactId>
-			<version>${jmuscles-processing-schema.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>com.jmuscles</groupId>
@@ -59,31 +44,55 @@
 
 		<dependency>
 			<groupId>com.jmuscles</groupId>
-			<artifactId>jmuscles-db-props</artifactId>
-			<version>${jmuscles-db-props.version}</version>
+			<artifactId>jmuscles-datasource</artifactId>
+			<version>${jmuscles-datasource.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-config</artifactId>
 			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>

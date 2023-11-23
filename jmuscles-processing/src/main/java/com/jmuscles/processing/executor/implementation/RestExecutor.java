@@ -66,7 +66,7 @@ public class RestExecutor extends StandardExecutor {
 		return restCallConfig;
 	}
 
-	private Object invoke(RestRequestData restRequestData, RestCallConfig restConfig, Class<?> responseEntityClass) {
+	public Object invoke(RestRequestData restRequestData, RestCallConfig restConfig, Class<?> responseEntityClass) {
 
 		Object response = null;
 		try {
@@ -91,10 +91,9 @@ public class RestExecutor extends StandardExecutor {
 	}
 
 	/**
-	 * Headers are set and over-ridden in following order:
-	 * 	1. Common Headers
-	 *  2. Coming from producer
-	 *  3. Rest Call configuration
+	 * Headers are set and over-ridden in following order: 1. Common Headers 2.
+	 * Coming from producer 3. Rest Call configuration
+	 * 
 	 * @param restRequestData
 	 * @param restConfig
 	 * @return
