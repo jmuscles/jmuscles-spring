@@ -15,8 +15,8 @@ import com.jmuscles.props.util.RefreshBeansUtil;
  */
 public class RefreshBeans {
 
-	public static final String[] BEANS_ARRAY = new String[] { "refreshBeanProps", "refreshBeanProcessing",
-			"refreshBeanProducer" };
+	public static final String[] BEANS_ARRAY = new String[] { "refreshBeanDbProps", "refreshBeanProps",
+			"refreshBeanProcessing", "refreshBeanProducer" };
 
 	private BeanFactory beanFactory;
 

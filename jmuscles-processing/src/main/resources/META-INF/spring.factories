@@ -1,1 +1,7 @@
+# spring.factories
+
+# Auto-configuration for JmusclesPropsBeans
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.jmuscles.processing.JmusclesPropsBeans
+
+# Auto-configuration for JmuscleProcessingBeans
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.jmuscles.processing.JmuscleProcessingBeans

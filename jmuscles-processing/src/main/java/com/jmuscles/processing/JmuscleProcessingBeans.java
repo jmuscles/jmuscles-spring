@@ -20,8 +20,7 @@ import com.jmuscles.processing.executor.implementation.RestExecutor;
 import com.jmuscles.processing.executor.implementation.SQLProcedureExecutor;
 import com.jmuscles.processing.executor.implementation.SQLQueryExecutor;
 import com.jmuscles.processing.executor.implementation.SequentialRequestExecutor;
-import com.jmuscles.props.JmusclesConfig;
-import com.jmuscles.props.JmusclesPropsBeans;
+import com.jmuscles.props.config.JmusclesConfig;
 
 @Import(JmusclesPropsBeans.class)
 public class JmuscleProcessingBeans implements BeanFactoryAware {

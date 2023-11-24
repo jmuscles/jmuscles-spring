@@ -18,7 +18,7 @@ import com.jmuscles.async.consumer.config.properties.RabbitmqConfig;
 import com.jmuscles.async.consumer.config.setup.RabbitmqSetupConfigurator;
 import com.jmuscles.async.producer.ProducerProcessingBeans;
 import com.jmuscles.async.producer.RabbitTemplateProvider;
-import com.jmuscles.props.JmusclesConfig;
+import com.jmuscles.props.config.JmusclesConfig;
 
 /**
  * @author manish goel
