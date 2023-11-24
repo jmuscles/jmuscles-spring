@@ -64,7 +64,10 @@ public class RepositorySetup {
 	}
 
 	public void refresh() {
+		logger.info("Refresh RepositorySetup start....");
+		this.emf = null;
 		setupEntityManagerFactory();
+		logger.info("....Refresh RepositorySetup end");
 	}
 
 	public <T> List<T> dynamicSelectdelete(EntityManager em, Map<String, Object> parameters, String entityName,

@@ -10,10 +10,14 @@
 		<version>1.0</version>
 	</parent>
 	<artifactId>jmuscles-db-props</artifactId>
+	<!--
+		<artifactId>jmuscles-processing</artifactId>
+	-->
 	<version>${jmuscles-db-props.version}</version>
-	<name>jmuscles-db-props</name>
+	<name>jmuscles-props</name>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
+
 
 	<dependencyManagement>
 		<dependencies>
